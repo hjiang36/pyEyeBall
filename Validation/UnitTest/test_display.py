@@ -18,7 +18,12 @@ class TestDisplay(TestCase):
         self.fail()
 
     def test_plot(self):
-        self.fail()
+        fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
+        d = Display.init_with_isetbio_mat_file(fn)
+        self.assertRaises(Exception, d.plot("gamma"))
+        self.assertRaises(Exception, d.plot("spd"))
+        self.assertRaises(Exception, d.plot("invert gamma"))
+        self.assertRaises(Exception, d.plot("gamut"))
 
     def test_ls_display(self):
         self.assertRaises(Exception, Display.ls_display())
@@ -77,3 +82,8 @@ class TestDisplay(TestCase):
         fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
         d = Display.init_with_isetbio_mat_file(fn)
         self.assertRaises(Exception, d.deg_per_pixel)
+
+    def test_invert_gamma(self):
+        fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
+        d = Display.init_with_isetbio_mat_file(fn)
+        self.assertRaises(Exception, d.invert_gamma)

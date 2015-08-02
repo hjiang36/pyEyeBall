@@ -7,6 +7,8 @@ from os import listdir
 from scipy.io import loadmat
 from collections import namedtuple
 from Data.path import get_data_path
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 
 __author__ = 'HJ'
 
@@ -72,7 +74,39 @@ class Display:
         pass
 
     def plot(self, param):
-        pass
+        """
+        generate plots for display parameters and properties
+        :param param: string, indicating which plot to generate, can be chosen from:
+                      'spd', 'gamma', 'invert gamma', 'gamut'
+        :return: None, but plot will be shown
+        """
+
+        # process param to be lowercase and without spaces
+        param = str(param).lower().replace(" ", "")
+        plt.ion()  # enable interactive mode
+
+        # making plot according to param
+        if param == "spd":
+            plt.plot(self.wave, self.spd)
+            plt.xlabel("Wavelength (nm)")
+            plt.ylabel("Energy (watts/sr/m2/nm)")
+            plt.grid()
+            plt.show()
+        elif param == "gamma":
+            plt.plot(self.gamma)
+            plt.xlabel("DAC")
+            plt.ylabel("Linear")
+            plt.show()
+        elif param == "invertgamma":
+            plt.plot(np.linspace(0, 1, self.invert_gamma.shape[0]), self.invert_gamma)
+            plt.xlabel("Linear")
+            plt.ylabel("DAC")
+            plt.grid()
+            plt.show()
+        elif param == "gamut":
+            pass
+        else:
+            raise(ValueError, "Unsupported input param")
 
     @staticmethod
     def ls_display():
@@ -84,14 +118,26 @@ class Display:
 
     @property
     def n_bits(self):
+        """
+        color bit-depth of the display
+        :return: scalar of color bit-depth
+        """
         return round(np.log2(self.gamma.shape[0]))
 
     @property
     def n_levels(self):
+        """
+        number of DAC levels of display, usually it equals to 2^n_bits
+        :return: number of DAC levels of display
+        """
         return self.gamma.shape[0]
 
     @property
     def bin_width(self):
+        """
+        wavelength sample interval in nm
+        :return: wavelength sample interval
+        """
         if self.wave.size > 1:
             return self.wave[1] - self.wave[0]
         else:
@@ -99,7 +145,39 @@ class Display:
 
     @property
     def n_primaries(self):
+        """
+        number of primaries of display, usually it equals to 3
+        :return: number of primaries of display
+        """
         return self.spd.shape[1]
+
+    @property
+    def invert_gamma(self, n_steps=None):
+        """
+        Invert gamma table which can be used to convert linear value to DAC value
+        :return: Invert gamma table
+        """
+        # init default value of n_steps
+        if n_steps is None:
+            n_steps = self.n_levels
+
+        # set up parameters
+        y = range(self.n_levels)
+        inv_y = np.linspace(0, 1, n_steps)
+        lut = np.zeros(n_steps, self.n_primaries)
+
+        # interpolate for invert gamma table
+        for ii in range(self.n_primaries):
+            # make sure gamma table is mono-increasing
+            x = sorted(np.squeeze(self.gamma[:, ii]))
+
+            # interpolate
+            f = interp1d(x, y, bounds_error=False)
+            lut[:, ii] = f(inv_y)
+
+            # set extrapolation value
+            lut[inv_y < np.min(x), ii] = 0
+            lut[inv_y > np.max(x), ii] = self.n_levels - 1
 
     @property
     def rgb2xyz(self):
