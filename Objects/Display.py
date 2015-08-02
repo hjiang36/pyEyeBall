@@ -1,5 +1,5 @@
 from Utility.IO import spectra_read
-from Utility.Transforms import rad_to_deg, xyz_from_energy
+from Utility.Transforms import rad_to_deg, xyz_from_energy, xyz_to_xy
 from math import atan2
 import numpy as np
 from os.path import isfile, join
@@ -59,8 +59,8 @@ class Display:
 
         # Init dixel structure
         dixel = namedtuple("Dixel", ["intensity_map", "control_map", "n_pixels"])
-        intensity_map = tmp["dixel"][0, 0][0]['intensitymap'][0][0]
-        control_map = tmp["dixel"][0, 0][0]['controlmap'][0][0]
+        intensity_map = tmp["dixel"][0, 0][0]['intensitymap'][0]
+        control_map = tmp["dixel"][0, 0][0]['controlmap'][0]
         n_pixels = tmp["dixel"][0, 0][0]['nPixels'][0][0][0]
         d.dixel = dixel(intensity_map, control_map, n_pixels)
 
@@ -68,9 +68,6 @@ class Display:
         return d
 
     def compute(self):
-        pass
-
-    def visualize(self):
         pass
 
     def plot(self, param):
@@ -86,25 +83,39 @@ class Display:
         plt.ion()  # enable interactive mode
 
         # making plot according to param
-        if param == "spd":
+        if param == "spd":  # plot spectra power distribution of display
             plt.plot(self.wave, self.spd)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Energy (watts/sr/m2/nm)")
             plt.grid()
             plt.show()
-        elif param == "gamma":
+        elif param == "gamma":  # plot gamma table of display
             plt.plot(self.gamma)
             plt.xlabel("DAC")
             plt.ylabel("Linear")
+            plt.grid()
             plt.show()
-        elif param == "invertgamma":
+        elif param == "invertgamma":  # plot invert gamma table of display
             plt.plot(np.linspace(0, 1, self.invert_gamma.shape[0]), self.invert_gamma)
             plt.xlabel("Linear")
             plt.ylabel("DAC")
             plt.grid()
             plt.show()
-        elif param == "gamut":
-            pass
+        elif param == "gamut":  # plot gamut of display
+            # plot human visible range
+            xyz = spectra_read('XYZ.mat', self.wave)
+            xy = xyz_to_xy(xyz, rm_nan=True)
+            xy = np.concatenate((xy, xy[0:1, :]), axis=0)
+            plt.plot(xy[:, 0], xy[:, 1])
+
+            # plot gamut of display
+            xy = xyz_to_xy(self.rgb2xyz, rm_nan=True)
+            xy = np.concatenate((xy, xy[0:1, :]), axis=0)
+            plt.plot(xy[:, 0], xy[:, 1])
+            plt.xlabel("CIE-x")
+            plt.ylabel("CIE-y")
+            plt.grid()
+            plt.show()
         else:
             raise(ValueError, "Unsupported input param")
 
@@ -164,7 +175,7 @@ class Display:
         # set up parameters
         y = range(self.n_levels)
         inv_y = np.linspace(0, 1, n_steps)
-        lut = np.zeros(n_steps, self.n_primaries)
+        lut = np.zeros([n_steps, self.n_primaries])
 
         # interpolate for invert gamma table
         for ii in range(self.n_primaries):
@@ -178,6 +189,7 @@ class Display:
             # set extrapolation value
             lut[inv_y < np.min(x), ii] = 0
             lut[inv_y > np.max(x), ii] = self.n_levels - 1
+        return lut
 
     @property
     def rgb2xyz(self):

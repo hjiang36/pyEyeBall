@@ -98,6 +98,21 @@ def rad_to_deg(rad):
     return rad * 180 / pi
 
 
+def xyz_to_xy(xyz, rm_nan=False):
+    """
+    Convert XYZ value to xy
+    :param xyz: N-by-3 array with xyz in rows
+    :param rm_nan: logical, indicating whether or not to remove output rows with nan values
+    :return: N-by-2 array wtih xy in rows
+    """
+    np.seterr(divide='ignore', invalid='ignore')
+    row_sum = np.sum(xyz, axis=1)
+    xyz = xyz / row_sum[:, None]
+    if rm_nan:
+        xyz = xyz[~np.isnan(xyz).any(axis=1), :]
+    return xyz[:, 0:2]
+
+
 def xyz_from_energy(energy, wave):
     """
     Compute XYZ value from energy distributions
@@ -106,9 +121,9 @@ def xyz_from_energy(energy, wave):
     :return: XYZ values
     """
     # check input energy type
+    sz = energy.shape
     if energy.ndim == 3:
         is_3d = True
-        sz = energy.shape
         energy = rgb_to_xw_format(energy)
     else:
         is_3d = False

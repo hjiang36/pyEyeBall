@@ -12,10 +12,9 @@ class TestDisplay(TestCase):
         self.assertRaises(Exception, Display.init_with_isetbio_mat_file(fn))
 
     def test_compute(self):
-        self.fail()
-
-    def test_visualize(self):
-        self.fail()
+        fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
+        d = Display.init_with_isetbio_mat_file(fn)
+        self.assertRaises(Exception, d.compute())
 
     def test_plot(self):
         fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
