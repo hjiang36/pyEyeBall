@@ -86,3 +86,8 @@ class TestDisplay(TestCase):
         fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
         d = Display.init_with_isetbio_mat_file(fn)
         self.assertRaises(Exception, d.invert_gamma)
+
+    def test_white_spd(self):
+        fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
+        d = Display.init_with_isetbio_mat_file(fn)
+        self.assertRaises(Exception, d.white_spd)

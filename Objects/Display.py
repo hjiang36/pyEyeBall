@@ -67,7 +67,7 @@ class Display:
         # return
         return d
 
-    def compute(self):
+    def compute(self, img):
         pass
 
     def plot(self, param):
@@ -219,3 +219,7 @@ class Display:
     @property
     def deg_per_pixel(self):
         return rad_to_deg(atan2(self.meters_per_dot, self.dist))
+
+    @property
+    def white_spd(self):
+        return np.sum(self.spd, axis=1)

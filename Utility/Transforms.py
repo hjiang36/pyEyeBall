@@ -8,7 +8,7 @@ import numpy as np
 def energy_to_quanta(energy, wavelength):
     """
     Convert data from energy units (e.g. watts) to quanta units (e.g. photons)
-    :param energy: 2D data with energy at each wavelength in columns, or 3D with wavelength in third dimension
+    :param energy: 2D data with energy at each wavelength in rows, or 3D with wavelength in third dimension
     :param wavelength: an array of wavelength samples in nm
     :return: data in quanta units
 
