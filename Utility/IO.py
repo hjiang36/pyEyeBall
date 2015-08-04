@@ -10,7 +10,7 @@ from Data.path import get_data_path
 def spectra_read(fn, wave, extra_val=0):
     """
     read spectra data file and interpolate to target wavelength
-    :param fn: spectra data file name, e.g. "XYZ"
+    :param fn: spectra data file name, e.g. "XYZ.mat"
     :param wave: target wavelength samples
     :extra_val: extrapolation value
     :return: array of spectra data

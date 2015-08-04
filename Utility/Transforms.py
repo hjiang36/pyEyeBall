@@ -130,7 +130,32 @@ def xyz_from_energy(energy, wave):
     s = spectra_read("XYZ.mat", wave)
     xyz = 683 * (wave[1]-wave[0]) * np.dot(energy, s)
 
-    # make sure xyz are in same shape as input
+    # make sure xyz are in same shape of input
     if is_3d:
         xyz = xw_to_rgb_format(xyz, [sz[0:2], 3])
     return xyz
+
+
+def luminance_from_energy(energy, wave):
+    """
+    Compute luminance of light from energy
+    :param energy: energy of light at each wavelength
+    :param wave: wavelength samples in nm
+    :return: light luminance in cd/m2
+    """
+    # check input energy type
+    sz = energy.shape
+    if energy.ndim == 3:
+        is_3d = True
+        energy = rgb_to_xw_format(energy)
+    else:
+        is_3d = False
+
+    # load luminosity data
+    s = spectra_read("luminosity.mat", wave)
+    lum = 683 * (wave[1] - wave[0]) * np.dot(np.squeeze(energy), np.squeeze(s))
+
+    # make sure lum are in same shape of input
+    if is_3d:
+        lum = xw_to_rgb_format(lum, sz)
+    return lum
