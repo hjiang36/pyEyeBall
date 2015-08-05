@@ -57,19 +57,19 @@ class Scene:
         # gamma distortion for the input image
         img = np.round(img * (d.n_levels - 1))
         for ii in range(d.n_primaries):
-            img[:, :, ii] = d.gamma[img, ii]
+            img[:, :, ii] = d.gamma[img[:, :, ii].astype(int), ii]
 
         # sub-pixel rendering if required
         if is_sub:
             img = d.compute(img)
 
         # compute radiance from image
-        out_sz = [img.shape[0:2], d.wave.size]
+        out_sz = np.concatenate((np.array(img.shape[0:2]), [d.wave.size]))
         img = rgb_to_xw_format(img)
-        scene.photons = energy_to_quanta(np.dot(img, d.spd.T).T, d.wave).T
+        scene.photons = energy_to_quanta(np.dot(img, d.spd.T), d.wave)
 
         # add ambient quanta to scene photons
-        scene.photons += d.ambient[:, None]
+        scene.photons += d.ambient
 
         # reshape photons
         scene.photons = scene.photons.reshape(out_sz)
@@ -93,9 +93,7 @@ class Scene:
         il.wave = self.wave
 
         # update photons
-        sz = self.photons.shape
-        sz[0:-1] = 1
-        self.photons *= np.reshape(il.photons / self.illuminant.photons, sz)
+        self.photons *= il.photons / self.illuminant.photons
 
         # update illuminat spd
         self.illuminant = il

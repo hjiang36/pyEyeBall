@@ -2,6 +2,7 @@ from unittest import TestCase
 from Objects.Display import Display
 import os.path
 from Data.path import get_data_path
+from scipy.ndimage import imread
 
 __author__ = 'HJ'
 
@@ -14,7 +15,9 @@ class TestDisplay(TestCase):
     def test_compute(self):
         fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')
         d = Display.init_with_isetbio_mat_file(fn)
-        self.assertRaises(Exception, d.compute())
+        fn = os.path.join(get_data_path(), 'Image', 'eagle.jpg')
+        img = imread(fn, mode='RGB').astype(float)/255
+        self.assertRaises(Exception, d.compute(img))
 
     def test_plot(self):
         fn = os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat')

@@ -1,9 +1,12 @@
 from Utility.Transforms import deg_to_rad, quanta_to_energy, rad_to_deg
 from Objects.Scene import Scene
 from scipy.constants import pi
+from scipy.interpolate import interp1d
+from scipy.special import jv
 from numpy.fft import fft2, ifft2, fftshift, ifftshift
-from math import atan, floor
+from math import atan, floor, tan
 import numpy as np
+
 __author__ = 'HJ'
 
 
@@ -22,7 +25,7 @@ class Optics:
     OTF = None                    # optical transfer functions, to get otf data at fx, fy use OTF[ii](fx, fy)
     transmittance = np.array([])  # transmittance of optics
 
-    def __init__(self, pupil_diameter=0.0015,
+    def __init__(self, pupil_diameter=0.003,
                  focal_length=0.017,
                  wave=np.array(range(400, 710, 10))):
         """
@@ -35,6 +38,26 @@ class Optics:
         self._wave = wave
 
         # compute human optical transfer function
+        # Reference: Marimont & Wandell, J. Opt. Soc. Amer. A,  v. 11, p. 3113-3122 (1994)
+        max_freq = 60
+        defocus = 1.7312 - (0.63346 / (wave*1e-3 - 0.2141))  # defocus as function of wavelength
+
+        w20 = pupil_diameter**2 / 8 * (1/focal_length * defocus) / (1/focal_length + defocus)  # Hopkins w20 parameter
+        sample_sf = np.array(range(max_freq))
+        achromatic_mtf = 0.3481 + 0.6519 * np.exp(-0.1212 * sample_sf)
+
+        # compute otf at each wavelength
+        self.OTF = [None] * wave.size
+        for ii in range(wave.size):
+            s = 1 / tan(deg_to_rad(1)) * wave[ii] * 2e-9 / pupil_diameter * sample_sf  # reduced spatial frequency
+            alpha = np.abs(4*pi / (wave[ii] * 1e-9) * w20[ii] * s)
+            otf = optics_defocused_mtf(s, alpha) * achromatic_mtf
+
+            # set otf as interpolation function to object
+            # programming note:
+            #   In matlab, there is a command fftshift after otf interpolation
+            #   In python, this step is taken care of it when we use the otf
+            self.OTF[ii] = interp1d(sample_sf, otf, bounds_error=False, fill_value=0)
 
     def compute(self, scene):
         """
@@ -63,7 +86,7 @@ class Optics:
         # apply optical transfer function of the optics
         fx, fy = self.frequency_support
         for ii in range(self.wave.size):
-            otf = self.OTF[ii](fx, fy)
+            otf = fftshift(self.OTF[ii](fx, fy))
             self.photons[:, :, ii] = np.abs(ifftshift(ifft2(otf * fft2(fftshift(self.photons[:, :, ii])))))
 
     def __str__(self):
@@ -159,3 +182,36 @@ class Optics:
         fx = np.array(range(-floor(self.n_cols/2), floor(self.n_cols/2)+1)) / (floor(self.n_cols/2)+1) * max_freq[0]
         fy = np.array(range(-floor(self.n_rows/2), floor(self.n_rows/2)+1)) / (floor(self.n_rows/2)+1) * max_freq[1]
         return np.meshgrid(fx, fy)
+
+
+def optics_defocused_mtf(s, alpha):
+    """
+    Diffraction limited mtf without aberrations but with defocus
+    :param s: reduced spatial frequency
+    :param alpha: defocus parameter, which is related to w20 of Hopkins
+    :return: diffraction limited mtf without aberration but with defocus
+    """
+    # compute auxilary parameters
+    nf = np.abs(s)/2
+    beta = np.sqrt(1 - nf**2)
+    otf = nf  # allocate space for otf
+
+    # compute perfect spatial frequencies of OTF
+    index = (alpha == 0)
+    otf[index] = 2/pi * (np.arccos(nf[index]) - nf[index] * beta[index])
+
+    # compute defocused spatial frequecies of OTF
+    index = (alpha != 0)
+    h1 = beta[index] * jv(1, alpha[index]) + \
+        1/2 * np.sin(2*beta[index]) * (jv(1, alpha[index]) - jv(3, alpha[index])) - \
+        1/4 * np.sin(4*beta[index]) * (jv(3, alpha[index]) - jv(5, alpha[index]))
+
+    h2 = np.sin(beta[index]) * (jv(0, alpha[index]) - jv(2, alpha[index])) + \
+        1/3 * np.sin(3*beta[index]) * (jv(2, alpha[index]) - jv(4, alpha[index])) - \
+        1/5 * np.sin(5*beta[index]) * (jv(4, alpha[index]) - jv(6, alpha[index]))
+
+    otf[index] = 4/pi/alpha[index] * np.cos(alpha[index] * nf[index]) * h1 - \
+        4/pi/alpha[index] * np.sin(alpha[index]*nf[index]) * h2
+
+    # normalize
+    return otf / otf[0]

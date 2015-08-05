@@ -55,7 +55,7 @@ class Display:
         d.dpi = tmp["dpi"][0, 0][0][0]  # spatial resolution in dots / inch
         d.dist = tmp["dist"][0, 0][0][0]  # viewing distance in meters
         d.is_emissive = tmp["isEmissive"][0, 0][0][0]  # is_emissive
-        d.ambient = tmp["ambient"][0, 0].astype(float)
+        d.ambient = np.squeeze(tmp["ambient"][0, 0].astype(float))
 
         # Init dixel structure
         dixel = namedtuple("Dixel", ["intensity_map", "control_map", "n_pixels"])

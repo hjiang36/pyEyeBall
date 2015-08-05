@@ -22,10 +22,10 @@ def energy_to_quanta(energy, wavelength):
     if energy.ndim == 3:
         energy = rgb_to_xw_format(energy)
 
-    assert wavelength.size == energy.shape[0], "Input size mismatch"
+    assert wavelength.size == energy.shape[-1], "Input size mismatch"
 
     # Convert
-    photons = energy/(h*c) * 1e-9 * wavelength[:, None]
+    photons = energy/(h*c) * 1e-9 * wavelength
 
     # return as same shape of energy input
     return photons.reshape(energy_sz)
@@ -48,10 +48,11 @@ def quanta_to_energy(photons, wavelength):
     if photons.ndim == 3:
         photons = rgb_to_xw_format(photons)
 
-    assert wavelength.size == photons.shape[0], "Input size mismatch"
+    assert wavelength.size == photons.shape[-1], "Input size mismatch"
 
     # Convert
-    energy = h * c * 1e9 * photons / wavelength[:, None]
+
+    energy = h * c * 1e9 * photons / wavelength
 
     # Return as same shape of input
     return energy.reshape(photons_sz)
@@ -75,8 +76,7 @@ def xw_to_rgb_format(xw, sz):
     :param sz: desired output data size
     :return: data in shape of sz
     """
-    assert isinstance(xw, np.ndarray), "xw input should be an 3D array"
-    assert xw.ndim == 2, "xw input should be an 2D array"
+    assert isinstance(xw, np.ndarray), "xw input should be an 2D array"
     return xw.reshape(sz)
 
 
@@ -121,7 +121,7 @@ def xyz_from_energy(energy, wave):
     :return: XYZ values
     """
     # check input energy type
-    sz = energy.shape
+    sz = np.array(energy.shape[0:2])
     if energy.ndim == 3:
         is_3d = True
         energy = rgb_to_xw_format(energy)
@@ -132,7 +132,7 @@ def xyz_from_energy(energy, wave):
 
     # make sure xyz are in same shape of input
     if is_3d:
-        xyz = xw_to_rgb_format(xyz, [sz[0:2], 3])
+        xyz = xw_to_rgb_format(xyz, np.concatenate((sz, [3])))
     return xyz
 
 
@@ -157,5 +157,5 @@ def luminance_from_energy(energy, wave):
 
     # make sure lum are in same shape of input
     if is_3d:
-        lum = xw_to_rgb_format(lum, sz)
+        lum = xw_to_rgb_format(lum, sz[0:2])
     return lum

@@ -27,7 +27,7 @@ def spectra_read(fn, wave, extra_val=0):
 
     # interpolate for wavelength samples
     f = interp1d(wavelength, data, axis=0, fill_value=extra_val, bounds_error=False)
-    return f(wave)
+    return np.squeeze(f(wave))
 
 
 def data_full_path(fn):
