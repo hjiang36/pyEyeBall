@@ -2,6 +2,7 @@ from Objects.Illuminant import Illuminant
 from math import tan, atan2
 from Objects.Display import Display
 from Utility.Transforms import *
+from scipy.interpolate import interp1d
 import numpy as np
 __author__ = 'HJ'
 
@@ -12,17 +13,22 @@ class Scene:
     """
     name = "Scene"     # name of the object
     photons = None     # scene photons
-    wave = None        # wavelength sampling in nm
-    fov = None         # horizontal field of view of the scene in degree
-    dist = None        # viewing distance in meters
+    fov = 1.0          # horizontal field of view of the scene in degree
+    dist = 1.0         # viewing distance in meters
     illuminant = None  # illuminant
 
-    def __init__(self):
+    def __init__(self, scene_type=None):
         """
         Class constructor, initializing parameters
+        :param scene_type: type of the scene, e.g. macbeth, noise, etc.
         :return: class object with properties initialized
         """
-        pass
+        # check inputs
+        if scene_type is None:
+            return
+
+        # initialize scene object according to scene type
+        raise(ValueError, 'Unsupported scene type')
 
     @classmethod
     def init_with_display_image(cls, d, img, is_sub=False):
@@ -35,11 +41,11 @@ class Scene:
         """
         # check inputs
         assert isinstance(d, Display), "d should be of class Display"
+        assert isinstance(img, np.ndarray), "img should of type numpy.ndarray"
 
         # init basic display parameters
         scene = cls()
         scene.illuminant = Illuminant(wave=d.wave)
-        scene.wave = d.wave  # wavelength samples
         scene.dist = d.dist  # viewing distance
 
         # compute horizontal field of view
@@ -64,6 +70,9 @@ class Scene:
 
         # add ambient quanta to scene photons
         scene.photons += d.ambient[:, None]
+
+        # reshape photons
+        scene.photons = scene.photons.reshape(out_sz)
         return scene
 
     def adjust_illuminant(self, il):
@@ -71,24 +80,74 @@ class Scene:
         Change illuminant of the scene
         :param il: Illuminant object instance
         :return: scene object with illuminant and photons updated
+
+        The sampling wavelength of new wavelength will be adjusted to be same as scene wavelength samples
         """
+        # check input
+        assert isinstance(il, Illuminant), "il should be an instance of class Illuminant"
+
+        # save mean luminance
         mean_lum = self.mean_luminance
+
+        # adjust il wavelength
+        il.wave = self.wave
+
+        # update photons
+        sz = self.photons.shape
+        sz[0:-1] = 1
+        self.photons *= np.reshape(il.photons / self.illuminant.photons, sz)
+
+        # update illuminat spd
+        self.illuminant = il
+
+        # make sure mean luminance is not changed
+        self.adjust_luminance(mean_lum)
 
     def adjust_luminance(self, lum):
         """
-        Adjust luminance of the scene
+        Adjust mean luminance of the scene
         :param lum: mean luminance in cd/m2
         :return: scene object with mean luminance adjusted
         """
-        self.photons /= self.luminance / lum
+        self.photons /= self.mean_luminance / lum
+
+    def __str__(self):
+        """
+        Generate verbal description string of scene object
+        :return: description string of scene object
+        """
+        s = "Scene Object: " + self.name + "\n"
+        s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
+        s += " nm\n"
+        s += "\t[Row, Col]: " + str(self.shape) + "\n"
+        s += "\t[Width, Height]" + str([self.width, self.height]) + " m\n"
+        s += "\tHorizontal field of view: " + str(self.fov) + " deg\n"
+        s += "\tSample size: " + str(self.sample_size) + " meters/sample\n"
+        s += "\tMean luminance: " + str(self.mean_luminance) + " cd/m2\n"
+        return s
+
+    @property
+    def wave(self):
+        return self.illuminant.wave
+
+    @wave.setter
+    def wave(self, value):  # set wavelength samples and interpolate data
+        # update photons
+        sz = self.photons.shape
+        sz[0:-1] = 1
+        f = interp1d(np.reshape(self.wave, sz), self.photons, bounds_error=False, fill_value=0)
+        self.photons = f(np.reshape(value, sz))
+
+        # update illuminant
+        self.illuminant.wave = value
 
     @property
     def mean_luminance(self):  # mean luminance of scene in cd/m2
-        pass
+        return np.mean(self.luminance)
 
     @property
     def luminance(self):  # luminance image of the scene
-        pass
+        return luminance_from_energy(self.energy, self.wave)
 
     @property
     def shape(self):  # shape of scene in (rows, cols)
@@ -118,5 +177,17 @@ class Scene:
     def xyz(self):  # xyz image of the scene
         return xyz_from_energy(self.energy, self.wave)
 
+    def plot(self, param):
+        """
+        Generate plots for scene parameters and properties
+        :param param: String, indicating which plot to generate
+        :return: None, but plot will be shown
+        """
+        pass
 
-
+    def visualize(self):
+        """
+        GUI for scene object
+        :return: None, but GUI will be shown
+        """
+        pass

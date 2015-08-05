@@ -70,6 +70,9 @@ class Display:
     def compute(self, img):
         pass
 
+    def visualize(self):
+        pass
+
     def plot(self, param):
         """
         generate plots for display parameters and properties
@@ -126,6 +129,18 @@ class Display:
         :return: a list of available display calibration files
         """
         return [f for f in listdir(join(get_data_path(), 'Display')) if isfile(f)]
+
+    def __str__(self):
+        """
+        generate verbal string description of display object
+        :return: string of display description
+        """
+        s = "Display Object: " + self.name + "\n"
+        s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
+        s += " nm\n"
+        s += "\tNumber of primaries: " + str(self.n_primaries) + "\n"
+        s += "\tColor bit depth: " + str(self.n_bits)
+        return s
 
     @property
     def n_bits(self):
