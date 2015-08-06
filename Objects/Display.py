@@ -40,7 +40,10 @@ class Display:
         :return: display object
         """
         # load data
-        assert isfile(fn), "file not exist"
+        if not isfile(fn):
+            fn = join(get_data_path(), "Display", fn)
+        assert isfile(fn), "Display calibration file not found"
+
         tmp = loadmat(fn)
         tmp = tmp["d"]
 

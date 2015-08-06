@@ -1,10 +1,14 @@
-from Utility.Transforms import deg_to_rad, quanta_to_energy, rad_to_deg
+from Utility.Transforms import deg_to_rad, quanta_to_energy, rad_to_deg, xyz_to_srgb, xyz_from_energy
+from Utility.IO import spectra_read
 from Objects.Scene import Scene
 from scipy.constants import pi
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, interp2d
 from scipy.special import jv
 from numpy.fft import fft2, ifft2, fftshift, ifftshift
-from math import atan, floor, tan
+from math import atan, floor, tan, ceil
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.misc import imshow
 import numpy as np
 
 __author__ = 'HJ'
@@ -22,7 +26,7 @@ class Optics:
     dist = 1                      # Object distance in meters
     fov = 1                       # field of view of the optical image in degree
     focal_length = 0.017          # focal lens of optics in meters
-    OTF = None                    # optical transfer functions, to get otf data at fx, fy use OTF[ii](fx, fy)
+    OTF = None                    # optical transfer functions, to get otf data at fx, fy use OTF[ii](freq)
     transmittance = np.array([])  # transmittance of optics
 
     def __init__(self, pupil_diameter=0.003,
@@ -33,13 +37,18 @@ class Optics:
         :return: instance of optics class
         """
         # set focal length, f-number and wavelength samples
+        np.seterr(invalid='ignore')
         self.focal_length = focal_length
         self.f_number = focal_length / pupil_diameter
         self._wave = wave
 
+        # set lens quanta transmittance
+        lens_density = spectra_read("lensDensity.mat", wave)
+        self.transmittance = 10**(-lens_density)
+
         # compute human optical transfer function
         # Reference: Marimont & Wandell, J. Opt. Soc. Amer. A,  v. 11, p. 3113-3122 (1994)
-        max_freq = 60
+        max_freq = 90
         defocus = 1.7312 - (0.63346 / (wave*1e-3 - 0.2141))  # defocus as function of wavelength
 
         w20 = pupil_diameter**2 / 8 * (1/focal_length * defocus) / (1/focal_length + defocus)  # Hopkins w20 parameter
@@ -51,11 +60,11 @@ class Optics:
         for ii in range(wave.size):
             s = 1 / tan(deg_to_rad(1)) * wave[ii] * 2e-9 / pupil_diameter * sample_sf  # reduced spatial frequency
             alpha = np.abs(4*pi / (wave[ii] * 1e-9) * w20[ii] * s)
-            otf = optics_defocused_mtf(s, alpha) * achromatic_mtf
+            otf = optics_defocus_mtf(s, alpha) * achromatic_mtf
 
             # set otf as interpolation function to object
             # programming note:
-            #   In matlab, there is a command fftshift after otf interpolation
+            #   In Matlab, there is a command fftshift after otf interpolation
             #   In python, this step is taken care of it when we use the otf
             self.OTF[ii] = interp1d(sample_sf, otf, bounds_error=False, fill_value=0)
 
@@ -70,23 +79,23 @@ class Optics:
 
         # set field of view and wavelength samples
         self.fov = scene.fov
-        self._wave = scene.wave
+        scene.wave = self._wave
 
         # compute irradiance
         self.photons = pi / (1 + 4 * self.f_number**2 * (1 + np.abs(self.magnification))**2) * scene.photons
 
         # apply optics transmittance
-        self.photons *= np.reshape(self.transmittance, [1, 1, self.wave.size])
+        self.photons *= self.transmittance
 
         # apply the relative illuminant (off-axis) fall-off: cos4th function
         x, y = self.spatial_support
         s_factor = np.sqrt(self.image_distance**2 + x**2 + y**2)
-        self.photons *= (self.image_distance / s_factor)**4
+        self.photons *= (self.image_distance / s_factor[:, :, None])**4
 
         # apply optical transfer function of the optics
         fx, fy = self.frequency_support
         for ii in range(self.wave.size):
-            otf = fftshift(self.OTF[ii](fx, fy))
+            otf = fftshift(self.OTF[ii](np.sqrt(fx**2 + fy**2)))
             self.photons[:, :, ii] = np.abs(ifftshift(ifft2(otf * fft2(fftshift(self.photons[:, :, ii])))))
 
     def __str__(self):
@@ -96,8 +105,40 @@ class Optics:
         """
         return "Human Optics Instance: Description function not yet implemented"
 
-    def plot(self, param):
-        pass
+    def plot(self, param, opt=None):
+        """
+        Generate plots for properties and attributes of optics object
+        :param param: string, indicating which plot to generate
+        :param opt: optional input, for some plotting param, this value is required
+        :return: None, but plot will be shown
+        """
+        # process param
+        param = str(param).lower().replace(" ", "")
+        plt.ion()
+
+        # generate plot according to param
+        if param == "srgb":
+            imshow(self.srgb)
+        elif param == "otf":
+            assert opt is not None, "wavelength to be plotted required as opt"
+            freq = np.array(range(-80, 80))
+            index = np.argmin(np.abs(self._wave - opt))
+            plt.plot(freq, self.OTF[index](abs(freq)))
+            plt.xlabel("Frequency (cycles/deg)")
+            plt.ylabel("OTF Amplitude")
+            plt.grid()
+            plt.show()
+        elif param == "psf":
+            assert opt is not None, "Wavelength to be plotted required as opt"
+            sx = range(-10, 10)
+            sy = range(-10, 10)
+            psf = self.psf(opt)
+
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_surface(sx, sy, psf(sx, sy))
+        else:
+            raise(ValueError, "Unknown param")
 
     def visualize(self):
         pass
@@ -151,8 +192,8 @@ class Optics:
 
     @property
     def spatial_support(self):  # spatial support of optical image in (support_x, support_y) in meters
-        sx = np.linspace(-(self.n_rows - 1) * self.sample_size/2, (self.n_rows - 1) * self.sample_size/2, self.n_rows)
-        sy = np.linspace(-(self.n_cols - 1) * self.sample_size/2, (self.n_cols - 1) * self.sample_size/2, self.n_cols)
+        sy = np.linspace(-(self.n_rows - 1) * self.sample_size/2, (self.n_rows - 1) * self.sample_size/2, self.n_rows)
+        sx = np.linspace(-(self.n_cols - 1) * self.sample_size/2, (self.n_cols - 1) * self.sample_size/2, self.n_cols)
         return np.meshgrid(sx, sy)
 
     @property
@@ -179,19 +220,46 @@ class Optics:
     def frequency_support(self):  # frequency support of optical image in cycles / degree
         # compute max possible frequency in image
         max_freq = [self.n_cols/2/self.fov, self.n_rows/2/self.v_fov]
-        fx = np.array(range(-floor(self.n_cols/2), floor(self.n_cols/2)+1)) / (floor(self.n_cols/2)+1) * max_freq[0]
-        fy = np.array(range(-floor(self.n_rows/2), floor(self.n_rows/2)+1)) / (floor(self.n_rows/2)+1) * max_freq[1]
+        fx = np.array(range(-floor(self.n_cols/2), floor(self.n_cols/2))) / ceil(self.n_cols/2) * max_freq[0]
+        fy = np.array(range(-floor(self.n_rows/2), floor(self.n_rows/2))) / ceil(self.n_rows/2) * max_freq[1]
         return np.meshgrid(fx, fy)
 
+    @property
+    def xyz(self):  # xyz image of the optical image
+        return xyz_from_energy(self.energy, self.wave)
 
-def optics_defocused_mtf(s, alpha):
+    @property
+    def srgb(self):  # srgb image of the optical image
+        return xyz_to_srgb(self.xyz)
+
+    def psf(self, wave):
+        """
+        get psf for certain wavelength
+        :param wave: scalar, wavelength sample to be retrieved
+        :return: point spread function for certain wavelength, to get psf data, use psf(spatial_support)
+        """
+        # get frequency support
+        fx, fy = self.frequency_support
+        freq = np.sqrt(fx**2 + fy**2)
+
+        # get otf at wavelength
+        index = np.argmin(np.abs(self._wave - wave))
+        otf = self.OTF[index](freq)
+
+        # compute psf
+        psf = np.abs(fftshift(ifft2(otf)))
+        sx, sy = self.spatial_support
+        return interp2d(sx, sy, psf, bounds_error=False, fill_value=0)
+
+
+def optics_defocus_mtf(s, alpha):
     """
     Diffraction limited mtf without aberrations but with defocus
     :param s: reduced spatial frequency
     :param alpha: defocus parameter, which is related to w20 of Hopkins
     :return: diffraction limited mtf without aberration but with defocus
     """
-    # compute auxilary parameters
+    # compute auxiliary parameters
     nf = np.abs(s)/2
     beta = np.sqrt(1 - nf**2)
     otf = nf  # allocate space for otf
@@ -200,7 +268,7 @@ def optics_defocused_mtf(s, alpha):
     index = (alpha == 0)
     otf[index] = 2/pi * (np.arccos(nf[index]) - nf[index] * beta[index])
 
-    # compute defocused spatial frequecies of OTF
+    # compute defocused spatial frequencies of OTF
     index = (alpha != 0)
     h1 = beta[index] * jv(1, alpha[index]) + \
         1/2 * np.sin(2*beta[index]) * (jv(1, alpha[index]) - jv(3, alpha[index])) - \

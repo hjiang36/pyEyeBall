@@ -103,7 +103,7 @@ def xyz_to_xy(xyz, rm_nan=False):
     Convert XYZ value to xy
     :param xyz: N-by-3 array with xyz in rows
     :param rm_nan: logical, indicating whether or not to remove output rows with nan values
-    :return: N-by-2 array wtih xy in rows
+    :return: N-by-2 array with xy in rows
     """
     np.seterr(divide='ignore', invalid='ignore')
     row_sum = np.sum(xyz, axis=1)
@@ -111,6 +111,28 @@ def xyz_to_xy(xyz, rm_nan=False):
     if rm_nan:
         xyz = xyz[~np.isnan(xyz).any(axis=1), :]
     return xyz[:, 0:2]
+
+
+def xyz_to_srgb(xyz):
+    """
+    Convert XYZ value to sRGB value
+    :param xyz: XYZ values in 2D or 3D matrix format, the last dimension of xyz should be 3
+    :return: sRGB values in same shape of input xyz
+    Reference: https://en.wikipedia.org/wiki/SRGB
+    """
+    xyz = np.array(xyz)
+    sz = xyz.shape
+    if xyz.ndim == 3:  # 3D matrix, need convert to XW format
+        xyz = rgb_to_xw_format(xyz)
+
+    conversion_matrix = np.array([[3.2406, -1.5372, -0.4986], [-0.9689, 1.8758, 0.0415], [0.0557, -0.2040, 1.0570]])
+    rgb = np.dot(conversion_matrix, xyz.T).T
+    index = rgb > 0.0031308
+    rgb[np.logical_not(index)] *= 12.92
+    rgb[index] = 1.055 * rgb[index]**(1/2.4) - 0.055
+
+    # convert to same shape as xyz
+    return np.reshape(rgb, sz)
 
 
 def xyz_from_energy(energy, wave):

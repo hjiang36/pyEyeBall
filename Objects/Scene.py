@@ -4,6 +4,7 @@ from Objects.Display import Display
 from Utility.Transforms import *
 from scipy.interpolate import interp1d
 import numpy as np
+import matplotlib.pyplot as plt
 __author__ = 'HJ'
 
 
@@ -95,7 +96,7 @@ class Scene:
         # update photons
         self.photons *= il.photons / self.illuminant.photons
 
-        # update illuminat spd
+        # update illuminant spd
         self.illuminant = il
 
         # make sure mean luminance is not changed
@@ -131,10 +132,8 @@ class Scene:
     @wave.setter
     def wave(self, value):  # set wavelength samples and interpolate data
         # update photons
-        sz = self.photons.shape
-        sz[0:-1] = 1
-        f = interp1d(np.reshape(self.wave, sz), self.photons, bounds_error=False, fill_value=0)
-        self.photons = f(np.reshape(value, sz))
+        f = interp1d(self.wave, self.photons, bounds_error=False, fill_value=0)
+        self.photons = f(value)
 
         # update illuminant
         self.illuminant.wave = value
@@ -175,13 +174,27 @@ class Scene:
     def xyz(self):  # xyz image of the scene
         return xyz_from_energy(self.energy, self.wave)
 
+    @property
+    def srgb(self):  # srgb image of the scene
+        return xyz_to_srgb(self.xyz)
+
     def plot(self, param):
         """
         Generate plots for scene parameters and properties
         :param param: String, indicating which plot to generate
         :return: None, but plot will be shown
         """
-        pass
+        # process param to be lowercase and without spaces
+        param = str(param).lower().replace(" ", "")
+        plt.ion()  # enable interactive mode
+
+        # making plot according to param
+        if param == "illuminantenergy":  # energy of illuminant
+            self.illuminant.plot("energy")
+        elif param == "illuminantphotons":  # photons of illuminant
+            self.illuminant.plot("photons")
+        else:
+            raise(ValueError, "Unknown parameter")
 
     def visualize(self):
         """

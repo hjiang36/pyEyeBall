@@ -3,6 +3,7 @@ from scipy.io import loadmat
 from Utility.Transforms import quanta_to_energy, luminance_from_energy
 import numpy as np
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 
 __author__ = 'HJ'
 
@@ -35,6 +36,41 @@ class Illuminant:
         # normalize current illuminant to have luminance of 100 cd/m2
         self.photons /= self.luminance / 100
 
+    def __str__(self):
+        """
+        Generate description string of the class instance
+        :return: description string
+        """
+        s = "Illuminant Object: " + self.name + "\n"
+        s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
+        return s
+
+    def plot(self, param):
+        """
+        Generate plots for parameters and properties
+        :param param: string, indicating which plot to generate
+        :return: None, but plot will be shown
+        """
+        # process param
+        param = str(param).lower().replace(" ", "")
+        plt.ion()
+
+        # generate plot according to param
+        if param == "energy":
+            plt.plot(self._wave, self.energy)
+            plt.xlabel("wavelength (nm)")
+            plt.ylabel("Energy")
+            plt.grid()
+            plt.show()
+        elif param == "photons":
+            plt.plot(self._wave, self.photons)
+            plt.xlabel("Wavelength (nm)")
+            plt.ylabel("Photons")
+            plt.grid()
+            plt.show()
+        else:
+            raise(ValueError, "Unknown param")
+
     @property
     def energy(self):  # illuminant energy
         return quanta_to_energy(self.photons, self._wave)
@@ -46,6 +82,10 @@ class Illuminant:
     @property
     def wave(self):
         return self._wave
+
+    @property
+    def bin_width(self):
+        return self._wave[1] - self._wave[0]
 
     @wave.setter
     def wave(self, value):  # set wavelength samples and interpolate photons
