@@ -8,7 +8,7 @@ from numpy.fft import fft2, ifft2, fftshift, ifftshift
 from math import atan, floor, tan, ceil
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.misc import imshow
+from matplotlib import cm
 import numpy as np
 
 __author__ = 'HJ'
@@ -17,7 +17,7 @@ __author__ = 'HJ'
 class Optics:
     """
     Human optics class and optical image
-    In this class, we assume human optics is shift invariant and off-axis method is cos4th
+    In this class, we assume human optics is shift-invariant and off-axis method is cos4th
     """
     name = "Human Optics"         # name of the class instance
     _wave = np.array([])          # wavelength samples in nm
@@ -82,7 +82,7 @@ class Optics:
         scene.wave = self._wave
 
         # compute irradiance
-        self.photons = pi / (1 + 4 * self.f_number**2 * (1 + np.abs(self.magnification))**2) * scene.photons
+        self.photons = pi / (1 + 4 * self.f_number**2 * (1 + abs(self.magnification))**2) * scene.photons
 
         # apply optics transmittance
         self.photons *= self.transmittance
@@ -118,7 +118,8 @@ class Optics:
 
         # generate plot according to param
         if param == "srgb":
-            imshow(self.srgb)
+            plt.imshow(self.srgb)
+            plt.show()
         elif param == "otf":
             assert opt is not None, "wavelength to be plotted required as opt"
             freq = np.array(range(-80, 80))
@@ -130,13 +131,24 @@ class Optics:
             plt.show()
         elif param == "psf":
             assert opt is not None, "Wavelength to be plotted required as opt"
-            sx = range(-10, 10)
-            sy = range(-10, 10)
+            sx = np.linspace(-2e-5, 2e-5, 500)
+            sy = np.linspace(-2e-5, 2e-5, 500)
+            xx, yy = np.meshgrid(sx, sy)
+
             psf = self.psf(opt)
 
             fig = plt.figure()
             ax = fig.gca(projection='3d')
-            ax.plot_surface(sx, sy, psf(sx, sy))
+            ax.plot_surface(xx * 1e6, yy * 1e6, psf(sx, sy), cmap=cm.coolwarm)  # plot in units of um
+            plt.xlabel("Position (um)")
+            plt.ylabel("Position (um)")
+            plt.show()
+        elif param == "transmittance":
+            plt.plot(self._wave, self.transmittance)
+            plt.xlabel("Wavelength (nm)")
+            plt.ylabel("Lens Transmittance")
+            plt.grid()
+            plt.show()
         else:
             raise(ValueError, "Unknown param")
 
@@ -214,7 +226,7 @@ class Optics:
 
     @property
     def v_fov(self):  # field of view in vertical direction
-        return 2*rad_to_deg(atan(self.height/self.dist/2))
+        return 2*rad_to_deg(atan(self.height/self.image_distance/2))
 
     @property
     def frequency_support(self):  # frequency support of optical image in cycles / degree
@@ -239,16 +251,21 @@ class Optics:
         :return: point spread function for certain wavelength, to get psf data, use psf(spatial_support)
         """
         # get frequency support
-        fx, fy = self.frequency_support
+        max_freq = 200
+        fx, fy = np.meshgrid(range(-max_freq, max_freq), range(-max_freq, max_freq))
         freq = np.sqrt(fx**2 + fy**2)
 
         # get otf at wavelength
         index = np.argmin(np.abs(self._wave - wave))
         otf = self.OTF[index](freq)
 
+        # get spatial support
+        spatial_spacing = 1/2/max_freq * self.meters_per_degree  # spatial spacing in meters
+        sx = np.array(range(-max_freq, max_freq)) * spatial_spacing
+        sy = np.array(range(-max_freq, max_freq)) * spatial_spacing
+
         # compute psf
         psf = np.abs(fftshift(ifft2(otf)))
-        sx, sy = self.spatial_support
         return interp2d(sx, sy, psf, bounds_error=False, fill_value=0)
 
 

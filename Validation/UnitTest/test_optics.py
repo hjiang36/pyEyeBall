@@ -23,6 +23,7 @@ class TestOptics(TestCase):
     def test_plot(self):
         oi = Optics()
         self.assertRaises(Exception, oi.plot("otf", 550))
+        self.assertRaises(Exception, oi.plot("psf", 550))
 
     def test_visualize(self):
         oi = Optics()
@@ -49,4 +50,3 @@ class TestOptics(TestCase):
         self.assertRaises(Exception, oi.meters_per_degree)
         self.assertRaises(Exception, oi.degrees_per_meter)
         self.assertRaises(Exception, oi.frequency_support)
-        oi.plot('psf', 550)
