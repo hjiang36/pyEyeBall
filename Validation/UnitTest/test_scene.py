@@ -17,9 +17,7 @@ class TestScene(TestCase):
         self.assertRaises(Exception, Scene.init_with_display_image(d, img))
 
     def test_properties(self):
-        d = Display.init_with_isetbio_mat_file(os.path.join(get_data_path(), 'Display', 'LCD-Apple.mat'))
-        img = imread(os.path.join(get_data_path(), 'Image', 'eagle.jpg'), mode='RGB').astype(float)/255
-        scene = Scene.init_with_display_image(d, img)
+        scene = Scene('macbeth')
         il = Illuminant('D50.mat', wave=scene.wave)
         self.assertRaises(Exception, scene.adjust_illuminant(il))
         self.assertRaises(Exception, scene.adjust_luminance(100))

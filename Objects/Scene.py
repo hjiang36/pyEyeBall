@@ -18,18 +18,52 @@ class Scene:
     dist = 1.0         # viewing distance in meters
     illuminant = None  # illuminant
 
-    def __init__(self, scene_type=None):
+    def __init__(self, scene_type=None, il=Illuminant(), **kwargs):
         """
         Class constructor, initializing parameters
         :param scene_type: type of the scene, e.g. macbeth, noise, etc.
+        :param il: Illuminant object instance
         :return: class object with properties initialized
         """
         # check inputs
         if scene_type is None:
             return
+        if isinstance(il, str):
+            il = Illuminant(il)
+        assert isinstance(il, Illuminant), "il should be an instance of Illuminant class"
+        self.illuminant = il
 
-        # initialize scene object according to scene type
-        raise(ValueError, 'Unsupported scene type')
+        # switch by scene_type
+        scene_type = str(scene_type).lower().replace(" ", "")
+        if scene_type == "macbeth":  # macbeth color checker
+            if "patch_size" in kwargs:
+                patch_size = kwargs["patch_size"]
+            else:
+                patch_size = 16
+            if np.isscalar(patch_size):
+                patch_size = [patch_size, patch_size]
+            self.name = "Scene of Macbeth Color Checker (" + il.name + ")"
+            # load surface reflectance
+            surface = np.reshape(spectra_read("macbethChart.mat", self.wave).T, (4, 6, self.wave.size), order="F")
+            # compute photons
+            self.photons = np.zeros((4*patch_size[0], 6*patch_size[1], self.wave.size))
+            for ii in range(self.wave.size):
+                self.photons[:, :, ii] = np.kron(surface[:, :, ii], np.ones((patch_size[0], patch_size[1])))
+            # multiply by illuminant
+            self.photons *= il.photons
+
+        elif scene_type == "noise":  # white noise pattern
+            # get scene size
+            if "scene_size" in kwargs:
+                scene_size = kwargs["scene_sz"]
+            else:
+                scene_size = np.array([128, 128])
+            self.name = "Scene of white noise"
+            # generate noise pattern and compute photons
+            noise_img = np.random.rand(scene_size[0], scene_size[1])
+            self.photons = noise_img[:, :, None] * il.photons
+        else:
+            raise(ValueError, 'Unsupported scene type')
 
     @classmethod
     def init_with_display_image(cls, d, img, is_sub=False):
