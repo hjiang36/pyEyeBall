@@ -28,7 +28,7 @@ def energy_to_quanta(energy, wavelength):
     photons = energy/(h*c) * 1e-9 * wavelength
 
     # return as same shape of energy input
-    return photons.reshape(energy_sz)
+    return photons.reshape(energy_sz, order="F")
 
 
 def quanta_to_energy(photons, wavelength):
@@ -55,7 +55,7 @@ def quanta_to_energy(photons, wavelength):
     energy = h * c * 1e9 * photons / wavelength
 
     # Return as same shape of input
-    return energy.reshape(photons_sz)
+    return energy.reshape(photons_sz, order="F")
 
 
 def rgb_to_xw_format(rgb):
@@ -66,7 +66,7 @@ def rgb_to_xw_format(rgb):
     """
     assert isinstance(rgb, np.ndarray), "rgb input should be an 3D array"
     assert rgb.ndim == 3, "rgb input should be an 3D array"
-    return rgb.reshape(rgb.shape[0]*rgb.shape[1], rgb.shape[2])
+    return rgb.reshape((rgb.shape[0]*rgb.shape[1], rgb.shape[2]), order='F')
 
 
 def xw_to_rgb_format(xw, sz):
@@ -77,7 +77,7 @@ def xw_to_rgb_format(xw, sz):
     :return: data in shape of sz
     """
     assert isinstance(xw, np.ndarray), "xw input should be an 2D array"
-    return xw.reshape(sz)
+    return xw.reshape(sz, order='F')
 
 
 def deg_to_rad(deg):
@@ -120,19 +120,30 @@ def xyz_to_srgb(xyz):
     :return: sRGB values in same shape of input xyz
     Reference: https://en.wikipedia.org/wiki/SRGB
     """
+    # make sure that max of Y is no larger than 1
     xyz = np.array(xyz)
+    if np.max(xyz[:, :, 1]) > 1:
+        xyz /= np.max(xyz[:, :, 1])
+
     sz = xyz.shape
     if xyz.ndim == 3:  # 3D matrix, need convert to XW format
         xyz = rgb_to_xw_format(xyz)
 
+    # convert to linear rgb
     conversion_matrix = np.array([[3.2406, -1.5372, -0.4986], [-0.9689, 1.8758, 0.0415], [0.0557, -0.2040, 1.0570]])
     rgb = np.dot(conversion_matrix, xyz.T).T
+
+    # clip linear rgb to be between 0 and 1
+    rgb[rgb > 1] = 1
+    rgb[rgb < 0] = 0
+
+    # non-linear distortion in srgb
     index = rgb > 0.0031308
     rgb[np.logical_not(index)] *= 12.92
     rgb[index] = 1.055 * rgb[index]**(1/2.4) - 0.055
 
     # convert to same shape as xyz
-    return np.reshape(rgb, sz)
+    return np.reshape(rgb, sz, order="F")
 
 
 def xyz_from_energy(energy, wave):

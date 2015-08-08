@@ -50,7 +50,7 @@ class Scene:
         scene.dist = d.dist  # viewing distance
 
         # compute horizontal field of view
-        scene.fov = rad_to_deg(atan2(img.shape[1] * d.meters_per_dot, d.dist))
+        scene.fov = 2 * rad_to_deg(atan2(img.shape[1] * d.meters_per_dot / 2, d.dist))
 
         # set illuminant as spd of display
         scene.illuminant.photons = energy_to_quanta(d.white_spd, d.wave)
@@ -73,7 +73,7 @@ class Scene:
         scene.photons += d.ambient
 
         # reshape photons
-        scene.photons = scene.photons.reshape(out_sz)
+        scene.photons = scene.photons.reshape(out_sz, order="F")
         return scene
 
     def adjust_illuminant(self, il):
@@ -193,6 +193,9 @@ class Scene:
             self.illuminant.plot("energy")
         elif param == "illuminantphotons":  # photons of illuminant
             self.illuminant.plot("photons")
+        elif param == "srgb":  # srgb image of the scene
+            plt.imshow(self.srgb)
+            plt.show()
         else:
             raise(ValueError, "Unknown parameter")
 
