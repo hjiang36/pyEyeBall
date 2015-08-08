@@ -14,7 +14,7 @@ class Illuminant:
     """
 
     name = "Illuminant"  # name of object
-    _wave = None          # wavelength samples in nm
+    _wave = None         # wavelength samples in nm
     photons = None       # quanta distribution in each wavelength samples
 
     def __init__(self, fn='D65.mat', wave=None):
