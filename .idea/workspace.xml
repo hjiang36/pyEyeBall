@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Optics.py" afterPath="$PROJECT_DIR$/Objects/Optics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" afterPath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Scene.py" afterPath="$PROJECT_DIR$/Objects/Scene.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Sensor.py" afterPath="$PROJECT_DIR$/Objects/Sensor.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" afterPath="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
     </list>
     <ignored path="pyEyeBall.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +21,7 @@
     <SUITE FILE_PATH="coverage/pyEyeBall$Display.coverage" NAME="Display Coverage Results" MODIFIED="1438485025204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Objects" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Illuminant.coverage" NAME="Unittests in Illuminant Coverage Results" MODIFIED="1438734706502" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_optics.coverage" NAME="Unittests in test_optics Coverage Results" MODIFIED="1438835715935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1438408525133" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Objects" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439014817437" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1438734702395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1438739437869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
   </component>
@@ -40,8 +41,6 @@
               <caret line="59" column="66" selection-start-line="59" selection-start-column="66" selection-end-line="59" selection-end-column="66" />
               <folding>
                 <element signature="e#0#35#0" expanded="true" />
-                <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-                <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -51,7 +50,7 @@
         <entry file="file://$PROJECT_DIR$/Objects/Scene.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="96" column="60" selection-start-line="96" selection-start-column="60" selection-end-line="96" selection-end-column="60" />
+              <caret line="63" column="61" selection-start-line="63" selection-start-column="61" selection-end-line="63" selection-end-column="61" />
               <folding>
                 <element signature="e#0#41#0" expanded="true" />
               </folding>
@@ -63,21 +62,32 @@
         <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_scene.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+              <caret line="19" column="31" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="31" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
-                <marker date="1438830412000" expanded="true" signature="276:1609" placeholder="..." />
-                <marker date="1438830412000" expanded="true" signature="1608:1609" placeholder="..." />
+                <marker date="1439014807000" expanded="true" signature="1377:1378" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Optics.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Sensor.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Objects/Sensor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.04195804">
+              <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
+              <folding>
+                <element signature="e#0#33#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Optics.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Objects/Optics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.36305732">
-              <caret line="243" column="0" selection-start-line="243" selection-start-column="0" selection-end-line="243" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="267" column="21" selection-start-line="267" selection-start-column="21" selection-end-line="267" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -90,6 +100,9 @@
               <caret line="52" column="26" selection-start-line="52" selection-start-column="26" selection-end-line="52" selection-end-column="26" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
+                <marker date="1438997957000" expanded="true" signature="288:2037" placeholder="..." />
+                <marker date="1438997957000" expanded="true" signature="712:792" placeholder="..." />
+                <marker date="1438997957000" expanded="true" signature="2036:2037" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -107,24 +120,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_illuminant.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="26" column="47" selection-start-line="26" selection-start-column="47" selection-end-line="26" selection-end-column="47" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-                <marker date="1438830412000" expanded="true" signature="147:1014" placeholder="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Transforms.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Utility/Transforms.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="156" column="59" selection-start-line="156" selection-start-column="59" selection-end-line="156" selection-end-column="59" />
+              <caret line="167" column="59" selection-start-line="167" selection-start-column="59" selection-end-line="167" selection-end-column="59" />
               <folding>
                 <element signature="e#19#55#0" expanded="true" />
               </folding>
@@ -151,7 +151,6 @@
               <caret line="16" column="50" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="50" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
-                <marker date="1438830412000" expanded="true" signature="199:1761" placeholder="..." />
                 <marker date="1438830412000" expanded="true" signature="246:255" placeholder="..." />
               </folding>
             </state>
@@ -173,7 +172,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Objects/Sensor.py" />
         <option value="$PROJECT_DIR$/Utility/__init__.py" />
         <option value="$PROJECT_DIR$/Objects/__init__.py" />
         <option value="$PROJECT_DIR$/Utility/DataConversion.py" />
@@ -186,13 +184,14 @@
         <option value="$PROJECT_DIR$/Objects/Illuminant.py" />
         <option value="$PROJECT_DIR$/Objects/test_scene.py" />
         <option value="$PROJECT_DIR$/Validation/UnitTest/test_display.py" />
-        <option value="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
         <option value="$PROJECT_DIR$/Utility/IO.py" />
         <option value="$PROJECT_DIR$/Objects/Display.py" />
-        <option value="$PROJECT_DIR$/Objects/Scene.py" />
         <option value="$PROJECT_DIR$/Utility/Transforms.py" />
         <option value="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
         <option value="$PROJECT_DIR$/Objects/Optics.py" />
+        <option value="$PROJECT_DIR$/Objects/Scene.py" />
+        <option value="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
+        <option value="$PROJECT_DIR$/Objects/Sensor.py" />
       </list>
     </option>
   </component>
@@ -204,7 +203,7 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="72" />
+    <option name="x" value="154" />
     <option name="y" value="23" />
     <option name="width" value="1294" />
     <option name="height" value="812" />
@@ -251,8 +250,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -345,26 +342,10 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Data" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Image" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -381,7 +362,7 @@
       <recent name="$PROJECT_DIR$/Validation/UnitTest" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in test_optics">
+  <component name="RunManager" selected="Python tests.Unittests in Scene">
     <configuration default="false" name="Unittests in Scene" type="tests" factoryName="Unittests" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -405,7 +386,7 @@
       <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittests in test_optics" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittests in Optics" type="tests" factoryName="Unittests" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -666,12 +647,12 @@
       <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in Display" />
       <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in Illuminant" />
       <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
-      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in test_optics" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
     </list>
     <recent_temporary>
       <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in test_optics" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
       </list>
     </recent_temporary>
   </component>
@@ -689,7 +670,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="72" y="23" width="1294" height="812" extended-state="0" />
+    <frame x="154" y="23" width="1294" height="812" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -706,11 +687,11 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32974428" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32974428" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -747,7 +728,6 @@
           <caret line="11" column="52" selection-start-line="11" selection-start-column="52" selection-end-line="11" selection-end-column="52" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="147:1014" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -766,7 +746,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -786,7 +765,6 @@
           <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="199:1761" placeholder="..." />
             <marker date="1438830412000" expanded="true" signature="246:255" placeholder="..." />
           </folding>
         </state>
@@ -798,8 +776,6 @@
           <caret line="69" column="20" selection-start-line="69" selection-start-column="20" selection-end-line="69" selection-end-column="20" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -838,7 +814,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -858,7 +833,6 @@
           <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="199:1761" placeholder="..." />
             <marker date="1438830412000" expanded="true" signature="246:255" placeholder="..." />
           </folding>
         </state>
@@ -870,8 +844,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -880,7 +852,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="11" column="33" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -900,7 +871,6 @@
           <caret line="58" column="48" selection-start-line="58" selection-start-column="48" selection-end-line="58" selection-end-column="48" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="199:1761" placeholder="..." />
             <marker date="1438830412000" expanded="true" signature="246:255" placeholder="..." />
           </folding>
         </state>
@@ -912,8 +882,6 @@
           <caret line="50" column="60" selection-start-line="50" selection-start-column="60" selection-end-line="50" selection-end-column="60" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -922,7 +890,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="11" column="33" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -942,7 +909,6 @@
           <caret line="58" column="48" selection-start-line="58" selection-start-column="48" selection-end-line="58" selection-end-column="48" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="199:1761" placeholder="..." />
             <marker date="1438830412000" expanded="true" signature="246:255" placeholder="..." />
           </folding>
         </state>
@@ -964,8 +930,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -976,8 +940,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1002,8 +964,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1049,8 +1009,6 @@
           <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1097,18 +1055,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Objects/Sensor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="16" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Data/path.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1118,7 +1068,6 @@
           <caret line="26" column="47" selection-start-line="26" selection-start-column="47" selection-end-line="26" selection-end-column="47" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="147:1014" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1129,20 +1078,58 @@
           <caret line="16" column="50" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="50" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="199:1761" placeholder="..." />
             <marker date="1438830412000" expanded="true" signature="246:255" placeholder="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_scene.py">
+    <entry file="file://$PROJECT_DIR$/Objects/Display.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <caret line="59" column="66" selection-start-line="59" selection-start-column="66" selection-end-line="59" selection-end-column="66" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utility/Transforms.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="167" column="59" selection-start-line="167" selection-start-column="59" selection-end-line="167" selection-end-column="59" />
+          <folding>
+            <element signature="e#19#55#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_optics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="52" column="26" selection-start-line="52" selection-start-column="26" selection-end-line="52" selection-end-column="26" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="276:1609" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1608:1609" placeholder="..." />
+            <marker date="1438997957000" expanded="true" signature="288:2037" placeholder="..." />
+            <marker date="1438997957000" expanded="true" signature="712:792" placeholder="..." />
+            <marker date="1438997957000" expanded="true" signature="2036:2037" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Objects/Optics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="267" column="21" selection-start-line="267" selection-start-column="21" selection-end-line="267" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Objects/Illuminant.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="95" column="0" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#51#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1157,34 +1144,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Objects/Illuminant.py">
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_scene.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="95" column="0" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+          <caret line="19" column="31" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="31" />
           <folding>
-            <element signature="e#0#51#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Objects/Display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="59" column="66" selection-start-line="59" selection-start-column="66" selection-end-line="59" selection-end-column="66" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-            <marker date="1438830412000" expanded="true" signature="410:7837" placeholder="..." />
-            <marker date="1438830412000" expanded="true" signature="1072:2492" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Utility/Transforms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="156" column="59" selection-start-line="156" selection-start-column="59" selection-end-line="156" selection-end-column="59" />
-          <folding>
-            <element signature="e#19#55#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
+            <marker date="1439014807000" expanded="true" signature="1377:1378" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1192,28 +1158,20 @@
     <entry file="file://$PROJECT_DIR$/Objects/Scene.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="96" column="60" selection-start-line="96" selection-start-column="60" selection-end-line="96" selection-end-column="60" />
+          <caret line="63" column="61" selection-start-line="63" selection-start-column="61" selection-end-line="63" selection-end-column="61" />
           <folding>
             <element signature="e#0#41#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_optics.py">
+    <entry file="file://$PROJECT_DIR$/Objects/Sensor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="52" column="26" selection-start-line="52" selection-start-column="26" selection-end-line="52" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.04195804">
+          <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
           <folding>
-            <element signature="e#0#29#0" expanded="true" />
+            <element signature="e#0#33#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Objects/Optics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.36305732">
-          <caret line="243" column="0" selection-start-line="243" selection-start-column="0" selection-end-line="243" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
