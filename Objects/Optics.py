@@ -26,7 +26,7 @@ class Optics:
     dist = 1                      # Object distance in meters
     fov = 1                       # field of view of the optical image in degree
     focal_length = 0.017          # focal lens of optics in meters
-    OTF = None                    # optical transfer functions, to get otf data at fx, fy use OTF[ii](freq)
+    OTF = None                    # optical transfer functions, usage: OTF[ii](freq) with freq in cycles/deg
     transmittance = np.array([])  # transmittance of optics
 
     def __init__(self, pupil_diameter=0.003,
@@ -130,8 +130,8 @@ class Optics:
             plt.show()
         elif param == "psf":
             assert opt is not None, "Wavelength to be plotted required as opt"
-            sx = range(-10, 10)
-            sy = range(-10, 10)
+            sx = np.linspace(-0.002, 0.002, 50)
+            sy = np.linspace(-0.002, 0.002, 50)
             psf = self.psf(opt)
 
             fig = plt.figure()
@@ -236,9 +236,9 @@ class Optics:
         """
         get psf for certain wavelength
         :param wave: scalar, wavelength sample to be retrieved
-        :return: point spread function for certain wavelength, to get psf data, use psf(spatial_support)
+        :return: point spread function for certain wavelength, to get psf data, use psf(psf_support)
         """
-        # get frequency support
+        # get frequency support in cycles/deg
         fx, fy = self.frequency_support
         freq = np.sqrt(fx**2 + fy**2)
 
@@ -247,6 +247,7 @@ class Optics:
         otf = self.OTF[index](freq)
 
         # compute psf
+        # psf support is different from spatial support, should fix here
         psf = np.abs(fftshift(ifft2(otf)))
         sx, sy = self.spatial_support
         return interp2d(sx, sy, psf, bounds_error=False, fill_value=0)

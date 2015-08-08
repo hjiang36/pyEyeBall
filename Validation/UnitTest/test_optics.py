@@ -5,6 +5,7 @@ from Objects.Scene import Scene
 from scipy.ndimage import imread
 import os.path
 from Utility.IO import get_data_path
+import numpy as np
 
 __author__ = 'Killua'
 
