@@ -1,6 +1,6 @@
-from Utility.Transforms import deg_to_rad, quanta_to_energy, rad_to_deg, xyz_to_srgb, xyz_from_energy
-from Utility.IO import spectra_read
-from Objects.Scene import Scene
+from ..Utility.Transforms import deg_to_rad, quanta_to_energy, rad_to_deg, xyz_to_srgb, xyz_from_energy
+from ..Utility.IO import spectra_read
+from .Scene import Scene
 from scipy.constants import pi
 from scipy.interpolate import interp1d, interp2d
 from scipy.special import jv

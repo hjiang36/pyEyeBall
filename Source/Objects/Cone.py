@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.interpolate import interp1d, interp2d
 from scipy.stats import rv_discrete
-from Utility.IO import spectra_read
-from Objects.Optics import Optics
-from Utility.Transforms import rad_to_deg, rgb_to_xw_format
+from ..Utility.IO import spectra_read
+from .Optics import Optics
+from ..Utility.Transforms import rad_to_deg, rgb_to_xw_format
 import matplotlib.pyplot as plt
 import copy
 

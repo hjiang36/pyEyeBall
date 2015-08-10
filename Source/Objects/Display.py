@@ -1,12 +1,12 @@
-from Utility.IO import spectra_read
-from Utility.Transforms import rad_to_deg, xyz_from_energy, xyz_to_xy
+from ..Utility.IO import spectra_read
+from ..Utility.Transforms import rad_to_deg, xyz_from_energy, xyz_to_xy
 from math import atan2
 import numpy as np
 from os.path import isfile, join
 from os import listdir
 from scipy.io import loadmat
 from collections import namedtuple
-from Data.path import get_data_path
+from ..Data.path import get_data_path
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 

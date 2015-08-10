@@ -1,7 +1,7 @@
 from unittest import TestCase
-from Objects.Cone import ConePhotopigmentMosaic
-from Objects.Scene import Scene
-from Objects.Optics import Optics
+from ...Objects.Cone import ConePhotopigmentMosaic
+from ...Objects.Scene import Scene
+from ...Objects.Optics import Optics
 import numpy as np
 
 __author__ = 'HJ'

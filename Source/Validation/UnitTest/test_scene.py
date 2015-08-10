@@ -1,9 +1,9 @@
 from unittest import TestCase
-from Objects.Scene import Scene
-from Objects.Display import Display
-from Objects.Illuminant import Illuminant
+from ...Objects.Scene import Scene
+from ...Objects.Display import Display
+from ...Objects.Illuminant import Illuminant
 import os.path
-from Utility.IO import get_data_path
+from ...Utility.IO import get_data_path
 from scipy.ndimage import imread
 
 __author__ = 'Killua'

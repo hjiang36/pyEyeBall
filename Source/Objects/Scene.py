@@ -1,7 +1,7 @@
-from Objects.Illuminant import Illuminant
+from .Illuminant import Illuminant
 from math import tan, atan2
-from Objects.Display import Display
-from Utility.Transforms import *
+from .Display import Display
+from ..Utility.Transforms import *
 from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt

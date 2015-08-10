@@ -4,7 +4,7 @@ import os.path
 import numpy as np
 from scipy.io import loadmat
 from scipy.interpolate import interp1d
-from Data.path import get_data_path
+from ..Data.path import get_data_path
 
 
 def spectra_read(fn, wave, extra_val=0):

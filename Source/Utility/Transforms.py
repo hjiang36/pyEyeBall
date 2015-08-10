@@ -1,7 +1,7 @@
 __author__ = 'HJ'
 
 from scipy.constants import c, h, pi
-from Utility.IO import spectra_read
+from .IO import spectra_read
 import numpy as np
 
 
