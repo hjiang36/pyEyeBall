@@ -18,19 +18,21 @@ class Display:
     Class for display simulation
     """
 
-    # Class properties
-    name = "Display"    # name of display
-    gamma = None        # gamma distortion table
-    wave = None         # wavelength samples in nm
-    spd = None          # spectra power distribution
-    dist = 0            # viewing distance in meters
-    dpi = 96            # spatial resolution in dots per inch
-    is_emissive = True  # is emissive display or reflective display
-    ambient = None      # dark emissive spectra distribution
-    dixel = None        # pixel layout structure
-
     def __init__(self):
-        pass
+        """
+        Constructor for Display class
+        :return:
+        """
+        # Initialize instance attribute to default values
+        self.name = "Display"        # name of display
+        self.gamma = np.array([])    # gamma distortion table
+        self._wave = np.array([])    # wavelength samples in nm
+        self.spd = np.array([])      # spectra power distribution
+        self.dist = 0                # viewing distance in meters
+        self.dpi = 96                # spatial resolution in dots per inch
+        self.is_emissive = True      # is emissive display or reflective display
+        self.ambient = np.array([])  # dark emissive spectra distribution
+        self.dixel = None            # pixel layout as a named tuple
 
     @classmethod
     def init_with_isetbio_mat_file(cls, fn):
@@ -53,7 +55,7 @@ class Display:
         # set to object field
         d.name = tmp["name"][0, 0][0]  # name of display
         d.gamma = tmp["gamma"][0, 0]   # gamma distortion table
-        d.wave = np.squeeze(tmp["wave"][0, 0].astype(float))  # wavelength samples in nm
+        d._wave = np.squeeze(tmp["wave"][0, 0].astype(float))  # wavelength samples in nm
         d.spd = tmp["spd"][0, 0]  # spectral power distribution
         d.dpi = tmp["dpi"][0, 0][0][0]  # spatial resolution in dots / inch
         d.dist = tmp["dist"][0, 0][0][0]  # viewing distance in meters
@@ -90,7 +92,7 @@ class Display:
 
         # making plot according to param
         if param == "spd":  # plot spectra power distribution of display
-            plt.plot(self.wave, self.spd)
+            plt.plot(self._wave, self.spd)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Energy (watts/sr/m2/nm)")
             plt.grid()
@@ -109,7 +111,7 @@ class Display:
             plt.show()
         elif param == "gamut":  # plot gamut of display
             # plot human visible range
-            xyz = spectra_read('XYZ.mat', self.wave)
+            xyz = spectra_read('XYZ.mat', self._wave)
             xy = xyz_to_xy(xyz, rm_nan=True)
             xy = np.concatenate((xy, xy[0:1, :]), axis=0)
             plt.plot(xy[:, 0], xy[:, 1])
@@ -139,11 +141,28 @@ class Display:
         :return: string of display description
         """
         s = "Display Object: " + self.name + "\n"
-        s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
+        s += "\tWavelength: " + str(np.min(self._wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self._wave))
         s += " nm\n"
         s += "\tNumber of primaries: " + str(self.n_primaries) + "\n"
         s += "\tColor bit depth: " + str(self.n_bits)
         return s
+
+    @property
+    def wave(self):  # wavelength samples in nm
+        return self._wave
+
+    @wave.setter
+    def wave(self, value):  # set wavelength samples and interpolate data
+        # interpolate spd
+        f = interp1d(self._wave, self.spd, axis=0, bounds_error=False, fill_value=0)
+        self.spd = f(value)
+
+        # interpolate ambient
+        f = interp1d(self._wave, self.ambient, bounds_error=False, fill_value=0)
+        self.ambient = f(value)
+
+        # update wavelength sample record in this instance
+        self._wave = value
 
     @property
     def n_bits(self):
@@ -167,10 +186,10 @@ class Display:
         wavelength sample interval in nm
         :return: wavelength sample interval
         """
-        if self.wave.size > 1:
-            return self.wave[1] - self.wave[0]
+        if self._wave.size > 1:
+            return self._wave[1] - self._wave[0]
         else:
-            return None
+            raise(ValueError, "not enough wavelength samples")
 
     @property
     def n_primaries(self):
@@ -211,11 +230,11 @@ class Display:
 
     @property
     def rgb2xyz(self):
-        return xyz_from_energy(self.spd.T, self.wave)
+        return xyz_from_energy(self.spd.T, self._wave)
 
     @property
     def rgb2lms(self):
-        cone_spd = spectra_read("stockman.mat", self.wave)
+        cone_spd = spectra_read("stockman.mat", self._wave)
         return np.dot(self.spd.T, cone_spd)
 
     @property

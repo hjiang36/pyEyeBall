@@ -19,8 +19,8 @@ class TestScene(TestCase):
     def test_properties(self):
         scene = Scene('macbeth')
         il = Illuminant('D50.mat', wave=scene.wave)
+        scene.mean_luminance = 50
         self.assertRaises(Exception, scene.adjust_illuminant(il))
-        self.assertRaises(Exception, scene.adjust_luminance(100))
         self.assertRaises(Exception, scene.luminance)
         self.assertRaises(Exception, scene.mean_luminance)
         self.assertRaises(Exception, scene.shape)

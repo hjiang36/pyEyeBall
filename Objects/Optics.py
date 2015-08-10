@@ -19,15 +19,6 @@ class Optics:
     Human optics class and optical image
     In this class, we assume human optics is shift-invariant and off-axis method is cos4th
     """
-    name = "Human Optics"         # name of the class instance
-    _wave = np.array([])          # wavelength samples in nm
-    photons = np.array([])        # irradiance image
-    f_number = 5                  # f-number of the lens
-    dist = 1                      # Object distance in meters
-    fov = 1                       # field of view of the optical image in degree
-    focal_length = 0.017          # focal lens of optics in meters
-    OTF = None                    # optical transfer functions, usage: OTF[ii](freq) with freq in cycles/deg
-    transmittance = np.array([])  # transmittance of optics
 
     def __init__(self, pupil_diameter=0.003,
                  focal_length=0.017,
@@ -36,15 +27,24 @@ class Optics:
         class constructor
         :return: instance of optics class
         """
-        # set focal length, f-number and wavelength samples
+        # turn off numpy warning for invalid input
         np.seterr(invalid='ignore')
-        self.focal_length = focal_length
-        self.f_number = focal_length / pupil_diameter
-        self._wave = wave
+
+        # initialize instance attribute to default values
+        self.name = "Human Optics"                   # name of the class instance
+        self._wave = wave                            # wavelength samples in nm
+        self.photons = np.array([])                  # irradiance image
+        self.f_number = focal_length/pupil_diameter  # f-number of the lens
+        self.dist = 1                                # Object distance in meters
+        self.fov = 1                                 # field of view of the optical image in degree
+        self.focal_length = focal_length             # focal lens of optics in meters
+        self.OTF = None                              # optical transfer function array, usage: OTF[ii](freq) in cyc/deg
 
         # set lens quanta transmittance
-        lens_density = spectra_read("lensDensity.mat", wave)
-        self.transmittance = 10**(-lens_density)
+        self.lens_transmittance = 10**(-spectra_read("lensDensity.mat", wave))
+
+        # set macular pigment quanta transmittance
+        self.macular_transmittance = 10**(-spectra_read("macularPigment.mat", wave))
 
         # compute human optical transfer function
         # Reference: Marimont & Wandell, J. Opt. Soc. Amer. A,  v. 11, p. 3113-3122 (1994)
@@ -72,7 +72,7 @@ class Optics:
         """
         Compute optical irradiance map
         :param scene: instance of scene class
-        :return: None, but oi.photons is computed
+        :return: instance of class with oi.photons computed
         """
         # check inputs
         assert isinstance(scene, Scene), "scene should be of class Scene"
@@ -85,7 +85,7 @@ class Optics:
         self.photons = pi / (1 + 4 * self.f_number**2 * (1 + abs(self.magnification))**2) * scene.photons
 
         # apply optics transmittance
-        self.photons *= self.transmittance
+        self.photons *= self.ocular_transmittance
 
         # apply the relative illuminant (off-axis) fall-off: cos4th function
         x, y = self.spatial_support
@@ -98,12 +98,23 @@ class Optics:
             otf = fftshift(self.OTF[ii](np.sqrt(fx**2 + fy**2)))
             self.photons[:, :, ii] = np.abs(ifftshift(ifft2(otf * fft2(fftshift(self.photons[:, :, ii])))))
 
+        return self
+
     def __str__(self):
         """
         Generate verbal description string of optics object
         :return: string that describes instance of optics object
         """
-        return "Human Optics Instance: Description function not yet implemented"
+        s = "Human Optics Instance: " + self.name + "\n"
+        s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
+        s += " nm\n"
+        s += "\tHorizontal field of view: " + str(self.fov) + " deg\n"
+        if self.photons.size > 0:
+            s += "\t[Row, Col]: " + str(self.shape) + "\n"
+            s += "\t[Width, Height]: " + str([self.width, self.height]) + " m\n"
+            s += "\tSample size: " + str(self.sample_size) + " meters/sample\n"
+            s += "\tImage distance: " + str(self.image_distance) + "meters\n"
+        return s
 
     def plot(self, param, opt=None):
         """
@@ -143,10 +154,22 @@ class Optics:
             plt.xlabel("Position (um)")
             plt.ylabel("Position (um)")
             plt.show()
-        elif param == "transmittance":
-            plt.plot(self._wave, self.transmittance)
+        elif param == "lenstransmittance":
+            plt.plot(self._wave, self.lens_transmittance)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Lens Transmittance")
+            plt.grid()
+            plt.show()
+        elif param == "maculartransmittance":
+            plt.plot(self._wave, self.macular_transmittance)
+            plt.xlabel("Wavelength (nm)")
+            plt.ylabel("Macular Pigment Transmittance")
+            plt.grid()
+            plt.show()
+        elif param == "oculartransmittance":
+            plt.plot(self._wave, self.ocular_transmittance)
+            plt.xlabel("Wavelength (nm)")
+            plt.ylabel("Ocular Transmittance")
             plt.grid()
             plt.show()
         else:
@@ -155,16 +178,36 @@ class Optics:
     def visualize(self):
         pass
 
+    def get_photons(self, wave):  # get photons with wavelength samples
+        f = interp1d(self._wave, self.photons, bounds_error=False, fill_value=0)
+        return f(wave)
+
     @property
     def wave(self):
         return self._wave
 
     @wave.setter
-    def wave(self, value):
-        # interpolate photons and OTF data
+    def wave(self, new_wave):  # adjust wavelength samples
+        # check if wavelength samples really changed
+        if np.array_equal(self._wave, new_wave):
+            return
+
+        # interpolate photons
+        if self.photons.size > 0:
+            f = interp1d(self._wave, self.photons, bounds_error=False, fill_value=0)
+            self.photons = f(new_wave)
+
+        # interpolate lens transmittance
+        f = interp1d(self._wave, self.lens_transmittance, bounds_error=False, fill_value=1)
+        self.lens_transmittance = f(new_wave)
+
+        # interpolate macular pigment transmittance
+        f = interp1d(self._wave, self.macular_transmittance, bounds_error=False, fill_value=1)
+        self.macular_transmittance = f(new_wave)
 
         # set value of _wave in object
-        self._wave = value
+        self._wave = new_wave
+        raise(Exception, "OTF data not interpolated. Should fix this in the future")
 
     @property
     def bin_width(self):  # wavelength sample bin width
@@ -172,7 +215,7 @@ class Optics:
 
     @property
     def shape(self):  # number of samples in class in (rows, cols)
-        return self.photons.shape[0:2]
+        return np.array(self.photons.shape[0:2])
 
     @property
     def width(self):  # width of optical image in meters
@@ -203,10 +246,16 @@ class Optics:
         return self.focal_length / self.f_number
 
     @property
-    def spatial_support(self):  # spatial support of optical image in (support_x, support_y) in meters
-        sy = np.linspace(-(self.n_rows - 1) * self.sample_size/2, (self.n_rows - 1) * self.sample_size/2, self.n_rows)
-        sx = np.linspace(-(self.n_cols - 1) * self.sample_size/2, (self.n_cols - 1) * self.sample_size/2, self.n_cols)
-        return np.meshgrid(sx, sy)
+    def spatial_support_x(self):  # spatial support in x direction as 1D array
+        return np.linspace(-(self.n_cols - 1) * self.sample_size/2, (self.n_cols - 1) * self.sample_size/2, self.n_cols)
+
+    @property
+    def spatial_support_y(self):  # spatial support in y direction as 1D array
+        return np.linspace(-(self.n_rows - 1) * self.sample_size/2, (self.n_rows - 1) * self.sample_size/2, self.n_rows)
+
+    @property
+    def spatial_support(self):  # spatial support of optical image in (support_x, support_y) in meters as 2D array
+        return np.meshgrid(self.spatial_support_x, self.spatial_support_y)
 
     @property
     def n_rows(self):
@@ -243,6 +292,10 @@ class Optics:
     @property
     def srgb(self):  # srgb image of the optical image
         return xyz_to_srgb(self.xyz)
+
+    @property
+    def ocular_transmittance(self):  # ocular transmittance, including lens and macular transmittance
+        return self.lens_transmittance * self.macular_transmittance
 
     def psf(self, wave):
         """

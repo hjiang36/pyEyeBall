@@ -12,13 +12,9 @@ class Scene:
     """
     Class describing scene radiance
     """
-    name = "Scene"     # name of the object
-    photons = None     # scene photons
-    fov = 1.0          # horizontal field of view of the scene in degree
-    dist = 1.0         # viewing distance in meters
-    illuminant = None  # illuminant
 
-    def __init__(self, scene_type=None, il=Illuminant(), **kwargs):
+    def __init__(self, scene_type="macbeth", wave=None, name="Scene",
+                 il=Illuminant(), fov=1.0, dist=1.0, **kwargs):
         """
         Class constructor, initializing parameters
         :param scene_type: type of the scene, e.g. macbeth, noise, etc.
@@ -26,12 +22,18 @@ class Scene:
         :return: class object with properties initialized
         """
         # check inputs
-        if scene_type is None:
-            return
         if isinstance(il, str):
             il = Illuminant(il)
         assert isinstance(il, Illuminant), "il should be an instance of Illuminant class"
-        self.illuminant = il
+        if wave is not None:  # interploate for wave
+            il.wave = wave
+
+        # Initialze instance attribute to default values
+        self.name = name                # name of the object
+        self.photons = np.array([])     # scene photons
+        self.fov = fov                  # horizontal field of view of the scene in degree
+        self.dist = dist                # viewing distance in meters
+        self.illuminant = il            # illuminant
 
         # switch by scene_type
         scene_type = str(scene_type).lower().replace(" ", "")
@@ -134,15 +136,7 @@ class Scene:
         self.illuminant = il
 
         # make sure mean luminance is not changed
-        self.adjust_luminance(mean_lum)
-
-    def adjust_luminance(self, lum):
-        """
-        Adjust mean luminance of the scene
-        :param lum: mean luminance in cd/m2
-        :return: scene object with mean luminance adjusted
-        """
-        self.photons /= self.mean_luminance / lum
+        self.mean_luminance = mean_lum
 
     def __str__(self):
         """
@@ -153,10 +147,10 @@ class Scene:
         s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
         s += " nm\n"
         s += "\t[Row, Col]: " + str(self.shape) + "\n"
-        s += "\t[Width, Height]" + str([self.width, self.height]) + " m\n"
+        s += "\t[Width, Height]: " + str([self.width, self.height]) + " m\n"
         s += "\tHorizontal field of view: " + str(self.fov) + " deg\n"
         s += "\tSample size: " + str(self.sample_size) + " meters/sample\n"
-        s += "\tMean luminance: " + str(self.mean_luminance) + " cd/m2\n"
+        s += "\tMean luminance: " + str(self.mean_luminance) + " cd/m2"
         return s
 
     @property
@@ -175,6 +169,10 @@ class Scene:
     @property
     def mean_luminance(self):  # mean luminance of scene in cd/m2
         return np.mean(self.luminance)
+
+    @mean_luminance.setter
+    def mean_luminance(self, value):  # adjust mean luminance of the scene
+        self.photons /= self.mean_luminance / value
 
     @property
     def luminance(self):  # luminance image of the scene

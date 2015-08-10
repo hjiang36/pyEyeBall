@@ -1,11 +1,6 @@
 from unittest import TestCase
 from Objects.Optics import Optics
-from Objects.Display import Display
 from Objects.Scene import Scene
-from scipy.ndimage import imread
-import os.path
-from Utility.IO import get_data_path
-import numpy as np
 
 __author__ = 'Killua'
 
@@ -15,9 +10,7 @@ class TestOptics(TestCase):
         self.assertRaises(Exception, Optics())
 
     def test_compute(self):
-        d = Display.init_with_isetbio_mat_file("LCD-Apple.mat")
-        img = imread(os.path.join(get_data_path(), "Image", "eagle.jpg")).astype(float) / 255
-        scene = Scene.init_with_display_image(d, img)
+        scene = Scene("macbeth")
         oi = Optics()
         self.assertRaises(Exception, oi.compute(scene))
 
@@ -31,9 +24,7 @@ class TestOptics(TestCase):
         self.assertRaises(Exception, oi.visualize())
 
     def test_properties(self):
-        d = Display.init_with_isetbio_mat_file("LCD-Apple.mat")
-        img = imread(os.path.join(get_data_path(), "Image", "eagle.jpg")).astype(float) / 255
-        scene = Scene.init_with_display_image(d, img)
+        scene = Scene("macbeth")
         oi = Optics()
         oi.compute(scene)
         self.assertRaises(Exception, oi.wave)
