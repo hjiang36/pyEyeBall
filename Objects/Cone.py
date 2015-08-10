@@ -112,7 +112,17 @@ class ConePhotopigmentMosaic:
             self.mosaic = rv_discrete(values=(range(4), self.density)).rvs(size=size)
 
     def __str__(self):
-        pass
+        """
+        Generate descriptive string for class instance
+        :return: descriptive string
+        """
+        s = "Human Cone Mosaic: " + self.name + "\n"
+        s += "\tHeight: " + str(self.height*1000) + " mm\tWidth: " + str(self.width*1000) + "mm\n"
+        s += "\tField of view: " + str(self.fov) + " deg\n"
+        s += "\tCone size: (" + str(self.cone_height*1e6) + ", " + str(self.cone_width*1e6) + ") um\n"
+        s += "\tIntegration time: " + str(self.integration_time*1000) + " ms\n"
+        s += "\tSpatial density (K,L,M,S):" + str(self.density)
+        return s
 
     def plot(self, param):
         """

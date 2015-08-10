@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Validation/UnitTest/test_conePhotopigmentMosaic.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Objects/Sensor.py" afterPath="$PROJECT_DIR$/Objects/Cone.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Display.py" afterPath="$PROJECT_DIR$/Objects/Display.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Illuminant.py" afterPath="$PROJECT_DIR$/Objects/Illuminant.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Optics.py" afterPath="$PROJECT_DIR$/Objects/Optics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Scene.py" afterPath="$PROJECT_DIR$/Objects/Scene.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" afterPath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" afterPath="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Objects/Cone.py" afterPath="$PROJECT_DIR$/Objects/Cone.py" />
     </list>
     <ignored path="pyEyeBall.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -82,8 +74,8 @@
       <file leaf-file-name="Cone.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Objects/Cone.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-5.8152866">
-              <caret line="129" column="22" selection-start-line="129" selection-start-column="22" selection-end-line="129" selection-end-column="22" />
+            <state vertical-scroll-proportion="3.2484076">
+              <caret line="102" column="103" selection-start-line="102" selection-start-column="103" selection-end-line="102" selection-end-column="103" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -199,8 +191,8 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="459" />
-    <option name="y" value="418" />
+    <option name="x" value="97" />
+    <option name="y" value="23" />
     <option name="width" value="1294" />
     <option name="height" value="812" />
   </component>
@@ -691,7 +683,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="459" y="418" width="1294" height="812" extended-state="0" />
+    <frame x="97" y="23" width="1294" height="812" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -706,7 +698,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27047914" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32859176" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1188,8 +1180,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Objects/Cone.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.8152866">
-          <caret line="129" column="22" selection-start-line="129" selection-start-column="22" selection-end-line="129" selection-end-column="22" />
+        <state vertical-scroll-proportion="3.2484076">
+          <caret line="102" column="103" selection-start-line="102" selection-start-column="103" selection-end-line="102" selection-end-column="103" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
