@@ -1,6 +1,6 @@
 from unittest import TestCase
-from ...Objects.Optics import Optics
-from ...Objects.Scene import Scene
+from Source.Objects.Optics import Optics
+from Source.Objects.Scene import Scene
 
 __author__ = 'Killua'
 

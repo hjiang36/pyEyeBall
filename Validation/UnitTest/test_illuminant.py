@@ -1,5 +1,5 @@
 from unittest import TestCase
-from ...Objects.Illuminant import Illuminant
+from Source.Objects.Illuminant import Illuminant
 import numpy as np
 
 __author__ = 'Killua'

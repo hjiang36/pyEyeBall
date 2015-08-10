@@ -1,7 +1,7 @@
 from unittest import TestCase
-from ...Objects.Display import Display
+from Source.Objects.Display import Display
 import os.path
-from ...Data.path import get_data_path
+from Source.Data.path import get_data_path
 from scipy.ndimage import imread
 
 __author__ = 'HJ'

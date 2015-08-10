@@ -2,59 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/CRT-Dell.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/CRT-HP.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/Dell-Chevron.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/LCD-Apple.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/LCD-Dell.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/LCD-Gechic.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/LCD-HP.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/OLED-Samsung.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/OLED-Sony.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/crt.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Display/lcdExample.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/XYZ.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/XYZEnergy.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/XYZQuanta.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/coneAbsorbance.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/lensDensity.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/luminosity.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/macularPigment.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/stockman.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/stockmanEnergy.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Human/stockmanQuanta.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/D50.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/D55.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/D65.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/D75.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/Fluorescent.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/Tungsten.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/equalEnergy.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Illuminant/equalPhotons.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Image/eagle.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Image/hats.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Image/macbeth.tif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/Surface/macbethChart.mat" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Data/path.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Objects/Cone.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Objects/Display.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Objects/Illuminant.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Objects/Optics.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Objects/Scene.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Objects/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Utility/IO.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Utility/Transforms.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Utility/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/UnitTest/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_conePhotopigmentMosaic.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_display.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Validation/__init__.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/pyEyeBall.iml" afterPath="$PROJECT_DIR$/.idea/pyEyeBall.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/UnitTest/__init__.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/UnitTest/test_conePhotopigmentMosaic.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/UnitTest/test_display.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/UnitTest/test_illuminant.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/UnitTest/test_optics.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/UnitTest/test_scene.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Source/Validation/__init__.py" afterPath="" />
     </list>
     <ignored path="pyEyeBall.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -70,11 +24,12 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/pyEyeBall$Display.coverage" NAME="Display Coverage Results" MODIFIED="1438485025204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Objects" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439182176743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Illuminant.coverage" NAME="Unittests in Illuminant Coverage Results" MODIFIED="1439161435691" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Illuminant.coverage" NAME="Unittests in Illuminant Coverage Results" MODIFIED="1439190556929" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_optics.coverage" NAME="Unittests in test_optics Coverage Results" MODIFIED="1438835715935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1439161430728" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439161424678" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439161439778" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439190560379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1439190553032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439190565413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439190545826" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1438739437869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -119,50 +74,50 @@
         </entry>
       </file>
       <file leaf-file-name="test_conePhotopigmentMosaic.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_conePhotopigmentMosaic.py">
+        <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_conePhotopigmentMosaic.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+              <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="test_display.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_display.py">
+        <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_display.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+              <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="test_illuminant.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_illuminant.py">
+        <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="1" column="8" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
+              <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="test_optics.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_optics.py">
+        <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_optics.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
+              <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="test_scene.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_scene.py">
+        <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_scene.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.10489511">
-              <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
+            <state vertical-scroll-proportion="0.15923567">
+              <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -211,19 +166,14 @@
         <option value="$PROJECT_DIR$/Objects/test_display.py" />
         <option value="$PROJECT_DIR$/Data/path.py" />
         <option value="$PROJECT_DIR$/Objects/test_illuminant.py" />
-        <option value="$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py" />
         <option value="$PROJECT_DIR$/Objects/test_scene.py" />
-        <option value="$PROJECT_DIR$/Validation/UnitTest/test_display.py" />
         <option value="$PROJECT_DIR$/Utility/IO.py" />
         <option value="$PROJECT_DIR$/Utility/Transforms.py" />
         <option value="$PROJECT_DIR$/Objects/Sensor.py" />
         <option value="$PROJECT_DIR$/Objects/Illuminant.py" />
-        <option value="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
         <option value="$PROJECT_DIR$/Objects/Display.py" />
-        <option value="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
         <option value="$PROJECT_DIR$/Objects/Optics.py" />
         <option value="$PROJECT_DIR$/Objects/test_conePhotopigmentMosaic.py" />
-        <option value="$PROJECT_DIR$/Validation/UnitTest/test_conePhotopigmentMosaic.py" />
         <option value="$PROJECT_DIR$/__init__.py" />
         <option value="$PROJECT_DIR$/Objects/Cone.py" />
         <option value="$PROJECT_DIR$/Objects/Scene.py" />
@@ -240,6 +190,11 @@
         <option value="$PROJECT_DIR$/Source/Validation/UnitTest/test_illuminant.py" />
         <option value="$PROJECT_DIR$/Source/Validation/UnitTest/test_optics.py" />
         <option value="$PROJECT_DIR$/Source/Validation/UnitTest/test_scene.py" />
+        <option value="$PROJECT_DIR$/Validation/UnitTest/test_conePhotopigmentMosaic.py" />
+        <option value="$PROJECT_DIR$/Validation/UnitTest/test_display.py" />
+        <option value="$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py" />
+        <option value="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
+        <option value="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
       </list>
     </option>
   </component>
@@ -341,24 +296,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="Source" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Source" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="Validation" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -370,10 +307,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Source" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
@@ -382,6 +315,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="UnitTest" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pyEyeBall" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pyEyeBall" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Source" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -433,7 +380,7 @@
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="FullScreen" value="false" />
     <property name="recentsLimit" value="5" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Source/Validation/UnitTest/test_display.py" />
     <property name="restartRequiresConfirmation" value="true" />
   </component>
   <component name="RecentsManager">
@@ -441,7 +388,7 @@
       <recent name="$PROJECT_DIR$/Validation/UnitTest" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in conePhotopigmentMosaic">
+  <component name="RunManager" selected="Python tests.Unittests in Optics">
     <configuration default="false" name="Unittests in Scene" type="tests" factoryName="Unittests" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -754,9 +701,9 @@
     </list>
     <recent_temporary>
       <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in conePhotopigmentMosaic" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in conePhotopigmentMosaic" />
       </list>
     </recent_temporary>
   </component>
@@ -783,7 +730,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27047914" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39838493" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32859176" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -791,9 +740,7 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32974428" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39838493" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
@@ -920,42 +867,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_conePhotopigmentMosaic.py">
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_conePhotopigmentMosaic.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+          <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_display.py">
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_display.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+          <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_illuminant.py">
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_illuminant.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="1" column="8" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
+          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_optics.py">
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_optics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
+          <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Validation/UnitTest/test_scene.py">
+    <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_scene.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.10489511">
-          <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.15923567">
+          <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
           <folding />
         </state>
       </provider>
