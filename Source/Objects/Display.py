@@ -9,8 +9,13 @@ from collections import namedtuple
 from ..Data.path import get_data_path
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+from PyQt4 import QtGui, QtCore
+import pickle
 
 __author__ = 'HJ'
+
+# define name tuple as global structure so that pickle can use it
+dixel = namedtuple("dixel", ["intensity_map", "control_map", "n_pixels"])
 
 
 class Display:
@@ -63,7 +68,6 @@ class Display:
         d.ambient = np.squeeze(tmp["ambient"][0, 0].astype(float))
 
         # Init dixel structure
-        dixel = namedtuple("Dixel", ["intensity_map", "control_map", "n_pixels"])
         intensity_map = tmp["dixel"][0, 0][0]['intensitymap'][0]
         control_map = tmp["dixel"][0, 0][0]['controlmap'][0]
         n_pixels = tmp["dixel"][0, 0][0]['nPixels'][0][0][0]
@@ -260,3 +264,87 @@ class Display:
     @property
     def white_spd(self):
         return np.sum(self.spd, axis=1)
+
+
+class DisplayGUI(QtGui.QMainWindow):
+    """
+    Class for Display GUI
+    """
+
+    def __init__(self, d, img=None):
+        """
+        Initialization method for display gui
+        :param d: instance of display class
+        :param img: rgb image, optional
+        :return: None, display gui window will be shown
+        """
+        assert isinstance(d, Display), "d should be an instance of Display class"
+        super(DisplayGUI, self).__init__()
+
+        self.d = d  # save instance of Display class to this object
+
+        # set status bar
+        self.statusBar().showMessage("Ready")
+
+        # set menu bar
+        menu_bar = self.menuBar()
+        menu_bar.setNativeMenuBar(False)
+        menu_file = menu_bar.addMenu("&File")
+        menu_edit = menu_bar.addMenu("&Edit")
+        menu_plot = menu_bar.addMenu("&Plot")
+
+        # add load display event to file menu
+        load_display = QtGui.QAction("Load Display", self)
+        load_display.setStatusTip("Load display from file")
+        self.connect(load_display, QtCore.SIGNAL('triggered()'), self.menu_load_display)
+        menu_file.addAction(load_display)
+
+        # add save display event to file menu
+        save_display = QtGui.QAction("Save Display", self)
+        save_display.setStatusTip("Save display to file")
+        save_display.setShortcut("Ctrl+S")
+        self.connect(save_display, QtCore.SIGNAL('triggered()'), self.menu_save_display)
+        menu_file.addAction(save_display)
+
+        # add quit to file menu
+        quit_gui = QtGui.QAction("Quit", self)
+        quit_gui.setStatusTip("Quit Display GUI")
+        quit_gui.setShortcut("Ctrl+Q")
+        self.connect(quit_gui, QtCore.SIGNAL('triggered()'), QtGui.qApp.quit)
+        menu_file.addAction(quit_gui)
+
+        # add spd to plot menu
+        plot_spd = QtGui.QAction("SPD", self)
+        plot_spd.setStatusTip("Plot spectra power distribution of the primaries")
+        self.connect(plot_spd, QtCore.SIGNAL('triggered()'), self.plot_spd)
+        menu_plot.addAction(plot_spd)
+
+        # set size and put window to center of the screen
+        self.resize(800, 600)
+        qr = self.frameGeometry()
+        qr.moveCenter(QtGui.QDesktopWidget().availableGeometry().center())
+        self.move(qr.topLeft())
+
+        # set title
+        self.setWindowTitle("Display GUI: " + d.name)
+
+        self.show()
+
+    def menu_load_display(self):
+        """
+        load display instance from file
+        """
+        file_name = QtGui.QFileDialog().getOpenFileName(self, "Choose Display File", get_data_path(), "*.pkl")
+        with open(file_name, "rb") as f:
+            self.d = pickle.load(f)
+
+    def menu_save_display(self):
+        """
+        save display instance to file
+        """
+        file_name = QtGui.QFileDialog().getSaveFileName(self, "Save Display to File", get_data_path(), "*.pkl")
+        with open(file_name, "wb") as f:
+            pickle.dump(self.d, f, pickle.HIGHEST_PROTOCOL)
+
+    def plot_spd(self):  # plot spd of the display
+        self.d.plot("spd")
