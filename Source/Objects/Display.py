@@ -79,8 +79,10 @@ class Display:
     def compute(self, img):
         pass
 
-    def visualize(self):
-        pass
+    def visualize(self, img=None):
+        app = QtGui.QApplication([''])
+        dg = DisplayGUI(self, img)
+        app.exec_()
 
     def plot(self, param):
         """
@@ -100,19 +102,16 @@ class Display:
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Energy (watts/sr/m2/nm)")
             plt.grid()
-            plt.show()
         elif param == "gamma":  # plot gamma table of display
             plt.plot(self.gamma)
             plt.xlabel("DAC")
             plt.ylabel("Linear")
             plt.grid()
-            plt.show()
         elif param == "invertgamma":  # plot invert gamma table of display
             plt.plot(np.linspace(0, 1, self.invert_gamma.shape[0]), self.invert_gamma)
             plt.xlabel("Linear")
             plt.ylabel("DAC")
             plt.grid()
-            plt.show()
         elif param == "gamut":  # plot gamut of display
             # plot human visible range
             xyz = spectra_read('XYZ.mat', self._wave)
@@ -127,7 +126,6 @@ class Display:
             plt.xlabel("CIE-x")
             plt.ylabel("CIE-y")
             plt.grid()
-            plt.show()
         else:
             raise(ValueError, "Unsupported input param")
 
@@ -265,6 +263,14 @@ class Display:
     def white_spd(self):
         return np.sum(self.spd, axis=1)
 
+    @property
+    def peak_luminance(self):
+        return self.white_xyz[1]
+
+    @peak_luminance.setter
+    def peak_luminance(self, lum):
+        self.spd *= lum / self.peak_luminance
+
 
 class DisplayGUI(QtGui.QMainWindow):
     """
@@ -288,36 +294,64 @@ class DisplayGUI(QtGui.QMainWindow):
 
         # set menu bar
         menu_bar = self.menuBar()
-        menu_bar.setNativeMenuBar(False)
         menu_file = menu_bar.addMenu("&File")
-        menu_edit = menu_bar.addMenu("&Edit")
         menu_plot = menu_bar.addMenu("&Plot")
 
-        # add load display event to file menu
+        # add load display to file menu
         load_display = QtGui.QAction("Load Display", self)
         load_display.setStatusTip("Load display from file")
         self.connect(load_display, QtCore.SIGNAL('triggered()'), self.menu_load_display)
         menu_file.addAction(load_display)
 
-        # add save display event to file menu
+        # add save display to file menu
         save_display = QtGui.QAction("Save Display", self)
         save_display.setStatusTip("Save display to file")
         save_display.setShortcut("Ctrl+S")
         self.connect(save_display, QtCore.SIGNAL('triggered()'), self.menu_save_display)
         menu_file.addAction(save_display)
 
-        # add quit to file menu
-        quit_gui = QtGui.QAction("Quit", self)
-        quit_gui.setStatusTip("Quit Display GUI")
-        quit_gui.setShortcut("Ctrl+Q")
-        self.connect(quit_gui, QtCore.SIGNAL('triggered()'), QtGui.qApp.quit)
-        menu_file.addAction(quit_gui)
-
         # add spd to plot menu
         plot_spd = QtGui.QAction("SPD", self)
         plot_spd.setStatusTip("Plot spectra power distribution of the primaries")
-        self.connect(plot_spd, QtCore.SIGNAL('triggered()'), self.plot_spd)
+        self.connect(plot_spd, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("spd"))
         menu_plot.addAction(plot_spd)
+
+        # add gamma to plot menu
+        plot_gamma = QtGui.QAction("Gamma Table", self)
+        plot_gamma.setStatusTip("Plot gamma distortion of the display")
+        self.connect(plot_gamma, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("gamma"))
+        menu_plot.addAction(plot_gamma)
+
+        # add invert gamma to plot menu
+        plot_invert_gamma = QtGui.QAction("Invert Gamma Table", self)
+        plot_invert_gamma.setStatusTip("Plot invert gamma distortion of the display")
+        self.connect(plot_invert_gamma, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("invert gamma"))
+        menu_plot.addAction(plot_invert_gamma)
+
+        # add gamut to plot menu
+        plot_gamut = QtGui.QAction("Color Gamut", self)
+        plot_gamut.setStatusTip("Plot color gamut of display")
+        self.connect(plot_gamut, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("gamut"))
+        menu_plot.addAction(plot_gamut)
+
+        # set up left panel
+        left_panel = QtGui.QFrame(self)
+        left_panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set up right panel
+        right_panel = self.init_control_panel()
+
+        splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        splitter.addWidget(left_panel)
+        splitter.addWidget(right_panel)
+
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory().create('Cleanlooks'))
+
+        widget = QtGui.QWidget()
+        hbox = QtGui.QHBoxLayout(widget)
+        hbox.addWidget(splitter)
+
+        self.setCentralWidget(widget)
 
         # set size and put window to center of the screen
         self.resize(800, 600)
@@ -329,6 +363,89 @@ class DisplayGUI(QtGui.QMainWindow):
         self.setWindowTitle("Display GUI: " + d.name)
 
         self.show()
+
+    def init_control_panel(self):
+        """
+        Init control panel on the right
+        """
+        # initialize panel as QFrame
+        panel = QtGui.QFrame(self)
+        panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set components
+        vbox = QtGui.QVBoxLayout(panel)
+        vbox.setSpacing(10)
+        vbox.addWidget(self.init_summary_panel())
+        vbox.addWidget(self.init_edit_panel())
+        vbox.addWidget(self.init_pixel_panel())
+
+        return panel
+
+    def init_summary_panel(self):
+        """
+        Initialize summary groupbox
+        """
+        # initialize panel as QGroupBox
+        panel = QtGui.QGroupBox("Summary")
+        vbox = QtGui.QVBoxLayout(panel)
+
+        # set components
+        text_edit = QtGui.QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        text_edit.setText(str(self.d))
+        vbox.addWidget(text_edit)
+
+        return panel
+
+    def init_edit_panel(self):
+        """
+        Initialize edit panel
+        """
+        # Initialize panel as QGroupBox
+        panel = QtGui.QGroupBox("Edit Properties")
+        grid = QtGui.QGridLayout(panel)
+        grid.setSpacing(10)
+
+        # set components
+        peak_lum = QtGui.QLabel("Peak Lum (cd/m2)")
+        ppi = QtGui.QLabel("Pixel per Inch")
+        peak_lum_edit = QtGui.QLineEdit()
+        peak_lum_edit.setText(str(self.d.peak_luminance))
+        ppi_edit = QtGui.QLineEdit()
+        ppi_edit.setText(str(self.d.dpi))
+
+        grid.addWidget(peak_lum, 1, 0)
+        grid.addWidget(peak_lum_edit, 1, 1)
+        grid.addWidget(ppi, 2, 0)
+        grid.addWidget(ppi_edit, 2, 1)
+
+        return panel
+
+    def init_pixel_panel(self):
+        """
+        Initialize pixel panel
+        """
+        # Initialize panel as QGroupBox
+        panel = QtGui.QGroupBox("Pixle Layout")
+
+        # Set pixel image
+        img = self.d.dixel.intensity_map.copy()
+        img *= 255.0 / np.max(img)
+
+        out_size = np.array([160, 160, 3])
+        img = np.kron(img.astype(np.uint8), np.ones(out_size/np.array(img.shape), np.uint8))
+        q_img = QtGui.QImage(img.data, out_size[1], out_size[0], QtGui.QImage.Format_RGB888)
+        qp_img = QtGui.QPixmap().fromImage(q_img)
+
+        label = QtGui.QLabel(self)
+        label.setPixmap(qp_img)
+
+        vbox = QtGui.QVBoxLayout(panel)
+        vbox.setAlignment(QtCore.Qt.AlignHCenter)
+        vbox.addWidget(label)
+
+        return panel
 
     def menu_load_display(self):
         """
@@ -345,6 +462,3 @@ class DisplayGUI(QtGui.QMainWindow):
         file_name = QtGui.QFileDialog().getSaveFileName(self, "Save Display to File", get_data_path(), "*.pkl")
         with open(file_name, "wb") as f:
             pickle.dump(self.d, f, pickle.HIGHEST_PROTOCOL)
-
-    def plot_spd(self):  # plot spd of the display
-        self.d.plot("spd")
