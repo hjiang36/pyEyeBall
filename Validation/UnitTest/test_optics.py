@@ -21,6 +21,7 @@ class TestOptics(TestCase):
 
     def test_visualize(self):
         oi = Optics()
+        oi.compute(Scene())
         self.assertRaises(Exception, oi.visualize())
 
     def test_properties(self):

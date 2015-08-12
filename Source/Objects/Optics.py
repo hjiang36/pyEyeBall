@@ -38,7 +38,7 @@ class Optics:
         self.name = "Human Optics"                   # name of the class instance
         self._wave = wave                            # wavelength samples in nm
         self.photons = np.array([])                  # irradiance image
-        self.f_number = focal_length/pupil_diameter  # f-number of the lens
+        self.pupil_diameter = pupil_diameter         # pupil diameter in meters
         self.dist = 1                                # Object distance in meters
         self.fov = 1                                 # field of view of the optical image in degree
         self.focal_length = focal_length             # focal lens of optics in meters
@@ -248,8 +248,8 @@ class Optics:
         return -self.image_distance / self.dist
 
     @property
-    def pupil_diameter(self):  # pupil diameter in meters
-        return self.focal_length / self.f_number
+    def f_number(self):  # f-number for human optics
+        return self.focal_length/self.pupil_diameter
 
     @property
     def spatial_support_x(self):  # spatial support in x direction as 1D array

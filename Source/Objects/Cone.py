@@ -104,11 +104,12 @@ class ConePhotopigmentMosaic:
         self.integration_time = integration_time
 
         # Initialize spectral quanta efficiency of the cones
-        self.quanta_efficiency = np.concatenate((np.zeros([wave.size, 1]),
-                                                ConePhotopigment(wave=wave).quanta_efficiency), axis=1)
+        # pad a column for black holes (K)
+        self.quanta_efficiency = np.pad(ConePhotopigment(wave=wave).quanta_efficiency,
+                                        ((0, 0), (1, 0)), mode='constant', constant_values=0)
 
         # Initialize photons (isomerization) as empty array
-        self.photons = np.array([])  # cone isomerization rate
+        self.photons = np.array([])
 
         # Generate cone mosaic if not given
         if mosaic is not None:
