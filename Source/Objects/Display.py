@@ -11,7 +11,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from PyQt4 import QtGui, QtCore
 import pickle
-from scipy.ndimage import imread
+from scipy.misc import imresize, imread
 
 __author__ = 'HJ'
 
@@ -333,8 +333,8 @@ class DisplayGUI(QtGui.QMainWindow):
         if image is None:
             fn = join(get_data_path(), 'Image', 'eagle.jpg')
             image = imread(fn).astype(float)/255.0
-        image = (d.compute_srgb(image) * 255.0).astype(np.uint8)
-        self.image = image.copy()
+        out_size = (round(image.shape[0]*250/image.shape[1])*2, 500)
+        self.image = imresize(d.compute_srgb(image), out_size, interp='nearest')
 
         # set status bar
         self.statusBar().showMessage("Ready")

@@ -260,7 +260,9 @@ class SceneGUI(QtGui.QMainWindow):
         if scene.photons.size == 0:
             raise(Exception, "no data stored in scene")
 
-        self.image = imresize(scene.srgb, 300.0/scene.n_cols)
+        # QImage require data to be 32 bit aligned. Thus, we need to make sure out_size is even
+        out_size = (round(scene.n_rows * 150/scene.n_cols)*2, 300)
+        self.image = imresize(scene.srgb, out_size, interp='nearest')
 
         # set status bar
         self.statusBar().showMessage("Ready")
@@ -270,13 +272,13 @@ class SceneGUI(QtGui.QMainWindow):
         menu_file = menu_bar.addMenu("&File")
         menu_plot = menu_bar.addMenu("&Plot")
 
-        # add load display to file menu
+        # add load scene to file menu
         load_scene = QtGui.QAction("Load Scene", self)
         load_scene.setStatusTip("Load scene from file")
         load_scene.triggered.connect(self.menu_load_scene)
         menu_file.addAction(load_scene)
 
-        # add save display to file menu
+        # add save scene to file menu
         save_scene = QtGui.QAction("Save Scene", self)
         save_scene.setStatusTip("Save scene to file")
         save_scene.setShortcut("Ctrl+S")
@@ -435,5 +437,5 @@ class SceneGUI(QtGui.QMainWindow):
         """
         file_name = QtGui.QFileDialog().getSaveFileName(self, "Save Scene to File", get_data_path(), "*.pkl")
         with open(file_name, "wb") as f:
-            pickle.dump(self.d, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.scene, f, pickle.HIGHEST_PROTOCOL)
 

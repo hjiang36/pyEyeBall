@@ -1,15 +1,19 @@
 from ..Utility.Transforms import deg_to_rad, quanta_to_energy, rad_to_deg, xyz_to_srgb, xyz_from_energy
 from ..Utility.IO import spectra_read
+from ..Data.path import get_data_path
 from .Scene import Scene
 from scipy.constants import pi
 from scipy.interpolate import interp1d, interp2d
 from scipy.special import jv
+from scipy.misc import imresize
 from numpy.fft import fft2, ifft2, fftshift, ifftshift
 from math import atan, floor, tan, ceil
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 import numpy as np
+from PyQt4 import QtGui, QtCore
+import pickle
 
 __author__ = 'HJ'
 
@@ -104,14 +108,16 @@ class Optics:
         :return: string that describes instance of optics object
         """
         s = "Human Optics Instance: " + self.name + "\n"
-        s += "\tWavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
+        s += "  Wavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
         s += " nm\n"
-        s += "\tHorizontal field of view: " + str(self.fov) + " deg\n"
+        s += "  Horizontal field of view: %.4g" % self.fov + " deg\n"
+        s += "  Pupil Diameter: %.4g" % (self.pupil_diameter*1000) + " mm\n"
+        s += "  Focal Length: %.4g" % (self.focal_length * 1000) + " mm\n"
         if self.photons.size > 0:
-            s += "\t[Row, Col]: " + str(self.shape) + "\n"
-            s += "\t[Width, Height]: " + str([self.width, self.height]) + " m\n"
-            s += "\tSample size: " + str(self.sample_size) + " meters/sample\n"
-            s += "\tImage distance: " + str(self.image_distance) + "meters\n"
+            s += "  [Row, Col]: " + str(self.shape) + "\n"
+            s += "  [Width, Height]: %.4g" % (self.width*1000) + ", %.4g" % (self.height*1000) + " mm\n"
+            s += "  Sample size: %.4g" % self.sample_size + " m\n"
+            s += "  Image distance: %.4g" % (self.image_distance*1000) + "mm\n"
         return s
 
     def plot(self, param, opt=None):
@@ -174,7 +180,9 @@ class Optics:
             raise(ValueError, "Unknown param")
 
     def visualize(self):
-        pass
+        app = QtGui.QApplication([''])
+        OpticsGUI(self)
+        app.exec_()
 
     def get_photons(self, wave):  # get photons with wavelength samples
         f = interp1d(self._wave, self.photons, bounds_error=False, fill_value=0)
@@ -353,3 +361,196 @@ def optics_defocus_mtf(s, alpha):
 
     # normalize
     return otf / otf[0]
+
+
+class OpticsGUI(QtGui.QMainWindow):
+    """
+    Class for Scene GUI
+    """
+
+    def __init__(self, oi: Optics):
+        """
+        Initialization method for display gui
+        :param oi: instance of Optics class
+        :return: None, optics gui window will be shown
+        """
+        super(OpticsGUI, self).__init__()
+
+        self.oi = oi  # save instance of Optics class to this object
+        if oi.photons.size == 0:
+            raise(Exception, "no data stored in oi")
+
+        # QImage require data to be 32 bit aligned. Thus, need to make sure image size is even
+        out_size = (round(oi.n_rows*150/oi.n_cols)*2, 300)
+        self.image = imresize(oi.srgb, out_size, interp='nearest')
+
+        # set status bar
+        self.statusBar().showMessage("Ready")
+
+        # set menu bar
+        menu_bar = self.menuBar()
+        menu_file = menu_bar.addMenu("&File")
+        menu_plot = menu_bar.addMenu("&Plot")
+
+        # add load optics to file menu
+        load_oi = QtGui.QAction("Load Optics", self)
+        load_oi.setStatusTip("Load optics from file")
+        load_oi.triggered.connect(self.menu_load_oi)
+        menu_file.addAction(load_oi)
+
+        # add save optics to file menu
+        save_oi = QtGui.QAction("Save Optics", self)
+        save_oi.setStatusTip("Save optics to file")
+        save_oi.setShortcut("Ctrl+S")
+        save_oi.triggered.connect(self.menu_save_oi)
+        menu_file.addAction(save_oi)
+
+        # add lens transmittance to plot menu
+        plot_lens_transmittance = QtGui.QAction("Lens Transmittance", self)
+        plot_lens_transmittance.setStatusTip("Plot lens transmittance (Quanta)")
+        plot_lens_transmittance.triggered.connect(lambda: self.oi.plot("lens transmittance"))
+        menu_plot.addAction(plot_lens_transmittance)
+
+        # add macular transmittance to plot menu
+        plot_macular_transmittance = QtGui.QAction("Macular Transmittance", self)
+        plot_macular_transmittance.setStatusTip("Plot macular transmittance (Quanta)")
+        plot_macular_transmittance.triggered.connect(lambda: self.oi.plot("macular transmittance"))
+        menu_plot.addAction(plot_macular_transmittance)
+
+        # add ocular transmittance to plot menu
+        plot_transmittance = QtGui.QAction("Ocular Transmittance", self)
+        plot_transmittance.setStatusTip("Plot ocular transmittance (Lens + Macular)")
+        plot_transmittance.triggered.connect(lambda: self.oi.plot("ocular transmittance"))
+        menu_plot.addAction(plot_transmittance)
+
+        # set up left panel
+        left_panel = self.init_image_panel()
+
+        # set up right panel
+        right_panel = self.init_control_panel()
+
+        splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        splitter.addWidget(left_panel)
+        splitter.addWidget(right_panel)
+
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory().create('Cleanlooks'))
+
+        widget = QtGui.QWidget()
+        hbox = QtGui.QHBoxLayout(widget)
+        hbox.addWidget(splitter)
+
+        self.setCentralWidget(widget)
+
+        # set size and put window to center of the screen
+        self.resize(600, 400)
+        qr = self.frameGeometry()
+        qr.moveCenter(QtGui.QDesktopWidget().availableGeometry().center())
+        self.move(qr.topLeft())
+
+        # set title and show
+        self.setWindowTitle("Optics GUI: " + oi.name)
+        self.show()
+
+    def init_image_panel(self):
+        """
+        Init image panel on the left
+        """
+        # initialize panel as QFrame
+        panel = QtGui.QFrame(self)
+        panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set components
+        vbox = QtGui.QVBoxLayout(panel)
+
+        label = QtGui.QLabel(self)
+        q_image = QtGui.QImage(self.image.data, self.image.shape[1], self.image.shape[0], QtGui.QImage.Format_RGB888)
+        qp_image = QtGui.QPixmap(q_image)
+        label.setPixmap(qp_image)
+
+        vbox.setAlignment(QtCore.Qt.AlignCenter)
+        vbox.addWidget(label)
+
+        return panel
+
+    def init_control_panel(self):
+        """
+        Init control panel on the right
+        """
+        # initialize panel as QFrame
+        panel = QtGui.QFrame(self)
+        panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set components
+        vbox = QtGui.QVBoxLayout(panel)
+        vbox.setSpacing(15)
+        vbox.addWidget(self.init_summary_panel())
+        vbox.addWidget(self.init_edit_panel())
+
+        return panel
+
+    def init_summary_panel(self):
+        """
+        Initialize summary group-box
+        """
+        # initialize panel as QGroupBox
+        panel = QtGui.QGroupBox("Summary")
+        vbox = QtGui.QVBoxLayout(panel)
+
+        # set components
+        text_edit = QtGui.QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        text_edit.setText(str(self.oi))
+        vbox.addWidget(text_edit)
+
+        return panel
+
+    def init_edit_panel(self):
+        """
+        Initialize edit panel
+        """
+        # Initialize panel as QGroupBox
+        panel = QtGui.QGroupBox("Edit Properties")
+        grid = QtGui.QGridLayout(panel)
+        grid.setSpacing(10)
+
+        # set components
+        fov = QtGui.QLabel("Field of View (deg)")
+        distance = QtGui.QLabel("Viewing Distance (m)")
+
+        fov_edit = QtGui.QLineEdit()
+        fov_edit.setText("%.4g" % self.oi.fov)
+        fov_edit.editingFinished.connect(self.edit_fov)
+
+        distance_edit = QtGui.QLineEdit()
+        distance_edit.setText("%.4g" % self.oi.dist)
+        distance_edit.editingFinished.connect(self.edit_distance)
+
+        grid.addWidget(fov, 1, 0)
+        grid.addWidget(fov_edit, 1, 1)
+        grid.addWidget(distance, 2, 0)
+        grid.addWidget(distance_edit, 2, 1)
+
+        return panel
+
+    def edit_fov(self):
+        self.oi.fov = float(self.sender().text())
+
+    def edit_distance(self):
+        self.oi.dist = float(self.sender().text())
+
+    def menu_load_oi(self):
+        """
+        load scene instance from file
+        """
+        file_name = QtGui.QFileDialog().getOpenFileName(self, "Choose Optics File", get_data_path(), "*.pkl")
+        with open(file_name, "rb") as f:
+            self.oi = pickle.load(f)
+
+    def menu_save_oi(self):
+        """
+        save scene instance to file
+        """
+        file_name = QtGui.QFileDialog().getSaveFileName(self, "Save Optics to File", get_data_path(), "*.pkl")
+        with open(file_name, "wb") as f:
+            pickle.dump(self.oi, f, pickle.HIGHEST_PROTOCOL)

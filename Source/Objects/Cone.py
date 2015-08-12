@@ -2,10 +2,15 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d
 from scipy.stats import rv_discrete
 from ..Utility.IO import spectra_read
+from ..Data.path import get_data_path
 from .Optics import Optics
 from ..Utility.Transforms import rad_to_deg, rgb_to_xw_format
 import matplotlib.pyplot as plt
 import copy
+import pickle
+from PyQt4 import QtGui, QtCore
+from scipy.misc import imresize
+
 
 __author__ = 'HJ'
 
@@ -74,7 +79,7 @@ class ConePhotopigmentMosaic:
     
     def __init__(self, wave=np.array(range(400, 710, 10)), name="Human Cone Mosaic",
                  mosaic=None, cone_width=2e-6, cone_height=2e-6,
-                 density=np.array([.0, .6, .3, .1]), position=np.array([0, 0]),
+                 density=np.array([.0, .6, .3, .1]), position=np.array([[0, 0]]),
                  integration_time=0.05, size=np.array([72, 88])):
         """
         Constructor for class
@@ -117,11 +122,11 @@ class ConePhotopigmentMosaic:
         :return: descriptive string
         """
         s = "Human Cone Mosaic: " + self.name + "\n"
-        s += "\tHeight: " + str(self.height*1000) + " mm\tWidth: " + str(self.width*1000) + "mm\n"
-        s += "\tField of view: " + str(self.fov) + " deg\n"
-        s += "\tCone size: (" + str(self.cone_height*1e6) + ", " + str(self.cone_width*1e6) + ") um\n"
-        s += "\tIntegration time: " + str(self.integration_time*1000) + " ms\n"
-        s += "\tSpatial density (K,L,M,S):" + str(self.density)
+        s += "  [Height, Width]: [%.4g" % (self.height*1000) + ", %.4g" % (self.width*1000) + "] mm\n"
+        s += "  Field of view: %.4g" % self.fov + " deg\n"
+        s += "  Cone size: (%.4g" % (self.cone_height*1e6) + ", %.4g" % (self.cone_width*1e6) + ") um\n"
+        s += "  Integration time: %.4g" % (self.integration_time*1000) + " ms\n"
+        s += "  Spatial density (K,L,M,S):" + str(self.density)
         return s
 
     def plot(self, param):
@@ -137,13 +142,11 @@ class ConePhotopigmentMosaic:
         # generate plot
         if param == "rgb":  # rgb visualization of the cone mosaic
             plt.imshow(self.rgb)
-            plt.show()
         elif param == "quantaefficiency":  # quanta efficiency of the cones
             plt.plot(self.wave, self.quanta_efficiency)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Quanta Efficiency")
             plt.grid()
-            plt.show()
         elif param == "mosaic":  # cone mosaic
             # define color for L, M, S
             color = np.array([[228.0, 26.0, 28.0], [77.0, 175.0, 74.0], [55.0, 126.0, 184.0]])/255
@@ -151,18 +154,18 @@ class ConePhotopigmentMosaic:
             for cone_type in range(1, 4):
                 rgb += (self.mosaic == cone_type)[:, :, None] * color[cone_type-1, :]
             plt.imshow(rgb)
-            plt.show()
         elif param == "eyemovent" or param == "positions":
             plt.plot(self.position_x, self.position_y)
             plt.xlabel("Eye position (number of cones)")
             plt.ylabel("Eye position (number of cones)")
             plt.grid()
-            plt.show()
         else:
             raise(ValueError, "Unknown param")
 
     def visualize(self):
-        pass
+        app = QtGui.QApplication([''])
+        ConeGUI(self)
+        app.exec_()
 
     def compute_noisefree(self, oi, full_lms=False):
         """
@@ -206,16 +209,13 @@ class ConePhotopigmentMosaic:
                 self.photons += cone_photons * (self.mosaic == cone_type)
         return self
 
-    def compute(self, oi, add_noise=True):
+    def compute(self, oi: Optics, add_noise=True):
         """
         Compute cone photon absorption with noise and eye movement
         :param oi: instance of Optics class with irradiance computed
         :param add_noise: bool, indicate whether or not to add photon shot noise
         :return: instance of this class with photons computed and stored
         """
-        # check inputs
-        assert isinstance(oi, Optics), "oi should be instance of class Optics"
-
         # allocate space for photons
         self.photons = np.zeros([self.n_rows, self.n_cols, self.n_positions])
 
@@ -245,7 +245,7 @@ class ConePhotopigmentMosaic:
 
         # add noise
         if add_noise:
-            self.photons = np.random.poisson(lam=self.photons)
+            self.photons = np.random.poisson(lam=self.photons).astype(float)
         return self
 
     @property
@@ -345,3 +345,155 @@ class ConePhotopigmentMosaic:
         self.size = np.round(new_fov*self.size/self.get_fov(oi))
 
     fov = property(get_fov, set_fov)
+
+
+class ConeGUI(QtGui.QMainWindow):
+    """
+    Class for Scene GUI
+    """
+
+    def __init__(self, cone: ConePhotopigmentMosaic):
+        """
+        Initialization method for display gui
+        :param cone: instance of ConePhotopigmentMosaic class
+        :return: None, cone gui window will be shown
+        """
+        super(ConeGUI, self).__init__()
+
+        self.cone = cone  # save instance of ConePhotopigmentMosaic class to this object
+        if cone.photons.size == 0:
+            raise(Exception, "no data stored in cone")
+
+        # QImage require data to be 32-bit aligned. Thus, we need to make sure image rows/cols is even
+        rows = round(cone.n_rows * 150 / cone.n_cols) * 2
+        self.image = imresize(cone.rgb, (rows, 300), interp='nearest')
+
+        # set status bar
+        self.statusBar().showMessage("Ready")
+
+        # set menu bar
+        menu_bar = self.menuBar()
+        menu_file = menu_bar.addMenu("&File")
+        menu_plot = menu_bar.addMenu("&Plot")
+
+        # add load optics to file menu
+        load_cone = QtGui.QAction("Load Cone Mosaic", self)
+        load_cone.setStatusTip("Load cone mosaic from file")
+        load_cone.triggered.connect(self.menu_load_cone)
+        menu_file.addAction(load_cone)
+
+        # add save optics to file menu
+        save_cone = QtGui.QAction("Save Cone Mosaic", self)
+        save_cone.setStatusTip("Save cone mosaic to file")
+        save_cone.setShortcut("Ctrl+S")
+        save_cone.triggered.connect(self.menu_save_cone)
+        menu_file.addAction(save_cone)
+
+        # add cone quanta efficiency to plot menu
+        plot_cone_quanta_efficiency = QtGui.QAction("Quanta Efficiency", self)
+        plot_cone_quanta_efficiency.setStatusTip("Plot cone quanta efficiency")
+        plot_cone_quanta_efficiency.triggered.connect(lambda: self.cone.plot("quanta efficiency"))
+        menu_plot.addAction(plot_cone_quanta_efficiency)
+
+        # add eye movement to plot menu
+        plot_eye_path = QtGui.QAction("Eyemovment Path", self)
+        plot_eye_path.setStatusTip("Plot eye movement path")
+        plot_eye_path.triggered.connect(lambda: self.cone.plot("eyemovement"))
+        menu_plot.addAction(plot_eye_path)
+
+        # set up left panel
+        left_panel = self.init_image_panel()
+
+        # set up right panel
+        right_panel = self.init_control_panel()
+
+        splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        splitter.addWidget(left_panel)
+        splitter.addWidget(right_panel)
+
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory().create('Cleanlooks'))
+
+        widget = QtGui.QWidget()
+        hbox = QtGui.QHBoxLayout(widget)
+        hbox.addWidget(splitter)
+
+        self.setCentralWidget(widget)
+
+        # set size and put window to center of the screen
+        self.resize(600, 400)
+        qr = self.frameGeometry()
+        qr.moveCenter(QtGui.QDesktopWidget().availableGeometry().center())
+        self.move(qr.topLeft())
+
+        # set title and show
+        self.setWindowTitle("Cone GUI: " + cone.name)
+        self.show()
+
+    def init_image_panel(self):
+        """
+        Init image panel on the left
+        """
+        # initialize panel as QFrame
+        panel = QtGui.QFrame(self)
+        panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set components
+        vbox = QtGui.QVBoxLayout(panel)
+
+        label = QtGui.QLabel(self)
+        q_image = QtGui.QImage(self.image.data, self.image.shape[1], self.image.shape[0], QtGui.QImage.Format_RGB888)
+        qp_image = QtGui.QPixmap(q_image)
+        label.setPixmap(qp_image)
+
+        vbox.setAlignment(QtCore.Qt.AlignCenter)
+        vbox.addWidget(label)
+
+        return panel
+
+    def init_control_panel(self):
+        """
+        Init control panel on the right
+        """
+        # initialize panel as QFrame
+        panel = QtGui.QFrame(self)
+        panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set components
+        vbox = QtGui.QVBoxLayout(panel)
+        vbox.setSpacing(15)
+        vbox.addWidget(self.init_summary_panel())
+
+        return panel
+
+    def init_summary_panel(self):
+        """
+        Initialize summary group-box
+        """
+        # initialize panel as QGroupBox
+        panel = QtGui.QGroupBox("Summary")
+        vbox = QtGui.QVBoxLayout(panel)
+
+        # set components
+        text_edit = QtGui.QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        text_edit.setText(str(self.cone))
+        vbox.addWidget(text_edit)
+
+        return panel
+
+    def menu_load_cone(self):
+        """
+        load scene instance from file
+        """
+        file_name = QtGui.QFileDialog().getOpenFileName(self, "Choose Cone Mosaic File", get_data_path(), "*.pkl")
+        with open(file_name, "rb") as f:
+            self.cone = pickle.load(f)
+
+    def menu_save_cone(self):
+        """
+        save scene instance to file
+        """
+        file_name = QtGui.QFileDialog().getSaveFileName(self, "Save Cone Mosaic to File", get_data_path(), "*.pkl")
+        with open(file_name, "wb") as f:
+            pickle.dump(self.cone, f, pickle.HIGHEST_PROTOCOL)
