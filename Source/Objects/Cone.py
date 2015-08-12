@@ -80,7 +80,7 @@ class ConePhotopigmentMosaic:
         Constructor for class
         :param wave: wavelength sample of this class
         :param name: name of the instance of this class
-        :param mosaic: 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S repectively
+        :param mosaic: 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively
         :param cone_width: width of the cone in meters
         :param cone_height: height of the cone in meters
         :param density: spatial density (proportional) of different cone types in order of K,L,M,S

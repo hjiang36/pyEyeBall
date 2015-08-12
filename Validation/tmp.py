@@ -1,16 +1,15 @@
 __author__ = 'HJ'
 
-from Source.Objects.Display import Display, DisplayGUI
-from PyQt4 import QtGui
-import sys
+from Source.Objects.Scene import Scene
+from Source.Objects.Display import Display
 
 
 def main():
-    # app = QtGui.QApplication(sys.argv)
-    d = Display.init_with_isetbio_mat_file("OLED-Sony.mat")
-    d.visualize()
-    # dg = DisplayGUI(d)
-    # sys.exit(app.exec_())
+    scene = Scene("macbeth")
+    scene.visualize()
+
+    # d = Display.init_with_isetbio_mat_file("LCD-Apple.mat")
+    # d.visualize()
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 from ..Utility.IO import spectra_read
-from ..Utility.Transforms import rad_to_deg, xyz_from_energy, xyz_to_xy
+from ..Utility.Transforms import rad_to_deg, xyz_from_energy, xyz_to_xy, rgb_to_xw_format, xyz_to_srgb
 from math import atan2
 import numpy as np
 from os.path import isfile, join
@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from PyQt4 import QtGui, QtCore
 import pickle
+from scipy.ndimage import imread
 
 __author__ = 'HJ'
 
@@ -81,7 +82,7 @@ class Display:
 
     def visualize(self, img=None):
         app = QtGui.QApplication([''])
-        dg = DisplayGUI(self, img)
+        DisplayGUI(self, img)
         app.exec_()
 
     def plot(self, param):
@@ -143,11 +144,56 @@ class Display:
         :return: string of display description
         """
         s = "Display Object: " + self.name + "\n"
-        s += "\tWavelength: " + str(np.min(self._wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self._wave))
+        s += "  Wavelength: " + str(np.min(self._wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self._wave))
         s += " nm\n"
-        s += "\tNumber of primaries: " + str(self.n_primaries) + "\n"
-        s += "\tColor bit depth: " + str(self.n_bits)
+        s += "  Number of primaries: " + str(self.n_primaries) + "\n"
+        s += "  Color bit depth: " + str(self.n_bits)
         return s
+
+    def lookup_digital(self, dac: np.ndarray):
+        """
+        Convert quantized digital values to linear RGB values through a gamma table
+        :param dac: ndarray, dac values in range 0 to n_levels-1 as int
+        :return: ndarray, linear RGB values
+        """
+        dac = dac.astype(int)
+        rgb = np.zeros(dac.shape)
+        for ii in range(self.n_primaries):
+            rgb[:, :, ii] = self.gamma[dac[:, :, ii].astype(int), ii]
+        return rgb
+
+    def lookup_linear(self, rgb: np.ndarray):
+        """
+        Convert linear RGB values to digital values through invert gamma table
+        :param rgb: ndarray, linear RGB values in range 0-1
+        :return: ndarray, quantized digital values as int
+        """
+        rgb = ((self.n_levels-1)*rgb).astype(int)
+        dac = np.zeros(rgb.shape, int)
+        for ii in range(self.n_primaries):
+            dac[:, :, ii] = self.invert_gamma[rgb[:, :, ii], ii]
+        return dac
+
+    def compute_xyz(self, rgb: np.ndarray):
+        """
+        Compute xyz values of an RGB image
+        :param rgb: ndarray, RGB image with values between 0-1
+        :return: ndarray, XYZ image
+        """
+        # compute dac values with gamma distortion
+        dac = self.lookup_linear(rgb).astype(float)
+        dac /= self.n_levels - 1  # convert to range 0-1
+
+        # compute xyz
+        return np.reshape(np.dot(rgb_to_xw_format(rgb), self.rgb2xyz), rgb.shape, order="F")
+
+    def compute_srgb(self, rgb: np.ndarray):
+        """
+        Compute sRGB image from an display RGB image
+        :param rgb: np.ndarray, display RGB image
+        :return: sRGB image with same XYZ values as display RGB image
+        """
+        return xyz_to_srgb(self.compute_xyz(rgb))
 
     @property
     def wave(self):  # wavelength samples in nm
@@ -202,19 +248,15 @@ class Display:
         return self.spd.shape[1]
 
     @property
-    def invert_gamma(self, n_steps=None):
+    def invert_gamma(self):
         """
         Invert gamma table which can be used to convert linear value to DAC value
         :return: Invert gamma table
         """
-        # init default value of n_steps
-        if n_steps is None:
-            n_steps = self.n_levels
-
         # set up parameters
         y = range(self.n_levels)
-        inv_y = np.linspace(0, 1, n_steps)
-        lut = np.zeros([n_steps, self.n_primaries])
+        inv_y = np.linspace(0, 1, self.n_levels)
+        lut = np.zeros([self.n_levels, self.n_primaries])
 
         # interpolate for invert gamma table
         for ii in range(self.n_primaries):
@@ -231,11 +273,11 @@ class Display:
         return lut
 
     @property
-    def rgb2xyz(self):
+    def rgb2xyz(self):  # rgb2xyz transformation matrix
         return xyz_from_energy(self.spd.T, self._wave)
 
     @property
-    def rgb2lms(self):
+    def rgb2lms(self):  # rgb2lms transformation matrix
         cone_spd = spectra_read("stockman.mat", self._wave)
         return np.dot(self.spd.T, cone_spd)
 
@@ -277,17 +319,22 @@ class DisplayGUI(QtGui.QMainWindow):
     Class for Display GUI
     """
 
-    def __init__(self, d, img=None):
+    def __init__(self, d, image=None):
         """
         Initialization method for display gui
         :param d: instance of display class
-        :param img: rgb image, optional
+        :param image: rgb image in range 0-1 optional
         :return: None, display gui window will be shown
         """
         assert isinstance(d, Display), "d should be an instance of Display class"
         super(DisplayGUI, self).__init__()
 
         self.d = d  # save instance of Display class to this object
+        if image is None:
+            fn = join(get_data_path(), 'Image', 'eagle.jpg')
+            image = imread(fn).astype(float)/255.0
+        image = (d.compute_srgb(image) * 255.0).astype(np.uint8)
+        self.image = image.copy()
 
         # set status bar
         self.statusBar().showMessage("Ready")
@@ -300,43 +347,42 @@ class DisplayGUI(QtGui.QMainWindow):
         # add load display to file menu
         load_display = QtGui.QAction("Load Display", self)
         load_display.setStatusTip("Load display from file")
-        self.connect(load_display, QtCore.SIGNAL('triggered()'), self.menu_load_display)
+        load_display.triggered.connect(self.menu_load_display)
         menu_file.addAction(load_display)
 
         # add save display to file menu
         save_display = QtGui.QAction("Save Display", self)
         save_display.setStatusTip("Save display to file")
         save_display.setShortcut("Ctrl+S")
-        self.connect(save_display, QtCore.SIGNAL('triggered()'), self.menu_save_display)
+        save_display.triggered.connect(self.menu_save_display)
         menu_file.addAction(save_display)
 
         # add spd to plot menu
         plot_spd = QtGui.QAction("SPD", self)
         plot_spd.setStatusTip("Plot spectra power distribution of the primaries")
-        self.connect(plot_spd, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("spd"))
+        plot_spd.triggered.connect(lambda: self.d.plot("spd"))
         menu_plot.addAction(plot_spd)
 
         # add gamma to plot menu
         plot_gamma = QtGui.QAction("Gamma Table", self)
         plot_gamma.setStatusTip("Plot gamma distortion of the display")
-        self.connect(plot_gamma, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("gamma"))
+        plot_gamma.triggered.connect(lambda: self.d.plot("gamma"))
         menu_plot.addAction(plot_gamma)
 
         # add invert gamma to plot menu
         plot_invert_gamma = QtGui.QAction("Invert Gamma Table", self)
         plot_invert_gamma.setStatusTip("Plot invert gamma distortion of the display")
-        self.connect(plot_invert_gamma, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("invert gamma"))
+        plot_invert_gamma.triggered.connect(lambda: self.d.plot("invert gamma"))
         menu_plot.addAction(plot_invert_gamma)
 
         # add gamut to plot menu
         plot_gamut = QtGui.QAction("Color Gamut", self)
         plot_gamut.setStatusTip("Plot color gamut of display")
-        self.connect(plot_gamut, QtCore.SIGNAL('triggered()'), lambda: self.d.plot("gamut"))
+        plot_gamut.triggered.connect(lambda: self.d.plot("gamut"))
         menu_plot.addAction(plot_gamut)
 
         # set up left panel
-        left_panel = QtGui.QFrame(self)
-        left_panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+        left_panel = self.init_image_panel()
 
         # set up right panel
         right_panel = self.init_control_panel()
@@ -364,6 +410,27 @@ class DisplayGUI(QtGui.QMainWindow):
 
         self.show()
 
+    def init_image_panel(self):
+        """
+        Init image panel on the left
+        """
+        # initialize panel as QFrame
+        panel = QtGui.QFrame(self)
+        panel.setFrameStyle(QtGui.QFrame.StyledPanel)
+
+        # set components
+        vbox = QtGui.QVBoxLayout(panel)
+
+        label = QtGui.QLabel(self)
+        q_image = QtGui.QImage(self.image.data, self.image.shape[1], self.image.shape[0], QtGui.QImage.Format_RGB888)
+        qp_image = QtGui.QPixmap(q_image)
+        label.setPixmap(qp_image)
+
+        vbox.setAlignment(QtCore.Qt.AlignCenter)
+        vbox.addWidget(label)
+
+        return panel
+
     def init_control_panel(self):
         """
         Init control panel on the right
@@ -383,7 +450,7 @@ class DisplayGUI(QtGui.QMainWindow):
 
     def init_summary_panel(self):
         """
-        Initialize summary groupbox
+        Initialize summary group-box
         """
         # initialize panel as QGroupBox
         panel = QtGui.QGroupBox("Summary")
@@ -410,10 +477,14 @@ class DisplayGUI(QtGui.QMainWindow):
         # set components
         peak_lum = QtGui.QLabel("Peak Lum (cd/m2)")
         ppi = QtGui.QLabel("Pixel per Inch")
+
         peak_lum_edit = QtGui.QLineEdit()
-        peak_lum_edit.setText(str(self.d.peak_luminance))
+        peak_lum_edit.setText("%.4g" % self.d.peak_luminance)
+        peak_lum_edit.editingFinished.connect(self.edit_peak_lum)
+
         ppi_edit = QtGui.QLineEdit()
-        ppi_edit.setText(str(self.d.dpi))
+        ppi_edit.setText("%.4g" % self.d.dpi)
+        ppi_edit.editingFinished.connect(self.edit_ppi)
 
         grid.addWidget(peak_lum, 1, 0)
         grid.addWidget(peak_lum_edit, 1, 1)
@@ -427,7 +498,7 @@ class DisplayGUI(QtGui.QMainWindow):
         Initialize pixel panel
         """
         # Initialize panel as QGroupBox
-        panel = QtGui.QGroupBox("Pixle Layout")
+        panel = QtGui.QGroupBox("Pixel Layout")
 
         # Set pixel image
         img = self.d.dixel.intensity_map.copy()
@@ -446,6 +517,12 @@ class DisplayGUI(QtGui.QMainWindow):
         vbox.addWidget(label)
 
         return panel
+
+    def edit_peak_lum(self):
+        self.d.peak_luminance = float(self.sender().text())
+
+    def edit_ppi(self):
+        self.d.dpi = float(self.sender().text())
 
     def menu_load_display(self):
         """

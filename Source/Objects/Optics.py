@@ -68,14 +68,12 @@ class Optics:
             #   In python, this step is taken care of it when we use the otf
             self.OTF[ii] = interp1d(sample_sf, otf, bounds_error=False, fill_value=0)
 
-    def compute(self, scene):
+    def compute(self, scene: Scene):
         """
         Compute optical irradiance map
         :param scene: instance of scene class
         :return: instance of class with oi.photons computed
         """
-        # check inputs
-        assert isinstance(scene, Scene), "scene should be of class Scene"
 
         # set field of view and wavelength samples
         self.fov = scene.fov
