@@ -10,7 +10,6 @@ from numpy.fft import fft2, ifft2, fftshift, ifftshift
 from math import atan, floor, tan, ceil
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
 import numpy as np
 from PyQt4 import QtGui, QtCore
 import pickle
@@ -36,13 +35,13 @@ class Optics:
 
         # initialize instance attribute to default values
         self.name = "Human Optics"                   # name of the class instance
-        self._wave = wave                            # wavelength samples in nm
+        self._wave = wave.astype(float)              # wavelength samples in nm
         self.photons = np.array([])                  # irradiance image
         self.pupil_diameter = pupil_diameter         # pupil diameter in meters
-        self.dist = 1                                # Object distance in meters
-        self.fov = 1                                 # field of view of the optical image in degree
+        self.dist = 1.0                              # Object distance in meters
+        self.fov = 1.0                               # field of view of the optical image in degree
         self.focal_length = focal_length             # focal lens of optics in meters
-        self.OTF = None                              # optical transfer function array, usage: OTF[ii](freq) in cyc/deg
+        self._otf = None                             # optical transfer function
 
         # set lens quanta transmittance
         self.lens_transmittance = 10**(-spectra_read("lensDensity.mat", wave))
@@ -56,21 +55,19 @@ class Optics:
         defocus = 1.7312 - (0.63346 / (wave*1e-3 - 0.2141))  # defocus as function of wavelength
 
         w20 = pupil_diameter**2 / 8 * (1/focal_length * defocus) / (1/focal_length + defocus)  # Hopkins w20 parameter
-        sample_sf = np.array(range(max_freq))
+        sample_sf = np.arange(max_freq)
         achromatic_mtf = 0.3481 + 0.6519 * np.exp(-0.1212 * sample_sf)
 
         # compute otf at each wavelength
-        self.OTF = [None] * wave.size
+        otf = np.zeros([sample_sf.size, wave.size])
         for ii in range(wave.size):
             s = 1 / tan(deg_to_rad(1)) * wave[ii] * 2e-9 / pupil_diameter * sample_sf  # reduced spatial frequency
             alpha = np.abs(4*pi / (wave[ii] * 1e-9) * w20[ii] * s)
-            otf = optics_defocus_mtf(s, alpha) * achromatic_mtf
+            otf[:, ii] = optics_defocus_mtf(s, alpha) * achromatic_mtf
 
-            # set otf as interpolation function to object
-            # programming note:
-            #   In Matlab, there is a command fftshift after otf interpolation
-            #   In python, this step is taken care of it when we use the otf
-            self.OTF[ii] = interp1d(sample_sf, otf, bounds_error=False, fill_value=0)
+        # set otf as 2d interpolation function to object
+        # To get otf at given wavelength and frequency, use object.otf() method
+        self._otf = interp2d(self.wave, sample_sf, otf, bounds_error=False, fill_value=0)
 
     def compute(self, scene: Scene):
         """
@@ -78,7 +75,6 @@ class Optics:
         :param scene: instance of scene class
         :return: instance of class with oi.photons computed
         """
-
         # set field of view and wavelength samples
         self.fov = scene.fov
         scene.wave = self._wave
@@ -95,12 +91,9 @@ class Optics:
         self.photons *= (self.image_distance / s_factor[:, :, None])**4
 
         # apply optical transfer function of the optics
-        fx, fy = self.frequency_support
         for ii in range(self.wave.size):
-            otf = fftshift(self.OTF[ii](np.sqrt(fx**2 + fy**2)))
+            otf = fftshift(self.otf(self._wave[ii], self.frequency_support_x, self.frequency_support_y))
             self.photons[:, :, ii] = np.abs(ifftshift(ifft2(otf * fft2(fftshift(self.photons[:, :, ii])))))
-
-        return self
 
     def __str__(self):
         """
@@ -137,24 +130,25 @@ class Optics:
             plt.show()
         elif param == "otf":
             assert opt is not None, "wavelength to be plotted required as opt"
-            freq = np.array(range(-80, 80))
-            index = np.argmin(np.abs(self._wave - opt))
-            plt.plot(freq, self.OTF[index](abs(freq)))
-            plt.xlabel("Frequency (cycles/deg)")
-            plt.ylabel("OTF Amplitude")
-            plt.grid()
-            plt.show()
-        elif param == "psf":
-            assert opt is not None, "Wavelength to be plotted required as opt"
-            sx = np.linspace(-2e-5, 2e-5, 500)
-            sy = np.linspace(-2e-5, 2e-5, 500)
-            xx, yy = np.meshgrid(sx, sy)
-            
-            psf = self.psf(opt)
+            freq = np.arange(-90.0, 90.0)
+            fx, fy = np.meshgrid(freq, freq)
 
             fig = plt.figure()
             ax = fig.gca(projection='3d')
-            ax.plot_surface(xx * 1e6, yy * 1e6, psf(sx, sy), cmap=cm.coolwarm)  # plot in units of um
+            ax.plot_surface(fx, fy, self.otf(opt, freq, freq))
+            plt.xlabel("Frequency (cycles/deg)")
+            plt.ylabel("Frequency (cycles/deg)")
+            plt.show()
+        elif param == "psf":
+            assert opt is not None, "Wavelength to be plotted required as opt"
+            spatial_support = np.arange(-8e-5, 8e-5, 4e-7)
+            sx, sy = np.meshgrid(spatial_support, spatial_support)
+            
+            psf = self.psf(opt, spatial_support, spatial_support)
+
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_surface(sx * 1e6, sy * 1e6, psf)  # plot in units of um
             plt.xlabel("Position (um)")
             plt.ylabel("Position (um)")
             plt.show()
@@ -285,11 +279,15 @@ class Optics:
 
     @property
     def frequency_support(self):  # frequency support of optical image in cycles / degree
-        # compute max possible frequency in image
-        max_freq = [self.n_cols/2/self.fov, self.n_rows/2/self.v_fov]
-        fx = np.array(range(-floor(self.n_cols/2), floor(self.n_cols/2))) / ceil(self.n_cols/2) * max_freq[0]
-        fy = np.array(range(-floor(self.n_rows/2), floor(self.n_rows/2))) / ceil(self.n_rows/2) * max_freq[1]
-        return np.meshgrid(fx, fy)
+        return np.meshgrid(self.frequency_support_x, self.frequency_support_y)
+
+    @property
+    def frequency_support_x(self):  # frequency support in x direction in cycles / degree
+        return np.linspace(-self.n_cols/2/self.fov, self.n_cols/2/self.fov, self.n_cols)
+
+    @property
+    def frequency_support_y(self):  # frequency support in x direction in cycles / degree
+        return np.linspace(-self.n_rows/2/self.fov, self.n_rows/2/self.fov, self.n_rows)
 
     @property
     def xyz(self):  # xyz image of the optical image
@@ -303,31 +301,45 @@ class Optics:
     def ocular_transmittance(self):  # ocular transmittance, including lens and macular transmittance
         return self.lens_transmittance * self.macular_transmittance
 
-    def psf(self, wave):
+    def otf(self, wave: float, fx=np.arange(-90.0, 90.0), fy=np.arange(-90.0, 90.0)):
         """
-        get psf for certain wavelength
-        :param wave: scalar, wavelength sample to be retrieved
-        :return: point spread function for certain wavelength, to get psf data, use psf(psf_support)
+        get optical transfer function of optics at given wavelength and frequency
+        :param wave: float, wavelength in nm
+        :param fx: np.ndarray, frequency in x direction
+        :param fy: np.ndarray, frequency in y direction
+        :return: 2D otf image
         """
-
-        # get frequency support
-        max_freq = 200
-        fx, fy = np.meshgrid(range(-max_freq, max_freq), range(-max_freq, max_freq))
+        # make meshgrid of frequency
+        fx, fy = np.meshgrid(fx, fy)
         freq = np.sqrt(fx**2 + fy**2)
 
-        # get otf at wavelength
-        index = np.argmin(np.abs(self._wave - wave))
-        otf = self.OTF[index](freq)
+        assert isinstance(freq, np.ndarray), "Input fx, fy should be 1D vector"
+        return fftshift(self._otf(wave, freq.flatten(order="F")).reshape(freq.shape, order="F"))
 
-        # get spatial support
-        spatial_spacing = 1/2/max_freq * self.meters_per_degree  # spatial spacing in meters
-        sx = np.array(range(-max_freq, max_freq)) * spatial_spacing
-        sy = np.array(range(-max_freq, max_freq)) * spatial_spacing
+    def psf(self, wave, sx=np.arange(-8e-5, 8e-5, 4e-7), sy=np.arange(-8e-5, 8e-5, 4e-7)):
+        """
+        get point spread function of optics for given wavelength and spatial frequency
+        :param wave: float, wavelength sample to be retrieved in nm
+        :param sx: np.ndarray, spatial frequency in x direction
+        :param sy: np.ndarray, spatial frequency in y direction
+        :return: point spread function
+
+        Programming Note:
+          In this function, we assume that sx and sy are equally spaced grid, symmetric about 0
+        """
+        # compute spatial spacing and max frequency
+        spatial_spacing = np.array([sx[1]-sx[0], sy[1]-sy[0]])
+        max_freq = 1/2/spatial_spacing * self.meters_per_degree  # in units cycles/deg
+
+        # get frequency support
+        fx = np.linspace(-max_freq[0], max_freq[0], num=sx.size)
+        fy = np.linspace(-max_freq[1], max_freq[1], num=sy.size)
+
+        # get otf at wavelength
+        otf = self.otf(wave, fx, fy)
 
         # compute psf
-        # psf support is different from spatial support, should fix here
-        psf = np.abs(fftshift(ifft2(otf)))
-        return interp2d(sx, sy, psf, bounds_error=False, fill_value=0)
+        return np.abs(fftshift(ifft2(otf)))
 
 
 def optics_defocus_mtf(s, alpha):
@@ -339,6 +351,7 @@ def optics_defocus_mtf(s, alpha):
     """
     # compute auxiliary parameters
     nf = np.abs(s)/2
+    nf[nf > 1] = 1
     beta = np.sqrt(1 - nf**2)
     otf = nf  # allocate space for otf
 

@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Source/Objects/Cone.py" afterPath="$PROJECT_DIR$/Source/Objects/Cone.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Source/Objects/Optics.py" afterPath="$PROJECT_DIR$/Source/Objects/Optics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" afterPath="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pyEyeBall.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -26,8 +23,8 @@
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_optics.coverage" NAME="Unittests in test_optics Coverage Results" MODIFIED="1438835715935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439190560379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1439190553032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439356132606" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439190545826" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439364795912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439363523622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1438739437869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -66,7 +63,7 @@
       <file leaf-file-name="Scene.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-125.703705">
+            <state vertical-scroll-proportion="0.0">
               <caret line="263" column="60" selection-start-line="263" selection-start-column="60" selection-end-line="263" selection-end-column="60" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
@@ -78,8 +75,8 @@
       <file leaf-file-name="Optics.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.9235669">
-              <caret line="44" column="23" selection-start-line="44" selection-start-column="23" selection-end-line="44" selection-end-column="23" />
+            <state vertical-scroll-proportion="0.40816328">
+              <caret line="315" column="52" selection-start-line="315" selection-start-column="52" selection-end-line="315" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -687,9 +684,9 @@
     <recent_temporary>
       <list size="4">
         <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
-        <item index="1" class="java.lang.String" itemvalue="Python.tmp" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in conePhotopigmentMosaic" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in conePhotopigmentMosaic" />
+        <item index="2" class="java.lang.String" itemvalue="Python.tmp" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
       </list>
     </recent_temporary>
   </component>
@@ -707,13 +704,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1294" height="812" extended-state="0" />
+    <frame x="0" y="23" width="1294" height="812" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32974428" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39838493" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39838493" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -722,7 +719,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27047914" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32859176" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -744,14 +741,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="19" />
+      <option name="time" value="24" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="tests">
-        <watch expression="self.size" language="Python" />
-        <watch expression="tmp.shape" language="Python" />
-        <watch expression="cone_mosaic.size" language="Python" />
-        <watch expression="mask.shape" language="Python" />
+        <watch expression="optics_defocus_mtf(s, alpha)" language="Python" />
+        <watch expression="alpha.shape" language="Python" />
+        <watch expression="otf.shape" language="Python" />
+        <watch expression="s.shape" language="Python" />
       </configuration>
       <configuration name="PythonConfigurationType">
         <watch expression="self.cone" language="Python" />
@@ -947,16 +944,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-125.703705">
-          <caret line="263" column="60" selection-start-line="263" selection-start-column="60" selection-end-line="263" selection-end-column="60" />
-          <folding>
-            <element signature="e#0#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Validation/tmp.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -997,10 +984,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="263" column="60" selection-start-line="263" selection-start-column="60" selection-end-line="263" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9235669">
-          <caret line="44" column="23" selection-start-line="44" selection-start-column="23" selection-end-line="44" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.40816328">
+          <caret line="315" column="52" selection-start-line="315" selection-start-column="52" selection-end-line="315" selection-end-column="52" />
           <folding />
         </state>
       </provider>
