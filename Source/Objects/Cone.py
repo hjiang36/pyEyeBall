@@ -10,6 +10,7 @@ import copy
 import pickle
 from PyQt4 import QtGui, QtCore
 from scipy.misc import imresize
+from scipy.constants import pi
 
 
 __author__ = 'HJ'
@@ -72,6 +73,145 @@ class ConePhotopigment:
         return qe / np.max(qe, axis=0)
 
 
+class FixationalEyeMovement:
+    """
+    Class describes fixational eye movement
+    """
+
+    def __init__(self, name='Human Eye Movement', flag=np.array([True, True, True]), tremor_interval=0.012,
+                 tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016,
+                 msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5,
+                 msaccade_speed=15, msaccade_speed_sd=5
+                 ):
+        """
+        Constructor for fixational eye movement class
+        :param name: string, name of the instance of this class
+        :param flag: np.ndarray of three values, indicating whether to include tremor, drift, micro-saccade respectively
+        :param tremor_interval: float, time interval between two tremors in seconds
+        :param tremor_interval_sd: float, standard deviation of tremor_interval
+        :param tremor_amplitude: amplitude of tremor in degree
+        :param drift_speed: float, speed of drift in degree / sec
+        :param drift_speed_sd: float, standard deviation of drift
+        :param msaccade_interval: float, time interval between two micro-saccade in seconds
+        :param msaccade_interval_sd: float, standard deviation of micro-saccade interval
+        :param msaccade_direction_sd: float, deviation of direction of movement towards fixation point
+        :param msaccade_speed: float, micro-saccade speed in degree/second
+        :param msaccade_speed_sd: float, standard deviation of micro-saccade speed
+
+        Reference:
+        1) Susana Martinez-Conde et. al, The role of fixational eye movements in visual perception, Nature reviews |
+           neuroscience, Vol. 5, 2004, page 229~240
+        2) Susana Martinez-Conde et. al, Microsaccades: a neurophysiological analysis, Trends in Neurosciences,
+           Volume 32, Issue 9, September 2009, Pages 463~475
+        """
+        # set parameters
+        self.name = name
+        self.flag = flag
+        self.tremor_interval = tremor_interval
+        self.tremor_interval_sd = tremor_interval_sd
+        self.tremor_amplitude = tremor_amplitude
+        self.drift_speed = drift_speed
+        self.drift_speed_sd = drift_speed_sd
+        self.msaccade_interval = msaccade_interval
+        self.msaccade_interval_sd = msaccade_interval_sd
+        self.msaccade_direction_sd = msaccade_direction_sd
+        self.msaccade_speed = msaccade_speed
+        self.msaccade_speed_sd = msaccade_speed_sd
+
+    def __str__(self):
+        """
+        Generate description string for this class
+        """
+        s = 'Fixational Eye Movement: ' + self.name + '\n'
+        s += '  flag: ' + str(self.flag) + '\n'
+        s += '  Tremor parameters: \n'
+        s += '    interval: %.4g' % (self.tremor_interval*1000) + ' ms\n'
+        s += '    interval sd: %.4g' % (self.tremor_interval_sd * 1000) + ' ms\n'
+        s += '    amplitude: %.4g' % (self.tremor_amplitude * 3600) + ' arcsec\n'
+        s += '  Drift parameters: \n'
+        s += '    speed: %.4g' % self.drift_speed + ' deg/sec\n'
+        s += '    speed sd: %.4g' % self.drift_speed_sd + 'deg/sec\n'
+        s += '  Micro-saccade parameters: \n'
+        s += '    interval: %.4g' % (self.msaccade_interval * 1000) + 'ms\n'
+        s += '    interval sd: %.4g' % (self.msaccade_interval_sd * 1000) + 'ms\n'
+        s += '    speed: %.4g' % self.msaccade_speed + ' deg/sec\n'
+        s += '    speed sd: %.4g' % self.msaccade_speed_sd + ' deg/sec\n'
+        s += '    direction sd: %.4g' % self.msaccade_direction_sd + ' deg'
+        return s
+
+    def generate_path(self, sample_time=0.001, n_samples=1000, start=np.array([[0, 0]])):
+        """
+        Generate fixational eye movement path
+        :param sample_time: float, time between samples in sec
+        :param n_samples: int, number of samples to generate
+        :param start: initial position at time 0
+        :return: np.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees
+
+        Programming Note:
+          We will first generate eye movement path at temporal resolution of 1 ms and then interpolate to the desired
+          sample_time.
+        """
+        # Initialize position, allocate space
+        n_pos = round(n_samples*sample_time/0.001)
+        position = np.zeros([n_pos, 2]) + start  # position at every 1 ms
+
+        # Generate eye movement for tremor
+        if self.flag[0]:
+            # compute when tremor occurs
+            t = self.tremor_interval + self.tremor_interval_sd * np.random.randn(n_pos)
+            t[t < 0.001] = 0.001  # get rid of negative values
+            t_pos = np.round(np.cumsum(t) / 0.001)
+            t_pos = t_pos[0:np.argmax(t_pos >= n_pos)].astype(int)
+
+            # randomize direction and compute direction
+            direction = 2 * np.random.rand(t_pos.size, 2) - 1
+            position[t_pos, :] = direction / np.sqrt(np.sum(direction**2, axis=1))[:, None] * self.tremor_amplitude
+            position = np.cumsum(position, axis=0)
+
+        # Generate eye movement for drift
+        if self.flag[1]:
+            # set direction to be gradually changed over time
+            theta = pi*np.random.rand() + 0.1 * pi/180 * np.arange(n_pos)
+            direction = np.zeros([n_pos, 2])
+            direction[:, 0] = np.cos(theta)
+            direction[:, 1] = np.sin(theta)
+
+            # generate random moves
+            s = self.drift_speed + self.drift_speed_sd * np.random.randn(n_pos, 1)
+            position += direction * s * sample_time
+
+        # Generate eye movement for micro-saccade
+        if self.flag[2]:
+            # compute when micro-saccade occur
+            t = self.msaccade_interval + self.msaccade_interval_sd * np.random.randn(n_pos)
+            t[t < 0.3] = 0.3 + 0.1 * np.random.rand(np.sum(t < 0.3))  # get rid of negative value
+            t_pos = np.round(np.cumsum(t)/0.001)
+            t_pos = t_pos[0:np.argmax(t_pos >= n_pos)].astype(int)
+
+            for cur_t_pos in t_pos:
+                cur_pos = position[cur_t_pos, :]
+                duration = round(np.sqrt(np.sum(cur_pos**2)) / self.msaccade_speed / 0.001)
+
+                direction = np.arctan2(cur_pos[1], cur_pos[0]) + self.msaccade_direction_sd * pi/180 * np.random.randn()
+                direction = np.array([np.cos(direction), np.sin(direction)])
+                direction = np.abs(direction) * (2*(cur_pos < 0) - 1)
+
+                offset = np.zeros([n_pos, 2])
+                cur_speed = self.msaccade_speed + self.msaccade_speed_sd * np.random.randn()
+                if cur_speed < 0:
+                    cur_speed = self.msaccade_speed
+                offset[cur_t_pos:min(cur_t_pos + duration, n_pos-1), 0] = cur_speed*direction[0] * sample_time
+                offset[cur_t_pos:min(cur_t_pos + duration, n_pos-1), 1] = cur_speed*direction[1] * sample_time
+
+                position += np.cumsum(offset, axis=0)
+
+        # Interpolate to desired sample time
+        if sample_time != 0.001:
+            f = interp1d(np.arange(n_pos), position, axis=0)
+            position = f(np.arange(0, n_samples*sample_time, sample_time))
+        return position
+
+
 class ConePhotopigmentMosaic:
     """
     Class describing human cone mosaic and isomerizations
@@ -80,17 +220,18 @@ class ConePhotopigmentMosaic:
     def __init__(self, wave=np.array(range(400, 710, 10)), name="Human Cone Mosaic",
                  mosaic=None, cone_width=2e-6, cone_height=2e-6,
                  density=np.array([.0, .6, .3, .1]), position=np.array([[0, 0]]),
-                 integration_time=0.05, size=np.array([72, 88])):
+                 integration_time=0.05, sample_time=0.001, size=np.array([72, 88])):
         """
         Constructor for class
         :param wave: wavelength sample of this class
         :param name: name of the instance of this class
         :param mosaic: 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively
-        :param cone_width: width of the cone in meters
-        :param cone_height: height of the cone in meters
+        :param cone_width: float, width of the cone in meters
+        :param cone_height: float, height of the cone in meters
         :param density: spatial density (proportional) of different cone types in order of K,L,M,S
         :param position: N-by-2 matrix indicating eye movement positions in (x, y) in units of number of cones
-        :param integration_time: integration time of cone in secs
+        :param integration_time: float, integration time of cone in secs
+        :param sample_time: float, sample time interval for self.position in secs
         :param size: size of cone mosaic to be generated, only used when mosaic is not given
         :return: instance of class with attributes set
         """
@@ -102,6 +243,7 @@ class ConePhotopigmentMosaic:
         self.density = density / np.sum(density)
         self.position = position
         self.integration_time = integration_time
+        self.sample_time = sample_time
 
         # Initialize spectral quanta efficiency of the cones
         # pad a column for black holes (K)
@@ -167,6 +309,16 @@ class ConePhotopigmentMosaic:
         app = QtGui.QApplication([''])
         ConeGUI(self)
         app.exec_()
+
+    def init_eye_movement(self, n_samples=1000, em=FixationalEyeMovement()):
+        """
+        convert eye path to positions in cone mosaic (self.position)
+        :param n_samples: int, number of samples of eye positions
+        :param em: instance of FixationalEyeMovement class
+        :return: None, but self.position will be set
+        """
+        position = em.generate_path(self.sample_time, n_samples)  # position in degrees
+        self.position = np.round(position * self.cones_per_degree)
 
     def compute_noisefree(self, oi, full_lms=False):
         """
@@ -308,6 +460,10 @@ class ConePhotopigmentMosaic:
     @property
     def degrees_per_cone(self):  # cone width in degree
         return self.fov/self.n_cols
+
+    @property
+    def cones_per_degree(self):  # number of cones per degree
+        return self.n_cols / self.fov
 
     @property
     def position_x(self):  # eye movement position in x direction
@@ -499,20 +655,3 @@ class ConeGUI(QtGui.QMainWindow):
         with open(file_name, "wb") as f:
             pickle.dump(self.cone, f, pickle.HIGHEST_PROTOCOL)
 
-
-class FixationalEyeMovement:
-    """
-    Class describes fixational eye movement
-    """
-
-    def __init__(self, flag=np.array([True, True, True]), tremor_interval=0.012,
-                 tremor_interval_sd=0.001, tremor_amplitude, drift_speed, drift_speed_sd,
-                 msaccade_interval, msaccade_interval_sd, msaccade_direction_sd,
-                 msaccade_speed, msaccade_speed_sd
-                 ):
-        """
-        Constructor for fixational eye movement class
-        :param flag: np.ndarray of three values, indicating whether to include tremor, drift, micro-saccade respectively
-        :param :
-        :param n_samples: number of samples to generate
-        """

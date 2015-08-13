@@ -9,21 +9,23 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    d = Display.init_with_isetbio_mat_file("OLED-Sony.mat")
+    # d = Display.init_with_isetbio_mat_file("OLED-Sony.mat")
     # d.visualize()
 
-    scene = Scene("macbeth")
+    # scene = Scene("macbeth")
     # scene.visualize()
 
-    oi = Optics()
+    # oi = Optics()
     # oi.plot('psf', 550)
-    oi.compute(scene)
+    # oi.compute(scene)
     # oi.visualize()
 
     cone = ConePhotopigmentMosaic()
-    cone.set_fov(scene.fov, oi)
-    cone.compute(oi)
-    cone.visualize()
+    # cone.set_fov(scene.fov, oi)
+    cone.init_eye_movement()
+    cone.plot('eyemovement')
+    # cone.compute(oi)
+    # cone.visualize()
 
     # plt.show(block=True)
 
