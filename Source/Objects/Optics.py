@@ -62,7 +62,7 @@ class Optics:
         otf = np.zeros([sample_sf.size, wave.size])
         for ii in range(wave.size):
             s = 1 / tan(deg_to_rad(1)) * wave[ii] * 2e-9 / pupil_diameter * sample_sf  # reduced spatial frequency
-            alpha = np.abs(4*pi / (wave[ii] * 1e-9) * w20[ii] * s)
+            alpha = 4*pi / (wave[ii] * 1e-9) * w20[ii] * s
             otf[:, ii] = optics_defocus_mtf(s, alpha) * achromatic_mtf
 
         # set otf as 2d interpolation function to object
@@ -127,7 +127,6 @@ class Optics:
         # generate plot according to param
         if param == "srgb":
             plt.imshow(self.srgb)
-            plt.show()
         elif param == "otf":
             assert opt is not None, "wavelength to be plotted required as opt"
             freq = np.arange(-90.0, 90.0)
@@ -138,10 +137,10 @@ class Optics:
             ax.plot_surface(fx, fy, self.otf(opt, freq, freq))
             plt.xlabel("Frequency (cycles/deg)")
             plt.ylabel("Frequency (cycles/deg)")
-            plt.show()
+            plt.pause(0.01)
         elif param == "psf":
             assert opt is not None, "Wavelength to be plotted required as opt"
-            spatial_support = np.arange(-8e-5, 8e-5, 4e-7)
+            spatial_support = np.arange(-6e-5, 6e-5, 3e-7)
             sx, sy = np.meshgrid(spatial_support, spatial_support)
             
             psf = self.psf(opt, spatial_support, spatial_support)
@@ -151,25 +150,22 @@ class Optics:
             ax.plot_surface(sx * 1e6, sy * 1e6, psf)  # plot in units of um
             plt.xlabel("Position (um)")
             plt.ylabel("Position (um)")
-            plt.show()
+            plt.pause(0.01)
         elif param == "lenstransmittance":
             plt.plot(self._wave, self.lens_transmittance)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Lens Transmittance")
             plt.grid()
-            plt.show()
         elif param == "maculartransmittance":
             plt.plot(self._wave, self.macular_transmittance)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Macular Pigment Transmittance")
             plt.grid()
-            plt.show()
         elif param == "oculartransmittance":
             plt.plot(self._wave, self.ocular_transmittance)
             plt.xlabel("Wavelength (nm)")
             plt.ylabel("Ocular Transmittance")
             plt.grid()
-            plt.show()
         else:
             raise(ValueError, "Unknown param")
 
@@ -309,12 +305,14 @@ class Optics:
         :param fy: np.ndarray, frequency in y direction
         :return: 2D otf image
         """
-        # make meshgrid of frequency
+        # define frequencies
         fx, fy = np.meshgrid(fx, fy)
-        freq = np.sqrt(fx**2 + fy**2)
+        freq = np.sqrt(fx**2 + fy**2).flatten(order="F")
 
-        assert isinstance(freq, np.ndarray), "Input fx, fy should be 1D vector"
-        return fftshift(self._otf(wave, freq.flatten(order="F")).reshape(freq.shape, order="F"))
+        index = freq.argsort()
+        otf = np.zeros(freq.shape)
+        otf[index] = self._otf(wave, freq.flatten())[:, 0]
+        return otf.reshape(fx.shape, order="F")
 
     def psf(self, wave, sx=np.arange(-8e-5, 8e-5, 4e-7), sy=np.arange(-8e-5, 8e-5, 4e-7)):
         """

@@ -7,12 +7,19 @@
       <w>controlmap</w>
       <w>dixel</w>
       <w>emissive</w>
+      <w>eyemovement</w>
+      <w>fixational</w>
       <w>hbox</w>
       <w>intensitymap</w>
       <w>invertgamma</w>
       <w>isetbio</w>
       <w>isomerization</w>
+      <w>lenstransmittance</w>
+      <w>macular</w>
+      <w>noisefree</w>
       <w>photopigment</w>
+      <w>quantaefficiency</w>
+      <w>saccade</w>
       <w>stockman</w>
       <w>vbox</w>
     </words>

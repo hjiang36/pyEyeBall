@@ -2,7 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Source/Objects/Cone.py" afterPath="$PROJECT_DIR$/Source/Objects/Cone.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/Killua.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/Killua.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Source/Objects/Optics.py" afterPath="$PROJECT_DIR$/Source/Objects/Optics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/pyEyeBall.iml" afterPath="$PROJECT_DIR$/.idea/pyEyeBall.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Validation/tmp.py" afterPath="$PROJECT_DIR$/Validation/tmp.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pyEyeBall.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -17,13 +24,13 @@
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/pyEyeBall$Display.coverage" NAME="Display Coverage Results" MODIFIED="1438485025204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Objects" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1439353835040" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1439403808178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439182176743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Illuminant.coverage" NAME="Unittests in Illuminant Coverage Results" MODIFIED="1439190556929" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_optics.coverage" NAME="Unittests in test_optics Coverage Results" MODIFIED="1438835715935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439190560379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1439190553032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439364795912" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439190560379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439399694035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439363523622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1438739437869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
   </component>
@@ -41,9 +48,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="336" column="13" selection-start-line="336" selection-start-column="13" selection-end-line="336" selection-end-column="13" />
-              <folding>
-                <element signature="e#0#37#0" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -52,7 +57,7 @@
         <entry file="file://$PROJECT_DIR$/Validation/tmp.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="26" column="10" selection-start-line="26" selection-start-column="10" selection-end-line="26" selection-end-column="10" />
+              <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
               <folding>
                 <element signature="e#19#57#0" expanded="true" />
               </folding>
@@ -64,31 +69,47 @@
         <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="263" column="60" selection-start-line="263" selection-start-column="60" selection-end-line="263" selection-end-column="60" />
+              <caret line="265" column="0" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
+                <marker date="1439397856000" expanded="true" signature="365:4322" placeholder="..." />
+                <marker date="1439397856000" expanded="true" signature="2894:2909" placeholder="..." />
+                <marker date="1439397856000" expanded="true" signature="4359:4370" placeholder="..." />
+                <marker date="1439397856000" expanded="true" signature="8691:9158" placeholder="..." />
+                <marker date="1439397856000" expanded="true" signature="8762:8768" placeholder="..." />
+                <marker date="1439397856000" expanded="true" signature="15194:15223" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Optics.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Optics.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.40816328">
-              <caret line="315" column="52" selection-start-line="315" selection-start-column="52" selection-end-line="315" selection-end-column="52" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="146" column="0" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Cone.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Cone.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Source/Objects/Cone.py">
           <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.6178344">
+              <caret line="508" column="59" selection-start-line="508" selection-start-column="59" selection-end-line="508" selection-end-column="59" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="111" column="35" selection-start-line="111" selection-start-column="35" selection-end-line="111" selection-end-column="35" />
+              <caret line="8" column="95" selection-start-line="8" selection-start-column="95" selection-end-line="8" selection-end-column="95" />
               <folding>
-                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#19#62#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -98,7 +119,7 @@
         <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_optics.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="26" selection-start-line="23" selection-start-column="26" selection-end-line="23" selection-end-column="26" />
+              <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -137,7 +158,6 @@
         <option value="$PROJECT_DIR$/Objects/Display.py" />
         <option value="$PROJECT_DIR$/Objects/Optics.py" />
         <option value="$PROJECT_DIR$/Objects/test_conePhotopigmentMosaic.py" />
-        <option value="$PROJECT_DIR$/__init__.py" />
         <option value="$PROJECT_DIR$/Objects/Cone.py" />
         <option value="$PROJECT_DIR$/Objects/Scene.py" />
         <option value="$PROJECT_DIR$/Source/__init__.py" />
@@ -155,10 +175,11 @@
         <option value="$PROJECT_DIR$/Validation/UnitTest/test_scene.py" />
         <option value="$PROJECT_DIR$/Source/Objects/Display.py" />
         <option value="$PROJECT_DIR$/Source/Objects/Scene.py" />
-        <option value="$PROJECT_DIR$/Validation/tmp.py" />
         <option value="$PROJECT_DIR$/Validation/UnitTest/test_optics.py" />
-        <option value="$PROJECT_DIR$/Source/Objects/Cone.py" />
         <option value="$PROJECT_DIR$/Source/Objects/Optics.py" />
+        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/Validation/tmp.py" />
+        <option value="$PROJECT_DIR$/Source/Objects/Cone.py" />
       </list>
     </option>
   </component>
@@ -170,6 +191,7 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
+    <option name="x" value="158" />
     <option name="y" value="23" />
     <option name="width" value="1294" />
     <option name="height" value="812" />
@@ -274,43 +296,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="Validation" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="UnitTest" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="Source" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyEyeBall" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Source" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Utility" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -339,7 +325,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="FullScreen" value="false" />
     <property name="recentsLimit" value="5" />
@@ -351,7 +337,7 @@
       <recent name="$PROJECT_DIR$/Validation/UnitTest" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in Optics">
+  <component name="RunManager" selected="Python.tmp">
     <configuration default="false" name="Unittests in Scene" type="tests" factoryName="Unittests" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -683,9 +669,9 @@
     </list>
     <recent_temporary>
       <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in conePhotopigmentMosaic" />
-        <item index="2" class="java.lang.String" itemvalue="Python.tmp" />
+        <item index="0" class="java.lang.String" itemvalue="Python.tmp" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in Optics" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in conePhotopigmentMosaic" />
         <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in Scene" />
       </list>
     </recent_temporary>
@@ -704,28 +690,28 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1294" height="812" extended-state="1" />
+    <frame x="158" y="23" width="1294" height="812" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32974428" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39838493" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27047914" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39838493" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32859176" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32839838" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32974428" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -741,7 +727,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="24" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/Source/Objects/Optics.py</url>
+          <line>314</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="29" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="tests">
@@ -751,10 +744,10 @@
         <watch expression="s.shape" language="Python" />
       </configuration>
       <configuration name="PythonConfigurationType">
-        <watch expression="self.cone" language="Python" />
-        <watch expression="self.image" language="Python" />
-        <watch expression="np.max(self.image)" language="Python" />
-        <watch expression="self.image.shape" language="Python" />
+        <watch expression="self._otf(wave, freq.flatten())[index, 0].shape" language="Python" />
+        <watch expression="self._otf(wave, [127.27, 0])" language="Python" />
+        <watch expression="self._otf(wave, freq.flatten())[index].shape" language="Python" />
+        <watch expression="index.shape" language="Python" />
       </configuration>
     </watches-manager>
   </component>
@@ -781,6 +774,12 @@
           <caret line="3" column="34" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
           <folding>
             <element signature="e#0#34#0" expanded="true" />
+            <marker date="1439397856000" expanded="true" signature="365:4322" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="2894:2909" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="4359:4370" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="8691:9158" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="8762:8768" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="15194:15223" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -789,7 +788,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -797,7 +795,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -805,7 +802,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -813,7 +809,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="2" column="12" selection-start-line="2" selection-start-column="12" selection-end-line="2" selection-end-column="12" />
-          <folding />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -821,9 +819,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#29#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -906,7 +901,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -914,7 +908,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -922,9 +915,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#29#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -940,24 +930,37 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.062937066">
           <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Validation/tmp.py">
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="10" selection-start-line="26" selection-start-column="10" selection-end-line="26" selection-end-column="10" />
+          <caret line="265" column="0" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
           <folding>
-            <element signature="e#19#57#0" expanded="true" />
+            <element signature="e#0#34#0" expanded="true" />
+            <marker date="1439397856000" expanded="true" signature="365:4322" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="2894:2909" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="4359:4370" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="8691:9158" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="8762:8768" placeholder="..." />
+            <marker date="1439397856000" expanded="true" signature="15194:15223" placeholder="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda/lib/python3.4/site-packages/mpl_toolkits/mplot3d/axes3d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7613365">
+          <caret line="1567" column="0" selection-start-line="1567" selection-start-column="0" selection-end-line="1567" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Validation/UnitTest/test_optics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="26" selection-start-line="23" selection-start-column="26" selection-end-line="23" selection-end-column="26" />
+          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
@@ -968,36 +971,42 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="336" column="13" selection-start-line="336" selection-start-column="13" selection-end-line="336" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="146" column="0" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="8" column="95" selection-start-line="8" selection-start-column="95" selection-end-line="8" selection-end-column="95" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
+            <element signature="e#19#62#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Validation/tmp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
+          <folding>
+            <element signature="e#19#57#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Source/Objects/Cone.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="111" column="35" selection-start-line="111" selection-start-column="35" selection-end-line="111" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="263" column="60" selection-start-line="263" selection-start-column="60" selection-end-line="263" selection-end-column="60" />
-          <folding>
-            <element signature="e#0#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40816328">
-          <caret line="315" column="52" selection-start-line="315" selection-start-column="52" selection-end-line="315" selection-end-column="52" />
+        <state vertical-scroll-proportion="0.6178344">
+          <caret line="508" column="59" selection-start-line="508" selection-start-column="59" selection-end-line="508" selection-end-column="59" />
           <folding />
         </state>
       </provider>

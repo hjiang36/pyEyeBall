@@ -155,7 +155,7 @@ class ConePhotopigmentMosaic:
             for cone_type in range(1, 4):
                 rgb += (self.mosaic == cone_type)[:, :, None] * color[cone_type-1, :]
             plt.imshow(rgb)
-        elif param == "eyemovent" or param == "positions":
+        elif param == "eyemovement" or param == "positions":
             plt.plot(self.position_x, self.position_y)
             plt.xlabel("Eye position (number of cones)")
             plt.ylabel("Eye position (number of cones)")
@@ -498,3 +498,21 @@ class ConeGUI(QtGui.QMainWindow):
         file_name = QtGui.QFileDialog().getSaveFileName(self, "Save Cone Mosaic to File", get_data_path(), "*.pkl")
         with open(file_name, "wb") as f:
             pickle.dump(self.cone, f, pickle.HIGHEST_PROTOCOL)
+
+
+class FixationalEyeMovement:
+    """
+    Class describes fixational eye movement
+    """
+
+    def __init__(self, flag=np.array([True, True, True]), tremor_interval=0.012,
+                 tremor_interval_sd=0.001, tremor_amplitude, drift_speed, drift_speed_sd,
+                 msaccade_interval, msaccade_interval_sd, msaccade_direction_sd,
+                 msaccade_speed, msaccade_speed_sd
+                 ):
+        """
+        Constructor for fixational eye movement class
+        :param flag: np.ndarray of three values, indicating whether to include tremor, drift, micro-saccade respectively
+        :param :
+        :param n_samples: number of samples to generate
+        """
