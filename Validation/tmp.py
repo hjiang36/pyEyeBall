@@ -12,19 +12,21 @@ def main():
     # d = Display.init_with_isetbio_mat_file("OLED-Sony.mat")
     # d.visualize()
 
-    # scene = Scene("macbeth")
+    scene = Scene("macbeth")
+    scene.mean_luminance = 100
     # scene.visualize()
 
-    # oi = Optics()
+    oi = Optics()
     # oi.plot('psf', 550)
-    # oi.compute(scene)
+    oi.compute(scene)
     # oi.visualize()
 
     cone = ConeOuterSegmentMosaic()
     # cone.set_fov(scene.fov, oi)
-    cone.init_eye_movement()
-    cone.plot('eyemovement')
-    # cone.compute(oi)
+    # cone.init_eye_movement()
+    # cone.plot('eyemovement')
+    cone.compute(oi)
+    print(cone.current)
     # cone.visualize()
 
     # plt.show(block=True)

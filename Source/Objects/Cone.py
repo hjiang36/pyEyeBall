@@ -234,6 +234,11 @@ class ConeOuterSegmentMosaic:
         :param sample_time: float, sample time interval for self.position in secs
         :param size: size of cone mosaic to be generated, only used when mosaic is not given
         :return: instance of class with attributes set
+
+        Todo:
+          1. Cone adaptation and cone current
+          2. Replace cone_width and cone_height with cone_diameter
+          3. Have spatial support and cone diameter vary with eccentricty
         """
         # Initialize instance attribute
         self.name = name
@@ -360,7 +365,6 @@ class ConeOuterSegmentMosaic:
             else:
                 # select data according to cone mosaic
                 self.photons += cone_photons * (self.mosaic == cone_type)
-        return self
 
     def compute(self, oi: Optics, add_noise=True):
         """
@@ -394,12 +398,11 @@ class ConeOuterSegmentMosaic:
         for pos in range(self.n_positions):
             photons = cone_mosaic.photons[(rows_to_pad[0]+pos_y[pos]):(rows_to_pad[0]+pos_y[pos]+self.n_rows),
                                           (cols_to_pad[0]+pos_x[pos]):(cols_to_pad[0]+pos_x[pos]+self.n_cols), :]
-            self.photons = np.sum(photons * mask, axis=2)
+            self.photons[:, :, pos] = np.sum(photons * mask, axis=2)
 
         # add noise
         if add_noise:
             self.photons = np.random.poisson(lam=self.photons).astype(float)
-        return self
 
     @property
     def wave(self):
@@ -414,15 +417,61 @@ class ConeOuterSegmentMosaic:
 
     @property
     def current_noisefree(self):  # current without cone noise
+        """
+        Get noise free cone membrane current with a temporal dynamic model by Fred Rieke
+        We assume eye is adapted to the first frame as the initial steady state
+        """
+        # check if photon absorptions have been computed
         assert self.photons.size > 0, "photon absorptions not computed"
-        return None
+
+        # init parameters
+        sigma = 22.0     # rhodopsin activity decay rate (1/sec)
+        phi = 22.0       # phosphodiesterase activity decay rate (1/sec)
+        eta = 2000	     # phosphodiesterase activation rate constant (1/sec)
+        gdark = 20.5     # concentration of cGMP in darkness
+        k = 0.02         # constant relating cGMP to current
+        h = 3            # cooperativity for cGMP to current
+        cdark = 1        # dark calcium concentration
+        beta = 9	     # rate constant for calcium removal in 1/sec
+        beta_slow = 0.4  # rate constant for slow calcium modulation of channels
+        n = 4   	     # cooperativity for cyclase, hill coef
+        k_gc = 0.5        # hill affinity for cyclase
+        opsin_gain = 10  # rate of increase in opsin activity per R*/sec
+        dt = 0.001       # time interval in differential equation simulation
+
+        # Compute more parameters - steady state constraints among parameters
+        q = 2 * beta * cdark / (k * gdark**h)
+        smax = eta/phi * gdark * (1 + (cdark / k_gc)**n)
+
+        # pre-pad photon absorption by the first frame
+        n_pad = 500  # pad 500 frames before first frame for steady state adaptation
+        p_rate = self.photons / self.integration_time  # photons per second
+        p_rate = np.concatenate((np.tile(p_rate[:, :, :1], (1, 1, n_pad)), p_rate), axis=2)
+
+        # set initial state
+        opsin = 560
+        pde = 110
+        ca = ca_slow = 1
+        c_gmp = 20
+
+        # compute membrane current by simulating differential equations
+        current = np.zeros(p_rate.shape)
+        for ii in range(p_rate.shape[2]):
+            opsin += dt * (opsin_gain * p_rate[:, :, ii] - sigma * opsin)
+            pde += dt * (opsin + eta - phi * pde)
+            ca += dt * (q*k * c_gmp**h/(1 + ca_slow/cdark)-beta*ca)
+            ca_slow -= dt*beta_slow * (ca_slow - ca)
+            st = smax / (1 + (ca/k_gc)**n)
+            c_gmp += dt * (st - pde * c_gmp)
+            current[:, :, ii] = -k * c_gmp**h / (1 + ca_slow/cdark)
+        return current[:, :, n_pad:]
 
     @property
     def current(self):  # get cone current
         # model noise with spd
         noise = np.random.randn(self.n_rows, self.n_cols, self.n_positions)
-        noise_fft = np.fft.fft(noise) / np.sqrt(self.n_positions) * np.sqrt(self.cone_noise_spd)
-        return self.current_noisefree + np.real(np.fft.ifft(noise_fft))/self.sample_time
+        noise_fft = np.fft.fft(noise) * np.sqrt(self.cone_noise_spd)
+        return self.current_noisefree + np.real(np.fft.ifft(noise_fft))
 
     @property
     def cone_noise_spd(self):  # spd of cone noise
