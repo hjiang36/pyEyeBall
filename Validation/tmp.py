@@ -3,7 +3,7 @@ __author__ = 'HJ'
 from Source.Objects.Scene import Scene
 from Source.Objects.Display import Display
 from Source.Objects.Optics import Optics
-from Source.Objects.Cone import ConePhotopigmentMosaic
+from Source.Objects.Cone import ConeOuterSegmentMosaic
 import matplotlib.pyplot as plt
 
 
@@ -20,7 +20,7 @@ def main():
     # oi.compute(scene)
     # oi.visualize()
 
-    cone = ConePhotopigmentMosaic()
+    cone = ConeOuterSegmentMosaic()
     # cone.set_fov(scene.fov, oi)
     cone.init_eye_movement()
     cone.plot('eyemovement')

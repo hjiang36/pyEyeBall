@@ -212,9 +212,9 @@ class FixationalEyeMovement:
         return position
 
 
-class ConePhotopigmentMosaic:
+class ConeOuterSegmentMosaic:
     """
-    Class describing human cone mosaic and isomerizations
+    Class describing human cone mosaic and isomerization
     """
     
     def __init__(self, wave=np.array(range(400, 710, 10)), name="Human Cone Mosaic",
@@ -413,6 +413,29 @@ class ConePhotopigmentMosaic:
             self.quanta_efficiency = f(new_wave)
 
     @property
+    def current_noisefree(self):  # current without cone noise
+        assert self.photons.size > 0, "photon absorptions not computed"
+        return None
+
+    @property
+    def current(self):  # get cone current
+        # model noise with spd
+        noise = np.random.randn(self.n_rows, self.n_cols, self.n_positions)
+        noise_fft = np.fft.fft(noise) / np.sqrt(self.n_positions) * np.sqrt(self.cone_noise_spd)
+        return self.current_noisefree + np.real(np.fft.ifft(noise_fft))/self.sample_time
+
+    @property
+    def cone_noise_spd(self):  # spd of cone noise
+        k = round((self.n_positions-1)/2)+1
+        freq = np.arange(k) / self.sample_time / self.n_positions
+
+        # compute noise spd as sum of Lorentzian component
+        noise_spd = 0.48/(1+(freq/55)**2)**4 + 0.135/(1+(freq/190)**2)**2.5
+
+        # make up the negative components
+        return np.concatenate((noise_spd, noise_spd[::-1]))[:self.n_positions]
+
+    @property
     def bin_width(self):  # wavelength sample interval in nm
         return self._wave[1] - self._wave[0]
 
@@ -509,7 +532,7 @@ class ConeGUI(QtGui.QMainWindow):
     Class for Scene GUI
     """
 
-    def __init__(self, cone: ConePhotopigmentMosaic):
+    def __init__(self, cone: ConeOuterSegmentMosaic):
         """
         Initialization method for display gui
         :param cone: instance of ConePhotopigmentMosaic class

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Source.Objects.Cone import ConePhotopigmentMosaic
+from Source.Objects.Cone import ConeOuterSegmentMosaic
 from Source.Objects.Scene import Scene
 from Source.Objects.Optics import Optics
 import numpy as np
@@ -12,7 +12,7 @@ class TestConePhotopigmentMosaic(TestCase):
         fov = 1.0  # field of view in degree
         scene = Scene("macbeth", fov=fov)
         oi = Optics().compute(scene)
-        cone = ConePhotopigmentMosaic()
+        cone = ConeOuterSegmentMosaic()
         cone.set_fov(new_fov=fov, oi=oi)
         cone.compute_noisefree(oi)
         cone.position = np.round(np.random.normal(size=[100, 2], scale=5))
@@ -22,7 +22,7 @@ class TestConePhotopigmentMosaic(TestCase):
         fov = 1.0  # field of view in degree
         scene = Scene("macbeth", fov=fov)
         oi = Optics().compute(scene)
-        cone = ConePhotopigmentMosaic()
+        cone = ConeOuterSegmentMosaic()
         cone.set_fov(new_fov=fov, oi=oi)
         cone.compute_noisefree(oi)
         self.assertRaises(Exception, cone.wave)
