@@ -88,11 +88,9 @@ class Display:
     def plot(self, param):
         """
         generate plots for display parameters and properties
-        :param param: string, indicating which plot to generate, can be chosen from:
-                      'spd', 'gamma', 'invert gamma', 'gamut'
+        :param param: string, indicating which plot to generate
         :return: None, but plot will be shown
         """
-
         # process param to be lowercase and without spaces
         param = str(param).lower().replace(" ", "")
         plt.ion()  # enable interactive mode
