@@ -22,6 +22,12 @@ class ConePhotopigment:
     Programming Note:
     In this class, we only care about three types of cones (LMS) and in ConePhotopigmentMosaic class, the order of cone
     type is K,L,M,S. Thus, need to pad a column for K in that class
+
+    Attribute types:
+    :type _wave: numpy.ndarray
+    :type name: str
+    :type optical_density: numpy.ndarray
+    :type peak_efficiency: numpy.ndarray
     """
 
     def __init__(self, wave=np.array(range(400, 710, 10)),
@@ -29,11 +35,11 @@ class ConePhotopigment:
                  optical_density=np.array([.5, .5, .4]), peak_efficiency=np.array([2, 2, 2])/3):
         """
         Constructor for ConePhotopigment class
-        :param wave: sample wavelength in nm
-        :param name: name of the instance of this class
-        :param absorbance: absorbance of L,M,S cones
-        :param optical_density: optical density of three types of cones
-        :param peak_efficiency: peak efficiency of three types of cones
+        :param wave: numpy.ndarray, sample wavelength in nm
+        :param name: str, name of the instance of this class
+        :param absorbance: numpy.ndarray, absorbance of L,M,S cones
+        :param optical_density: numpy.ndarray, optical density of three types of cones
+        :param peak_efficiency: numpy.ndarray, peak efficiency of three types of cones
         :return: instance of ConePhotopigment class with attribute set properly
         """
         # Initialize attributes
@@ -49,26 +55,46 @@ class ConePhotopigment:
             self.absorbance = 10.0**spectra_read("coneAbsorbance.mat", wave)
 
     @property
-    def wave(self):  # wavelength samples in nm
+    def wave(self):
+        """
+        wavelength samples in nm
+        :rtype: numpy.ndarray
+        """
         return self._wave
 
-    @wave.setter  # set wavelength samples and interpolate data
-    def wave(self, value):
-        if not np.array_equal(self._wave, value):
+    @wave.setter
+    def wave(self, new_wave):
+        """
+        set wavelength samples and interpolate data
+        :param new_wave: numpy.ndarray, new wavelength samples in nm
+        """
+        if not np.array_equal(self._wave, new_wave):
             f = interp1d(self._wave, self.absorbance, bounds_error=False, fill_value=0)
-            self.absorbance = f(value)
-            self._wave = value
+            self.absorbance = f(new_wave)
+            self._wave = new_wave
 
     @property
-    def absorptance(self):  # cone absorptance without ocular media
+    def absorptance(self):
+        """
+        cone absorptance without ocular media
+        :rtype: numpy.ndarray
+        """
         return 1 - 10.0**(-self.optical_density*self.absorbance)
 
     @property
-    def quanta_efficiency(self):  # quanta efficiency of cones
+    def quanta_efficiency(self):
+        """
+        quanta efficiency of cones
+        :rtype: numpy.ndarray
+        """
         return self.absorptance * self.peak_efficiency
 
     @property
-    def quanta_fundamentals(self):  # quantal fundamentals of cones
+    def quanta_fundamentals(self):
+        """
+        quantal fundamentals of cones
+        :rtype: numpy.ndarray
+        """
         qe = self.quanta_efficiency
         return qe / np.max(qe, axis=0)
 
@@ -145,8 +171,8 @@ class FixationalEyeMovement:
         :param sample_time: float, time between samples in sec
         :param n_samples: int, number of samples to generate
         :param start: initial position at time 0
-        :return: np.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees
-        :rtype: np.ndarray
+        :return: numpy.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees
+        :rtype: numpy.ndarray
 
         Programming Note:
           We will first generate eye movement path at temporal resolution of 1 ms and then interpolate to the desired
@@ -160,6 +186,7 @@ class FixationalEyeMovement:
         if self.flag[0]:
             # compute when tremor occurs
             t = self.tremor_interval + self.tremor_interval_sd * np.random.randn(n_pos)
+
             t[t < 0.001] = 0.001  # get rid of negative values
             t_pos = np.round(np.cumsum(t) / 0.001)
             t_pos = t_pos[0:np.argmax(t_pos >= n_pos)].astype(int)
@@ -237,8 +264,8 @@ class ConeOuterSegmentMosaic:
         :return: instance of class with attributes set
 
         Todo:
-          1. Have spatial support and cone diameter vary with eccentricty
-          2. Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid
+          1. Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid
+          2. Have spatial support and cone diameter vary with eccentricty
         """
         # Initialize instance attribute
         self.name = name
@@ -282,7 +309,7 @@ class ConeOuterSegmentMosaic:
         s = "Human Cone Mosaic: " + self.name + "\n"
         s += "  [Height, Width]: [%.4g" % (self.height*1000) + ", %.4g" % (self.width*1000) + "] mm\n"
         s += "  Field of view: %.4g" % self.fov + " deg\n"
-        s += "  Cone size: (%.4g" % (self.cone_height*1e6) + ", %.4g" % (self.cone_width*1e6) + ") um\n"
+        s += "  Cone diameter: %.4g" % (self.cone_diameter*1e6) + " um\n"
         s += "  Integration time: %.4g" % (self.integration_time*1000) + " ms\n"
         s += "  Spatial density (K,L,M,S):" + str(self.density)
         return s
@@ -538,11 +565,19 @@ class ConeOuterSegmentMosaic:
         self.spatial_support = (sx, sy)
 
     @property
-    def height(self):  # height of the cone mosaic in meters
+    def height(self):
+        """
+        height of the cone mosaic in meters
+        :rtype: float
+        """
         return np.max(self.spatial_support_y) - np.min(self.spatial_support_y)
 
     @property
-    def width(self):  # width of the cone mosaic in meters
+    def width(self):
+        """
+        width of the cone mosaic in meters
+        :rtype: float
+        """
         return np.max(self.spatial_support_x) - np.min(self.spatial_support_x)
 
     @property
