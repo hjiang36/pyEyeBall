@@ -146,6 +146,7 @@ class FixationalEyeMovement:
         :param n_samples: int, number of samples to generate
         :param start: initial position at time 0
         :return: np.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees
+        :rtype: np.ndarray
 
         Programming Note:
           We will first generate eye movement path at temporal resolution of 1 ms and then interpolate to the desired
@@ -217,35 +218,33 @@ class ConeOuterSegmentMosaic:
     Class describing human cone mosaic and isomerization
     """
     
-    def __init__(self, wave=np.array(range(400, 710, 10)), name="Human Cone Mosaic",
-                 mosaic=None, cone_width=2e-6, cone_height=2e-6,
-                 density=np.array([.0, .6, .3, .1]), position=np.array([[0, 0]]),
-                 integration_time=0.05, sample_time=0.001, size=np.array([72, 88])):
+    def __init__(self, wave=np.array(range(400, 710, 10)), name="Human Cone Mosaic", mosaic=None,
+                 cone_diameter=2e-6, density=np.array([.0, .6, .3, .1]), position=np.array([[0, 0]]),
+                 integration_time=0.05, sample_time=0.001, size=np.array([72, 88]),
+                 spatial_support=None):
         """
         Constructor for class
         :param wave: wavelength sample of this class
         :param name: name of the instance of this class
         :param mosaic: 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively
-        :param cone_width: float, width of the cone in meters
-        :param cone_height: float, height of the cone in meters
+        :param cone_diameter: float, diameter of cone cell in meters
         :param density: spatial density (proportional) of different cone types in order of K,L,M,S
         :param position: N-by-2 matrix indicating eye movement positions in (x, y) in units of number of cones
         :param integration_time: float, integration time of cone in secs
         :param sample_time: float, sample time interval for self.position in secs
         :param size: size of cone mosaic to be generated, only used when mosaic is not given
+        :param spatial_support: 2-element tuple, containing position of cones in x, y direction
         :return: instance of class with attributes set
 
         Todo:
-          1. Cone adaptation and cone current
-          2. Replace cone_width and cone_height with cone_diameter
-          3. Have spatial support and cone diameter vary with eccentricty
+          1. Have spatial support and cone diameter vary with eccentricty
+          2. Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid
         """
         # Initialize instance attribute
         self.name = name
         self._wave = wave
-        self.cone_width = cone_width
-        self.cone_height = cone_height
-        self.density = density / np.sum(density)
+        self.cone_diameter = cone_diameter
+        self._density = density / np.sum(density)
         self.position = position
         self.integration_time = integration_time
         self.sample_time = sample_time
@@ -264,10 +263,21 @@ class ConeOuterSegmentMosaic:
         else:
             self.mosaic = rv_discrete(values=(range(4), self.density)).rvs(size=size)
 
+        # Initialize spaitial support
+        if spatial_support is None:
+            sx = self.cone_diameter/2 * np.linspace(1-self.n_cols, self.n_cols-1, self.n_cols)
+            sy = self.cone_diameter/2 * np.linspace(1-self.n_rows, self.n_rows-1, self.n_rows)
+            self.spatial_support = (sx, sy)
+        else:
+            assert spatial_support[0].size == self.n_cols, "spatial support size x mismatch with mosaic columns"
+            assert spatial_support[1].size == self.n_rows, "spatial support size y mismatch with mosaic rows"
+            self.spatial_support = spatial_support
+
     def __str__(self):
         """
-        Generate descriptive string for class instance
-        :return: descriptive string
+        Generate description string for class instance
+        :return: description string
+        :rtype: str
         """
         s = "Human Cone Mosaic: " + self.name + "\n"
         s += "  [Height, Width]: [%.4g" % (self.height*1000) + ", %.4g" % (self.width*1000) + "] mm\n"
@@ -409,11 +419,28 @@ class ConeOuterSegmentMosaic:
         return self._wave
 
     @wave.setter
-    def wave(self, new_wave):  # adjust wavelength samples
+    def wave(self, new_wave):  # adjust wavelength samples and interpolate data
         if not np.array_equal(self.wave, new_wave):
             # interpolate spectral quanta efficiency
             f = interp1d(self._wave, self.quanta_efficiency, axis=0, bounds_error=False, fill_value=0)
             self.quanta_efficiency = f(new_wave)
+
+    @property
+    def density(self):
+        return self._density
+
+    @density.setter
+    def density(self, density):  # adjust cone spatial density and re-generate cone mosaic
+        self._density = density / np.sum(density)
+        self.mosaic = rv_discrete(values=(range(4), self.density)).rvs(size=self.size)
+
+    @property
+    def cone_width(self):  # width of cone cell in meters
+        return self.cone_diameter
+
+    @property
+    def cone_height(self):  # height of cone cell in meters
+        return self.cone_diameter
 
     @property
     def current_noisefree(self):  # current without cone noise
@@ -505,29 +532,30 @@ class ConeOuterSegmentMosaic:
         self.mosaic = rv_discrete(values=(range(4), self.density)).rvs(size=new_size)
         self.photons = np.array([])
 
+        # set up spatial support for new cone mosaic
+        sx = self.cone_diameter/2 * np.linspace(1-self.n_cols, self.n_cols-1, self.n_cols)
+        sy = self.cone_diameter/2 * np.linspace(1-self.n_rows, self.n_rows-1, self.n_rows)
+        self.spatial_support = (sx, sy)
+
     @property
     def height(self):  # height of the cone mosaic in meters
-        return self.cone_height * self.n_rows
+        return np.max(self.spatial_support_y) - np.min(self.spatial_support_y)
 
     @property
     def width(self):  # width of the cone mosaic in meters
-        return self.cone_width * self.n_cols
+        return np.max(self.spatial_support_x) - np.min(self.spatial_support_x)
 
     @property
     def cone_area(self):  # area of one cone in m2
-        return self.cone_height * self.cone_width
+        return self.cone_diameter**2 * pi/4
 
     @property
     def spatial_support_x(self):  # x position of each cone in meters (1D array)
-        return np.linspace(-(self.n_cols-1)*self.cone_width/2, (self.n_cols-1)*self.cone_width/2, self.n_cols)
+        return self.spatial_support[0]
 
     @property
     def spatial_support_y(self):  # y position of each cone in meters (1D array)
-        return np.linspace(-(self.n_rows-1)*self.cone_height/2, (self.n_rows-1)*self.cone_height/2, self.n_rows)
-
-    @property
-    def spatial_support(self):  # position of each cone in meters (2D array)
-        return np.meshgrid(self.spatial_support_x, self.spatial_support_y)
+        return self.spatial_support[1]
 
     @property
     def degrees_per_cone(self):  # cone width in degree

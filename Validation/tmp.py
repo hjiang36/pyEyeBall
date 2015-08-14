@@ -22,8 +22,8 @@ def main():
     # oi.visualize()
 
     cone = ConeOuterSegmentMosaic()
-    # cone.set_fov(scene.fov, oi)
-    # cone.init_eye_movement()
+    cone.set_fov(scene.fov, oi)
+    cone.init_eye_movement()
     # cone.plot('eyemovement')
     cone.compute(oi)
     print(cone.current)
