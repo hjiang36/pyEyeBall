@@ -1,0 +1,534 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Display Simulation &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="index.html" />
+    <link rel="next" title="Display Simulation" href="illuminant.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="illuminant.html" title="Display Simulation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="display-simulation">
+<h1>Display Simulation<a class="headerlink" href="#display-simulation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyEyeBall.Display">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">Display</tt><big>(</big><em>name='display'</em>, <em>gamma=array([]</em>, <em>dtype=float64)</em>, <em>wave=array([]</em>, <em>dtype=float64)</em>, <em>spd=array([]</em>, <em>dtype=float64)</em>, <em>dist=1.0</em>, <em>dpi=96.0</em>, <em>is_emissive=True</em>, <em>ambient=array([]</em>, <em>dtype=float64)</em>, <em>dixel_data=None</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display simulation, computation and visualization</p>
+<p>The class stores display calibration data and a lot of computed properties and analysis plots can be generated from
+there. At this point, only emissive displays (CRT, LCD, OLED) are supported, though we have a field &#8216;is_emissive&#8217;
+left for future extensions.</p>
+<dl class="attribute">
+<dt id="Display.name">
+<tt class="descname">name</tt><a class="headerlink" href="#Display.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; name of display instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.gamma">
+<tt class="descname">gamma</tt><a class="headerlink" href="#Display.gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; gamma distortion table of the display of shape (n_levels, n_primaries)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.spd">
+<tt class="descname">spd</tt><a class="headerlink" href="#Display.spd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; spectral power distribution of the primaries in shape (n_wave, n_primaries). This fields
+represents <em>mean</em> spectral power distribution at pixel level and it&#8217;s not equivalent to the peak spd of the
+materials of primaries. spd are stored in energy units.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.dist">
+<tt class="descname">dist</tt><a class="headerlink" href="#Display.dist" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; distance between display and observer in meters</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.dpi">
+<tt class="descname">dpi</tt><a class="headerlink" href="#Display.dpi" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; display spatial resolution in dots per inch. We assume that spatial resolution along horizontal
+and vertical directions are the same</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.is_emissive">
+<tt class="descname">is_emissive</tt><a class="headerlink" href="#Display.is_emissive" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; is emissive display or reflective display, should always be True for current version</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.ambient">
+<tt class="descname">ambient</tt><a class="headerlink" href="#Display.ambient" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; spectra power distribution of display at darkest level</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Display.dixel">
+<tt class="descname">dixel</tt><a class="headerlink" href="#Display.dixel" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>collections.namedtuple</em> &#8211; pixel layout structure, see description in module attribute for more detail</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>name='display'</em>, <em>gamma=array([]</em>, <em>dtype=float64)</em>, <em>wave=array([]</em>, <em>dtype=float64)</em>, <em>spd=array([]</em>, <em>dtype=float64)</em>, <em>dist=1.0</em>, <em>dpi=96.0</em>, <em>is_emissive=True</em>, <em>ambient=array([]</em>, <em>dtype=float64)</em>, <em>dixel_data=None</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize display instance with calibrated parameters</p>
+<p>The display attributes are initialized with default values. Those values are usually empty or None, which means
+user have to set up fields manually before using other features and functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of display instance</li>
+<li><strong>gamma</strong> (<em>numpy.ndarray</em>) &#8211; gamma distortion table of the display of shape (n_levels, n_primaries)</li>
+<li><strong>spd</strong> (<em>numpy.ndarray</em>) &#8211; spectral power distribution of the primaries in shape (n_wave, n_primaries). This
+fields represents <em>mean</em> spectral power distribution at pixel level and it&#8217;s not equivalent to the peak
+spd of the materials of primaries. spd are stored in energy units.</li>
+<li><strong>dist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; distance between display and observer in meters</li>
+<li><strong>dpi</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; display spatial resolution in dots per inch. We assume that spatial resolution along horizontal
+and vertical directions are the same</li>
+<li><strong>is_emissive</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; is emissive display or reflective display, should always be True for current version</li>
+<li><strong>ambient</strong> (<em>numpy.ndarray</em>) &#8211; spectra power distribution of display at darkest level</li>
+<li><strong>dixel</strong> (<a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><em>collections.namedtuple</em></a>) &#8211; pixel layout structure, see description in module attribute for more detail</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Display.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate description string of display instance</p>
+<p>This function generates string for Display class. With the function, display properties can be printed out
+easily with str(d)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string of display description</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Description string for an CRT display</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">Display</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&#39;CRT-Dell.mat&#39;</span><span class="p">))</span>
+<span class="go">Display Object: CRT-Dell (...and more...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Display.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.bin_width">
+<tt class="descname">bin_width</tt><a class="headerlink" href="#pyEyeBall.Display.bin_width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; Wavelength sample interval in nm</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.compute_srgb">
+<tt class="descname">compute_srgb</tt><big>(</big><em>rgb: numpy.ndarray</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.compute_srgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute equivalent sRGB image from an display RGB image</p>
+<p>This function first computes the XYZ image from the display image and then converts the XYZ image to an sRGB
+image. Then, RGB image on display instance should look exactly the same as sRGB image on a <em>standard</em> display</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The XYZ values of display RGB and sRGB could be slightly different if the color gamut of display instance
+is larger than the <em>standard</em> display</p>
+<p class="last">The sRGB color space is defined with a normalized luminance (Y). If the input is only 3 values, the output
+could be close to 1</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rgb</strong> (<em>numpy.ndarray</em>) &#8211; display linear RGB image with values between 0 and 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sRGB image with same XYZ values as display RGB image</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.ndarray</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;LCD-Apple.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">compute_srgb</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]]]))</span>
+<span class="go">array([[[ 1.        ,  0.91325868,  0.61450081]]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.compute_xyz">
+<tt class="descname">compute_xyz</tt><big>(</big><em>rgb</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.compute_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute XYZ values of an RGB image on the display instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rgb</strong> (<em>numpy.ndarray</em>) &#8211; linear RGB image with values between 0-1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">XYZ values in an array of same shape as input rgb image</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.ndarray</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;LCD-Apple.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">compute_xyz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]]]))</span>
+<span class="go">array([[[ 39.76024121,  39.48678582,  25.55437927]]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.deg_per_pixel">
+<tt class="descname">deg_per_pixel</tt><a class="headerlink" href="#pyEyeBall.Display.deg_per_pixel" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; visual angle per pixel in degrees</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.dots_per_meter">
+<tt class="descname">dots_per_meter</tt><a class="headerlink" href="#pyEyeBall.Display.dots_per_meter" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; number of pixels per meter</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyEyeBall.Display.init_with_isetbio_mat_file">
+<em class="property">classmethod </em><tt class="descname">init_with_isetbio_mat_file</tt><big>(</big><em>file_name</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.init_with_isetbio_mat_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init display using isetbio display calibration file in .mat format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; isetbio display calibration file name. If file is not in Data/Display folder, full path of
+the file is required</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">display instance</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Loading a Sony OLED display</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Display</span><span class="p">()</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;OLED-Sony.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">dpi</span><span class="p">)</span>
+<span class="go">90</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.invert_gamma">
+<tt class="descname">invert_gamma</tt><a class="headerlink" href="#pyEyeBall.Display.invert_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; Invert gamma table which can be used to convert linear value to DAC value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.lookup_digital">
+<tt class="descname">lookup_digital</tt><big>(</big><em>dac</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.lookup_digital" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert quantized digital values to linear RGB values through display gamma table</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dac</strong> (<em>numpy.ndarray</em>) &#8211; dac values of image in range 0 to n_levels-1 as int</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">linear RGB values of image in same shape as dac input</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.ndarray</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Compute linear RGB with gamma table</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;LCD-Apple.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">lookup_digital</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">120</span><span class="p">]]])))</span>
+<span class="go">[[[ 0.00786591  0.01027275  0.01069388]]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.lookup_linear">
+<tt class="descname">lookup_linear</tt><big>(</big><em>rgb</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.lookup_linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert linear RGB values to digital values through invert gamma table</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rgb</strong> (<em>numpy.ndarray</em>) &#8211; linear RGB values in range 0 to 1</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">quantized digital values converted by invert gamma table as int</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.ndarray</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The returned dac values are from 0 - n_levels. For some display, the color bit depth is more than 8 and the
+dac values could be larger than 255. See examples below.</p>
+</div>
+<p class="rubric">Examples</p>
+<p>Compute dac value from linear RGB</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;LCD-Apple.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">lookup_linear</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]]])))</span>
+<span class="go">[[[732 567 470]]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyEyeBall.Display.ls_display">
+<em class="property">static </em><tt class="descname">ls_display</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Display.ls_display" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available display calibration file</p>
+<p>This is a static method of Display class and it can be used to retrieve available display data files in
+Data/Display folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings of names available display calibration files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Get a list of calibrated display</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">display_names</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">ls_display</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">display_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">CRT-Dell.mat</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.meters_per_dot">
+<tt class="descname">meters_per_dot</tt><a class="headerlink" href="#pyEyeBall.Display.meters_per_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; size of one display pixel in meters</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.n_bits">
+<tt class="descname">n_bits</tt><a class="headerlink" href="#pyEyeBall.Display.n_bits" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Color bit-depth of the display</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.n_levels">
+<tt class="descname">n_levels</tt><a class="headerlink" href="#pyEyeBall.Display.n_levels" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; number of DAC levels of display, usually it equals to 2^n_bits</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.n_primaries">
+<tt class="descname">n_primaries</tt><a class="headerlink" href="#pyEyeBall.Display.n_primaries" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; number of primaries of display, usually it equals to 3</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.peak_luminance">
+<tt class="descname">peak_luminance</tt><a class="headerlink" href="#pyEyeBall.Display.peak_luminance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; maximum achievable luminance of the display in cd/m2</p>
+<p>When this quantity is set by the new value, the spd of the display is adjusted by a scale factor to match the
+desired peak luminance level</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.plot">
+<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate plots for display parameters and properties</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; string which indicates the type of plot to generate. In current version, param can be chosen
+from &#8220;spd&#8221;, &#8220;gamma&#8221;, &#8220;invert gamma&#8221; and &#8220;gamut&#8221;. param string is not case sensitive and blank spaces in
+param are ignored.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Show spectral power distribution and gamut of a Sony OLED display</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;OLED-Sony.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;spd&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;gamut&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.rgb2lms">
+<tt class="descname">rgb2lms</tt><a class="headerlink" href="#pyEyeBall.Display.rgb2lms" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; rgb2lms transformation matrix</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.rgb2xyz">
+<tt class="descname">rgb2xyz</tt><a class="headerlink" href="#pyEyeBall.Display.rgb2xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; rgb2xyz transformation matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Display.visualize">
+<tt class="descname">visualize</tt><big>(</big><em>img=None</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize and show the GUI for display instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> (<em>numpy.ndarray</em>) &#8211; image to be shown in the display gui. Image data should be floating point values
+between 0 and 1. By default, an eagle image will be loaded and used</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>An eagle image on an LCD display</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Display</span><span class="p">()</span><span class="o">.</span><span class="n">init_with_isetbio_mat_file</span><span class="p">(</span><span class="s">&quot;LCD-Apple.mat&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">visualize</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.wave">
+<tt class="descname">wave</tt><a class="headerlink" href="#pyEyeBall.Display.wave" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; wavelength samples in nm</p>
+<p>When new wavelength is set to the display instance, all spectral data (spd, ambient) will be interpolated to
+the new wavelength samples</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.white_lms">
+<tt class="descname">white_lms</tt><a class="headerlink" href="#pyEyeBall.Display.white_lms" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; LMS values of display when all its primaries are set to the highest level</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.white_spd">
+<tt class="descname">white_spd</tt><a class="headerlink" href="#pyEyeBall.Display.white_spd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; spectra power distribution of display when all its primaries are set to the highest level</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Display.white_xyz">
+<tt class="descname">white_xyz</tt><a class="headerlink" href="#pyEyeBall.Display.white_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; XYZ values of display when all its primaries are set to the highest level</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="illuminant.html"
+                        title="next chapter">Display Simulation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/display.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="illuminant.html" title="Display Simulation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

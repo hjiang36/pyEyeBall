@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cone Outer Segment Mosaic &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="index.html" />
+    <link rel="next" title="Fixational Eye Movement" href="eyemovement.html" />
+    <link rel="prev" title="Human Optics" href="optics.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="eyemovement.html" title="Fixational Eye Movement"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="optics.html" title="Human Optics"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cone-outer-segment-mosaic">
+<h1>Cone Outer Segment Mosaic<a class="headerlink" href="#cone-outer-segment-mosaic" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt>
+<tt class="descname">ConeOuterSegmentMosaic(wave=array([400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520,</tt></dt>
+<dt>
+<tt class="descname">530, 540, 550, 560, 570, 580, 590, 600, 610, 620, 630, 640, 650,</tt></dt>
+<dt>
+<tt class="descname">660, 670, 680, 690, 700]), name='Human Cone Mosaic', mosaic=None, cone_diameter=2e-06, density=array([ 0. ,  0.6,  0.3,  0.1]), position=array([[0, 0]]), integration_time=0.05, sample_time=0.001, size=array([72, 88]), spatial_support=None)</tt></dt>
+<dd><p>Class describing human cone mosaic and isomerization</p>
+<dl class="method">
+<dt>
+<tt class="descname">ConeOuterSegmentMosaic.__init__(wave=array([400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520,</tt></dt>
+<dt>
+<tt class="descname">530, 540, 550, 560, 570, 580, 590, 600, 610, 620, 630, 640, 650,</tt></dt>
+<dt>
+<tt class="descname">660, 670, 680, 690, 700]), name='Human Cone Mosaic', mosaic=None, cone_diameter=2e-06, density=array([ 0. ,  0.6,  0.3,  0.1]), position=array([[0, 0]]), integration_time=0.05, sample_time=0.001, size=array([72, 88]), spatial_support=None)</tt></dt>
+<dd><p>Constructor for class
+:param wave: wavelength sample of this class
+:param name: name of the instance of this class
+:param mosaic: 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively
+:param cone_diameter: float, diameter of cone cell in meters
+:param density: spatial density (proportional) of different cone types in order of K,L,M,S
+:param position: N-by-2 matrix indicating eye movement positions in (x, y) in units of number of cones
+:param integration_time: float, integration time of cone in secs
+:param sample_time: float, sample time interval for self.position in secs
+:param size: size of cone mosaic to be generated, only used when mosaic is not given
+:param spatial_support: 2-element tuple, containing position of cones in x, y direction
+:return: instance of class with attributes set</p>
+<dl class="docutils">
+<dt>Todo:</dt>
+<dd><ol class="first last arabic simple">
+<li>Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid</li>
+<li>Have spatial support and cone diameter vary with eccentricty</li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.__str__">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate description string for class instance
+:return: description string
+:rtype: str</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.__weakref__">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.compute">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">compute</tt><big>(</big><em>oi: pyEyeBall.Source.Objects.Optics.Optics</em>, <em>add_noise=True</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute cone photon absorption with noise and eye movement
+:param oi: instance of Optics class with irradiance computed
+:param add_noise: bool, indicate whether or not to add photon shot noise
+:return: instance of this class with photons computed and stored</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.compute_noisefree">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">compute_noisefree</tt><big>(</big><em>oi</em>, <em>full_lms=False</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.compute_noisefree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute cone photon absorptions without adding any noise
+:param oi: instance of Optics class with irradiance image computed
+:param full_lms: bool, indicating if photons should be 2D computed according to mosaic or 3D as full lms image
+:return: instance of class with noise free cone absorptions stored in attribute photons</p>
+<p>Programming note:
+This function does not care about eye movement (self.position) and thus the</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.current_noisefree">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">current_noisefree</tt><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.current_noisefree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get noise free cone membrane current with a temporal dynamic model by Fred Rieke
+We assume eye is adapted to the first frame as the initial steady state</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.height">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">height</tt><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>height of the cone mosaic in meters
+:rtype: float</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">init_eye_movement</tt><big>(</big><em>n_samples=1000</em>, <em>em=&lt;pyEyeBall.Source.Objects.Cone.FixationalEyeMovement object at 0x1122ae1d0&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert eye path to positions in cone mosaic (self.position)
+:param n_samples: int, number of samples of eye positions
+:param em: instance of FixationalEyeMovement class
+:return: None, but self.position will be set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.plot">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate plots for class attributes and properties
+:param param: string, indicating what should be plotted
+:return: None, but plot will be shown</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.width">
+<tt class="descclassname">ConeOuterSegmentMosaic.</tt><tt class="descname">width</tt><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>width of the cone mosaic in meters
+:rtype: float</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="optics.html"
+                        title="previous chapter">Human Optics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="eyemovement.html"
+                        title="next chapter">Fixational Eye Movement</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/cone.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="eyemovement.html" title="Fixational Eye Movement"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="optics.html" title="Human Optics"
+             >previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

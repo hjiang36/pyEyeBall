@@ -3,6 +3,7 @@
     <words>
       <w>absorbance</w>
       <w>absorptance</w>
+      <w>arange</w>
       <w>cleanlooks</w>
       <w>controlmap</w>
       <w>dixel</w>
@@ -19,9 +20,11 @@
       <w>macular</w>
       <w>msaccade</w>
       <w>noisefree</w>
+      <w>oled</w>
       <w>photopigment</w>
       <w>quantaefficiency</w>
       <w>saccade</w>
+      <w>scipy</w>
       <w>stockman</w>
       <w>vbox</w>
     </words>

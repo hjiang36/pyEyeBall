@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Illuminant Simulation &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="index.html" />
+    <link rel="next" title="Scene Radiance Characterization" href="scene.html" />
+    <link rel="prev" title="Display Simulation" href="display.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="scene.html" title="Scene Radiance Characterization"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="display.html" title="Display Simulation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyEyeBall.Source.Objects.Illuminant">
+<span id="illuminant-simulation"></span><h1>Illuminant Simulation<a class="headerlink" href="#module-pyEyeBall.Source.Objects.Illuminant" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.Source.Objects.Illuminant.</tt><tt class="descname">Illuminant</tt><big>(</big><em>file_name='D65.mat'</em>, <em>wave=None</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Illuminant light simulation and computation</p>
+<p>This class stores illuminant spectra distribution data and does computations and analysis from there. In current
+version, there is no spatial or temporal varying features in this class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the illuminant instance</li>
+<li><strong>photons</strong> (<em>numpy.ndarray</em>) &#8211; quanta distribution in each wavelength samples</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>file_name='D65.mat'</em>, <em>wave=None</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor of Illuminant class
+This function loads illuminant spectra data from ISETBIO .mat illuminant file. The file should contain two
+variables: data and wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>file_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; illuminant file name, e.g. D65.mat. The data file should be seated in Data/Illumination</li>
+<li><strong>wave</strong> (<em>numpy.ndarray</em>) &#8211; wavelength samples to be used. If None, or not specified, the default wavelength
+samples np.arange(400, 710, 10) will be used</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Create different illuminant
+&gt;&gt;&gt; il = Illuminant(&#8220;D65.mat&#8221;)
+&gt;&gt;&gt; il = Illuminant(&#8220;D50.mat&#8221;)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate description string of the Illuminant instance</p>
+<p>This function generates string for Illuminant class. With the function, illuminant properties can be printed out
+easily with str(il)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">description string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Description string for D50 light</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">il</span> <span class="o">=</span> <span class="n">Illuminant</span><span class="p">(</span><span class="s">&quot;D50.mat&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">il</span><span class="p">)</span>
+<span class="go">Illuminant Object: Illuminant (...and more...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.bin_width">
+<tt class="descname">bin_width</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.bin_width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.bin_width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; wavelength sampling interval in nm</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.energy">
+<tt class="descname">energy</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; illuminant energy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.luminance">
+<tt class="descname">luminance</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.luminance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.luminance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; mean luminance of light.
+If set it to a new value, the photons will be ajusted to match the desired luminance level</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.plot">
+<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate plots for illuminant parameters and properties</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; string which indicates the type of plot to generate. In current version, param can be chosen
+from &#8220;photons&#8221;, &#8220;energy&#8221;. param string is not case sensitive and blank spaces in param are ignored.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>plot illuminant photon distributions of D65 light
+&gt;&gt;&gt; Illuminant().plot(&#8220;photons&#8221;)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Source.Objects.Illuminant.Illuminant.wave">
+<tt class="descname">wave</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Illuminant.html#Illuminant.wave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Illuminant.Illuminant.wave" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; wavelength samples in nm
+If set it to a new value, the underlying photon data will be interpolated to new wavelength</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="display.html"
+                        title="previous chapter">Display Simulation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="scene.html"
+                        title="next chapter">Scene Radiance Characterization</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/illuminant.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="scene.html" title="Scene Radiance Characterization"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="display.html" title="Display Simulation"
+             >previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Scene Radiance Characterization &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="index.html" />
+    <link rel="next" title="Human Optics" href="optics.html" />
+    <link rel="prev" title="Display Simulation" href="display.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="optics.html" title="Human Optics"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="display.html" title="Display Simulation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="scene-radiance-characterization">
+<h1>Scene Radiance Characterization<a class="headerlink" href="#scene-radiance-characterization" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyEyeBall.Scene">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">Scene</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=&lt;pyEyeBall.Source.Objects.Illuminant.Illuminant object at 0x11214ce10&gt;</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class describing scene radiance</p>
+<dl class="method">
+<dt id="pyEyeBall.Scene.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=&lt;pyEyeBall.Source.Objects.Illuminant.Illuminant object at 0x11214ce10&gt;</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class constructor, initializing parameters
+:param scene_type: type of the scene, e.g. macbeth, noise, etc.
+:param il: Illuminant object instance
+:return: class object with properties initialized</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Scene.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate verbal description string of scene object
+:return: description string of scene object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Scene.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Scene.adjust_illuminant">
+<tt class="descname">adjust_illuminant</tt><big>(</big><em>il: pyEyeBall.Source.Objects.Illuminant.Illuminant</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.adjust_illuminant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change illuminant of the scene
+:param il: Illuminant object instance
+:return: scene object with illuminant and photons updated</p>
+<p>The sampling wavelength of new wavelength will be adjusted to be same as scene wavelength samples</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyEyeBall.Scene.init_with_display_image">
+<em class="property">classmethod </em><tt class="descname">init_with_display_image</tt><big>(</big><em>d: pyEyeBall.Source.Objects.Display.Display</em>, <em>image: numpy.ndarray</em>, <em>is_sub=False</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.init_with_display_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize scene with image on a calibrated display
+:param d: display object instance
+:param image: rgb image to be shown on the display, rgb should be in range of [0, 1]
+:param is_sub: bool, indicating whether or not to do sub-pixel rendering
+:return: scene object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Scene.plot">
+<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate plots for scene parameters and properties
+:param param: String, indicating which plot to generate
+:return: None, but plot will be shown</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Scene.visualize">
+<tt class="descname">visualize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>GUI for scene object
+:return: None, but GUI will be shown</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="display.html"
+                        title="previous chapter">Display Simulation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="optics.html"
+                        title="next chapter">Human Optics</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/scene.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="optics.html" title="Human Optics"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="display.html" title="Display Simulation"
+             >previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 def main():
 
+    tmp = Display.ls_display()
     # d = Display.init_with_isetbio_mat_file("OLED-Sony.mat")
     # d.visualize()
 
