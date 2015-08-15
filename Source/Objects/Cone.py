@@ -533,7 +533,7 @@ class ConeOuterSegmentMosaic:
         freq = np.arange(k) / self.sample_time / self.n_positions
 
         # compute noise spd as sum of Lorentzian component
-        noise_spd = 0.48/(1+(freq/55)**2)**4 + 0.135/(1+(freq/190)**2)**2.5
+        noise_spd = 4.8/(1+(freq/55)**2)**4 + 1.35/(1+(freq/190)**2)**2.5
 
         # make up the negative components
         return np.concatenate((noise_spd, noise_spd[::-1]))[:self.n_positions]
