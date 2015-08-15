@@ -36,7 +36,7 @@ __author__ = 'HJ'
 class Scene:
     """ Scene spectral radiance characterization
 
-    The scene class stores illuminant data (see Illuminant class), scene spectra radiance and some other fundamental
+    The scene class stores scene spectra radiance, illuminant data (see Illuminant class) and some other fundamental
     properties. And a lot more, such as reflectance, are implemented as computed properties. There are two different
     ways to create a scene: 1) create preset scenes by scene name and 2) define scene as an image on a calibrated
     display.
@@ -57,7 +57,7 @@ class Scene:
 
     def __init__(self, scene_type="macbeth", wave=None, name="Scene",
                  il=None, fov=1.0, dist=1.0, **kwargs):
-        """Constructor for Scene class
+        """ Constructor for Scene class
         Initialize preset scene instance by scene name
 
         Args:
@@ -203,7 +203,7 @@ class Scene:
         self.mean_luminance = mean_lum
 
     def __str__(self):
-        """Generate description string for scene instance
+        """ Generate description string for scene instance
         This function generates string for Scene class. With the function, scene properties can be printed out
         easily with str(scene)
 

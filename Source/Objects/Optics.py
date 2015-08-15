@@ -14,22 +14,90 @@ import numpy as np
 from PyQt4 import QtGui, QtCore
 import pickle
 
+""" Module for human optics charaterization, optical image related computations and visualizations
+
+This module is used to characterize human optics properties and computes spectral irradiance image as well as other
+useful statistics.
+
+There are two classes in this module: Optics and OpticsGUI.
+
+Optics:
+    Optics class contains attributes and computational routines for human ocular components. Human optics are simulated
+    with Marimont & Wandell (1995) algorithm. In current version, human optics is assumed to have a circular point
+    spread function and is spatially shift invariant. Lens and macular pigment properties are also included in this
+    class.
+
+Optics GUI:
+    This is a GUI that visualize optics properties with PyQt4. In most cases, instance of OpticsGUI class should not
+    be created directly. Instead, to show the GUI for a certain human optics, call optics.visualize()
+
+Connections with ISETBIO:
+    Optics class is equivalent to oi structure defined in ISETBIO. ISETBIO Optics structure is re-organized to some
+    attributes in pyEyeBall.Optics class.
+
+    OI structure in ISETBIO supports more non-human simulations (mainly for cameras). For example, there are pieces of
+    code doing diffraction limited lens simulations.
+    Macular pigment and lens transmittance are handled within sensor (human cone outer segment) structure in ISETBIO,
+    while they are placed in Optics class in pyEyeBall. Thus, the optical images in pyEyeBall could be more yellowish
+    than those from ISETBIO
+
+    Wavefront toolbox in ISETBIO has not been transplant here. But this would be done in the near future (HJ).
+
+"""
+
 __author__ = 'HJ'
 
 
 class Optics:
-    """
-    Human optics class and optical image
-    In this class, we assume human optics is shift-invariant and off-axis method is cos4th
+    """ Human optics and optical image
+
+    The optics class converts scene radiance data (see Scene class) through customized human ocular system and form the
+    irradiance image. The optics class stores optical transfer function at all wavelength, optical irradiance data,
+    lens and macular pigment transmittance and other fundamental human optical properties (e.g. focal length, etc.).
+    There are also a lot of computed properties and computational routines in this class. In current version, we assume
+    human optics is shift-invariant and off-axis method is cos4th
+
+    Attributes:
+        name (str): name of the Optics instance
+        photons (numpy.ndarray): optical image, spectral irradiance data
+        fov (float): horizontal field of view of the optical image in degrees
+        dist (float): the distance between the scene and the observer
+        focal_length (float): focal length of human optics in meters
+        lens_transmittance (numpy.ndarray): quanta tranmittance of the lens
+        macualr_transmittance (numpy.ndarray): quanta tranmittance of macular pigment
+
+    Note:
+        1) wavelength samples and otf are stored as private attribute (see _wave and _otf). Property wave is defined as
+        a computed attribute. Thus, for external usage, wavelength samples can be accessed or altered with optics.wave.
+        To get otf at given wavelength, call class method otf() with desired wavelength and frequency support.
+
+        2) In pyEyeBall.Optics, we use focal_length and pupil_diameter as fundamental properties while in ISETBIO.oi,
+           f-number is used as fundamental property
+
     """
 
-    def __init__(self, pupil_diameter=0.003,
-                 focal_length=0.017,
-                 wave=np.array(range(400, 710, 10))):
+    def __init__(self, pupil_diameter=0.003, focal_length=0.017, dist=1.0, wave=None):
+        """ Constructor for Optics Class
+        Initialize parameters for human ocular system
+
+        Args:
+            pupil_diameter (float): pupil diameter in meters, usually human pupil diameter should be between 2 and 8
+            focal_length (float): focal length of human, usually this is around 17 mm
+            dist (float): object distance in meters, will be overrrided by scene.dist in compute method
+
+        Note:
+            To alter lens and macular pigment transmittance, we need to create a default optics instance first and then
+            set the corresponding parameters
+
+        Examples:
+            >>> oi = Optics(pupil_diameter=0.5)
+            >>> oi.macular_transmittance[:] = 1
+
         """
-        class constructor
-        :return: instance of optics class
-        """
+        # check inputs
+        if wave is None:
+            wave = np.arange(400.0, 710.0, 10)
+
         # turn off numpy warning for invalid input
         np.seterr(invalid='ignore')
 
@@ -38,7 +106,7 @@ class Optics:
         self._wave = wave.astype(float)              # wavelength samples in nm
         self.photons = np.array([])                  # irradiance image
         self.pupil_diameter = pupil_diameter         # pupil diameter in meters
-        self.dist = 1.0                              # Object distance in meters
+        self.dist = dist                             # Object distance in meters
         self.fov = 1.0                               # field of view of the optical image in degree
         self.focal_length = focal_length             # focal lens of optics in meters
         self._otf = None                             # optical transfer function
@@ -63,26 +131,36 @@ class Optics:
         for ii in range(wave.size):
             s = 1 / tan(deg_to_rad(1)) * wave[ii] * 2e-9 / pupil_diameter * sample_sf  # reduced spatial frequency
             alpha = 4*pi / (wave[ii] * 1e-9) * w20[ii] * s
-            otf[:, ii] = optics_defocus_mtf(s, alpha) * achromatic_mtf
+            otf[:, ii] = self.optics_defocus_mtf(s, alpha) * achromatic_mtf
 
         # set otf as 2d interpolation function to object
         # To get otf at given wavelength and frequency, use object.otf() method
         self._otf = interp2d(self.wave, sample_sf, otf, bounds_error=False, fill_value=0)
 
     def compute(self, scene: Scene):
-        """
-        Compute optical irradiance map
-        :param scene: instance of scene class
-        :return: instance of class with oi.photons computed
+        """ Compute optical irradiance map
+        Computation proccedure:
+            1) convert radiance to irradiance
+            2) apply lens and macular transmittance
+            3) apply off-axis fall-off (cos4th)
+            4) apply optical transfert function
+
+        Args:
+            scene (pyEyeBall.Scene): instance of Scene class, containing the radiance and other scene information
+
+        Examples:
+            >>> oi = Optics()
+            >>> oi.compute(Scene())
         """
         # set field of view and wavelength samples
         self.fov = scene.fov
         scene.wave = self._wave
+        self.dist = scene.dist
 
         # compute irradiance
         self.photons = pi / (1 + 4 * self.f_number**2 * (1 + abs(self.magnification))**2) * scene.photons
 
-        # apply optics transmittance
+        # apply ocular transmittance
         self.photons *= self.ocular_transmittance
 
         # apply the relative illuminant (off-axis) fall-off: cos4th function
@@ -96,9 +174,16 @@ class Optics:
             self.photons[:, :, ii] = np.abs(ifftshift(ifft2(otf * fft2(fftshift(self.photons[:, :, ii])))))
 
     def __str__(self):
-        """
-        Generate verbal description string of optics object
-        :return: string that describes instance of optics object
+        """ Generate description string for optics instance
+        This function generates string for Optics class. With the function, optics properties can be printed out
+        easily with str(oi)
+
+        Returns:
+            str: string of optics description
+
+        Examples:
+            >>> print(Optics())
+            Human Optics Instance: Human Optics (...and more...)
         """
         s = "Human Optics Instance: " + self.name + "\n"
         s += "  Wavelength: " + str(np.min(self.wave)) + ":" + str(self.bin_width) + ":" + str(np.max(self.wave))
@@ -114,15 +199,22 @@ class Optics:
         return s
 
     def plot(self, param, opt=None):
-        """
-        Generate plots for properties and attributes of optics object
-        :param param: string, indicating which plot to generate
-        :param opt: optional input, for some plotting param, this value is required
-        :return: None, but plot will be shown
+        """Generate plots for optics parameters and properties
+
+        Args:
+            param (str): string which indicates the type of plot to generate. In current version, param can be chosen
+                from "srgb", "otf", "psf", "lens transmittance", "macular transmittance" and "ocular transmittance".
+                param string is not case sensitive and blank spaces in param are ignored.
+            opt (float): optional parameters. For case "otf" and "psf", this parameter is required and a floating
+                number of desired wavelength should be specified.
+        Examples:
+            Show otf and psf of the default human optics
+            >>> oi = Optics()
+            >>> oi.plot("otf", 420)
+            >>> oi.plot("psf", 540)
         """
         # process param
         param = str(param).lower().replace(" ", "")
-        plt.ion()
 
         # generate plot according to param
         if param == "srgb":
@@ -137,7 +229,6 @@ class Optics:
             ax.plot_surface(fx, fy, self.otf(opt, freq, freq))
             plt.xlabel("Frequency (cycles/deg)")
             plt.ylabel("Frequency (cycles/deg)")
-            plt.pause(0.01)
         elif param == "psf":
             assert opt is not None, "Wavelength to be plotted required as opt"
             spatial_support = np.arange(-6e-5, 6e-5, 3e-7)
@@ -150,7 +241,6 @@ class Optics:
             ax.plot_surface(sx * 1e6, sy * 1e6, psf)  # plot in units of um
             plt.xlabel("Position (um)")
             plt.ylabel("Position (um)")
-            plt.pause(0.01)
         elif param == "lenstransmittance":
             plt.plot(self._wave, self.lens_transmittance)
             plt.xlabel("Wavelength (nm)")
@@ -168,18 +258,32 @@ class Optics:
             plt.grid()
         else:
             raise(ValueError, "Unknown param")
+        plt.show()
 
     def visualize(self):
+        """Initialize and show GUI for optics object
+
+        Examples:
+            >>> oi = Optics()
+            >>> oi.compute(Scene())
+            >>> oi.visualize()
+        """
         app = QtGui.QApplication([''])
         OpticsGUI(self)
         app.exec_()
 
-    def get_photons(self, wave):  # get photons with wavelength samples
+    def get_photons(self, wave):
+        """numpy.ndarray: get photons at given wavelength samples"""
         f = interp1d(self._wave, self.photons, bounds_error=False, fill_value=0)
         return f(wave)
 
     @property
     def wave(self):
+        """numpy.ndarray: wavelength samples in nm
+
+        When this quantity is set to new values, optics irradiance, lens and macular pigment transmittance data are
+        interpolated to match the new wavelength samples
+        """
         return self._wave
 
     @wave.setter
@@ -206,39 +310,48 @@ class Optics:
         raise(Exception, "OTF data not interpolated. Should fix this in the future")
 
     @property
-    def bin_width(self):  # wavelength sample bin width
+    def bin_width(self):
+        """float: wavelength sample bin width"""
         return self._wave[1] - self._wave[0]
 
     @property
-    def shape(self):  # number of samples in class in (rows, cols)
+    def shape(self):
+        """numpy.ndarray: number of samples in class in [n_rows, n_cols]"""
         return np.array(self.photons.shape[0:2])
 
     @property
-    def width(self):  # width of optical image in meters
+    def width(self):
+        """float: width of optical image in meters"""
         return 2 * self.image_distance * np.tan(deg_to_rad(self.fov)/2)
 
     @property
-    def sample_size(self):  # length per sample in meters
+    def sample_size(self):
+        """float: length per sample in meters"""
         return self.width / self.n_cols
 
     @property
-    def height(self):  # height of optical image in meters
+    def height(self):
+        """float: height of optical image in meters"""
         return self.sample_size * self.n_rows
 
     @property
-    def image_distance(self):  # image distance / focal plane distance in meters
+    def image_distance(self):
+        """float: image distance / focal plane distance in meters"""
         return 1/(1/self.focal_length - 1/self.dist)
 
     @property
-    def energy(self):  # optical image energy map
+    def energy(self):
+        """numpy.ndarray: optical image in energy units"""
         return quanta_to_energy(self.photons, self._wave)
 
     @property
     def magnification(self):
+        """float: magnification of the image, usually this is negative for human lens"""
         return -self.image_distance / self.dist
 
     @property
-    def f_number(self):  # f-number for human optics
+    def f_number(self):
+        """float: f-number for human optics"""
         return self.focal_length/self.pupil_diameter
 
     @property
@@ -252,60 +365,82 @@ class Optics:
         return np.linspace(-(self.n_rows - 1) * self.sample_size/2, (self.n_rows - 1) * self.sample_size/2, self.n_rows)
 
     @property
-    def spatial_support(self):  # spatial support of optical image in (support_x, support_y) in meters as 2D array
+    def spatial_support(self):
+        """numpy.ndarray: spatial support of optical image in meshgrid of (support_x, support_y) in meters"""
         return np.meshgrid(self.spatial_support_x, self.spatial_support_y)
 
     @property
     def n_rows(self):
+        """int: number of rows in the irradiance image"""
         return self.photons.shape[0]
 
     @property
     def n_cols(self):
+        """int: number of columns in the irradiance image"""
         return self.photons.shape[1]
 
     @property
     def meters_per_degree(self):
+        """float: conversion constant between meters and degree"""
         return self.width / self.fov
 
     @property
-    def degrees_per_meter(self):  # conversion constant between degree and meter
+    def degrees_per_meter(self):
+        """float: conversion constant between degree and meter"""
         return 1/self.meters_per_degree
 
     @property
-    def v_fov(self):  # field of view in vertical direction
+    def v_fov(self):
+        """float: field of view in vertical direction"""
         return 2*rad_to_deg(atan(self.height/self.image_distance/2))
 
     @property
-    def frequency_support(self):  # frequency support of optical image in cycles / degree
+    def frequency_support(self):
+        """numpy.ndarray: frequency support (meshgrid) of optical image in cycles / degree"""
         return np.meshgrid(self.frequency_support_x, self.frequency_support_y)
 
     @property
-    def frequency_support_x(self):  # frequency support in x direction in cycles / degree
+    def frequency_support_x(self):
+        """numpy.ndarray: frequency support in x direction in cycles / degree as 1D vector"""
         return np.linspace(-self.n_cols/2/self.fov, self.n_cols/2/self.fov, self.n_cols)
 
     @property
-    def frequency_support_y(self):  # frequency support in x direction in cycles / degree
+    def frequency_support_y(self):
+        """numpy.ndarray: frequency support in y direction in cycles / degree as 1D vector"""
         return np.linspace(-self.n_rows/2/self.fov, self.n_rows/2/self.fov, self.n_rows)
 
     @property
-    def xyz(self):  # xyz image of the optical image
+    def xyz(self):
+        """numpy.ndarray: XYZ image of the optical irradiance map"""
         return xyz_from_energy(self.energy, self.wave)
 
     @property
-    def srgb(self):  # srgb image of the optical image
+    def srgb(self):
+        """numpy.ndarray: srgb image of the optical irradiance map"""
         return xyz_to_srgb(self.xyz)
 
     @property
-    def ocular_transmittance(self):  # ocular transmittance, including lens and macular transmittance
+    def ocular_transmittance(self):
+        """numpy.ndarray: ocular transmittance, including lens and macular transmittance"""
         return self.lens_transmittance * self.macular_transmittance
 
     def otf(self, wave: float, fx=None, fy=None):
-        """
-        get optical transfer function of optics at given wavelength and frequency
-        :param wave: float, wavelength in nm
-        :param fx: np.ndarray, frequency in x direction
-        :param fy: np.ndarray, frequency in y direction
-        :return: 2D otf image
+        """ Optical transfer function of the optics
+        Retrieve optical transfer function of optics at given wavelength and frequency
+
+        Args:
+            wave (float): wavelength in nm
+            fx (numpy.ndarray): frequency in x direction as 1D vector in cycles/deg, default is np.arange(-90.0, 90.0)
+            fy (numpy.ndarray): frequency in y direction as 1D vector in cycles/deg, default is np.arange(-90.0, 90.0)
+
+        Returns:
+            numpy.ndarray: 2D otf image at specified wavelength and frequencies
+
+        Examples:
+            >>> import numpy as np
+            >>> oi=Optics()
+            >>> oi.otf(550.0)
+            >>> oi.otf(450.0, np.arange(-60.0, 60.0), np.arange(-50.0, 50.0))
         """
         # check inputs
         if fx is None:
@@ -323,17 +458,31 @@ class Optics:
         otf[index] = self._otf(wave, freq.flatten())[:, 0]
         return otf.reshape(fx.shape, order="F")
 
-    def psf(self, wave, sx=np.arange(-8e-5, 8e-5, 4e-7), sy=np.arange(-8e-5, 8e-5, 4e-7)):
-        """
-        get point spread function of optics for given wavelength and spatial frequency
-        :param wave: float, wavelength sample to be retrieved in nm
-        :param sx: np.ndarray, spatial frequency in x direction
-        :param sy: np.ndarray, spatial frequency in y direction
-        :return: point spread function
+    def psf(self, wave, sx=None, sy=None):
+        """ Point spread function of optics
+        Get point spread function of optics for given wavelength and spatial frequency
 
-        Programming Note:
+        Args:
+            wave (float): wavelength sample to be retrieved in nm
+            sx (numpy.ndarray): spatial support in x direction in meters, default np.arange(-8e-5, 8e-5, 4e-7)
+            sy (numpy.ndarray): spatial support in y direction in meters, default np.arange(-8e-5, 8e-5, 4e-7)
+
+        Returns:
+            numpy.ndarray: point spread function
+
+        Note:
           In this function, we assume that sx and sy are equally spaced grid, symmetric about 0
+
+        Examples:
+            >>> oi = Optics()
+            >>> oi.psf(450.0)
         """
+        # check inputs
+        if sx is None:
+            sx = np.arange(-8e-5, 8e-5, 4e-7)
+        if sy is None:
+            sy = np.arange(-8e-5, 8e-5, 4e-7)
+
         # compute spatial spacing and max frequency
         spatial_spacing = np.array([sx[1]-sx[0], sy[1]-sy[0]])
         max_freq = 1/2/spatial_spacing * self.meters_per_degree  # in units cycles/deg
@@ -348,39 +497,42 @@ class Optics:
         # compute psf
         return np.abs(fftshift(ifft2(otf)))
 
+    @staticmethod
+    def optics_defocus_mtf(s, alpha):
+        """ Compute diffraction limited mtf without aberrations but with defocus
 
-def optics_defocus_mtf(s, alpha):
-    """
-    Diffraction limited mtf without aberrations but with defocus
-    :param s: reduced spatial frequency
-    :param alpha: defocus parameter, which is related to w20 of Hopkins
-    :return: diffraction limited mtf without aberration but with defocus
-    """
-    # compute auxiliary parameters
-    nf = np.abs(s)/2
-    nf[nf > 1] = 1
-    beta = np.sqrt(1 - nf**2)
-    otf = nf  # allocate space for otf
+        Args:
+            s (numpy.ndarray): reduced spatial frequency
+            alpha (numpy.ndarray): defocus parameter, which is related to w20 of Hopkins
 
-    # compute perfect spatial frequencies of OTF
-    index = (alpha == 0)
-    otf[index] = 2/pi * (np.arccos(nf[index]) - nf[index] * beta[index])
+        Returns:
+            numpy.ndarray: diffraction limited mtf without aberration but with defocus
+        """
+        # compute auxiliary parameters
+        nf = np.abs(s)/2
+        nf[nf > 1] = 1
+        beta = np.sqrt(1 - nf**2)
+        otf = nf  # allocate space for otf
 
-    # compute defocused spatial frequencies of OTF
-    index = (alpha != 0)
-    h1 = beta[index] * jv(1, alpha[index]) + \
-        1/2 * np.sin(2*beta[index]) * (jv(1, alpha[index]) - jv(3, alpha[index])) - \
-        1/4 * np.sin(4*beta[index]) * (jv(3, alpha[index]) - jv(5, alpha[index]))
+        # compute perfect spatial frequencies of OTF
+        index = (alpha == 0)
+        otf[index] = 2/pi * (np.arccos(nf[index]) - nf[index] * beta[index])
 
-    h2 = np.sin(beta[index]) * (jv(0, alpha[index]) - jv(2, alpha[index])) + \
-        1/3 * np.sin(3*beta[index]) * (jv(2, alpha[index]) - jv(4, alpha[index])) - \
-        1/5 * np.sin(5*beta[index]) * (jv(4, alpha[index]) - jv(6, alpha[index]))
+        # compute defocused spatial frequencies of OTF
+        index = (alpha != 0)
+        h1 = beta[index] * jv(1, alpha[index]) + \
+            1/2 * np.sin(2*beta[index]) * (jv(1, alpha[index]) - jv(3, alpha[index])) - \
+            1/4 * np.sin(4*beta[index]) * (jv(3, alpha[index]) - jv(5, alpha[index]))
 
-    otf[index] = 4/pi/alpha[index] * np.cos(alpha[index] * nf[index]) * h1 - \
-        4/pi/alpha[index] * np.sin(alpha[index]*nf[index]) * h2
+        h2 = np.sin(beta[index]) * (jv(0, alpha[index]) - jv(2, alpha[index])) + \
+            1/3 * np.sin(3*beta[index]) * (jv(2, alpha[index]) - jv(4, alpha[index])) - \
+            1/5 * np.sin(5*beta[index]) * (jv(4, alpha[index]) - jv(6, alpha[index]))
 
-    # normalize
-    return otf / otf[0]
+        otf[index] = 4/pi/alpha[index] * np.cos(alpha[index] * nf[index]) * h1 - \
+            4/pi/alpha[index] * np.sin(alpha[index]*nf[index]) * h2
+
+        # normalize
+        return otf / otf[0]
 
 
 class OpticsGUI(QtGui.QMainWindow):

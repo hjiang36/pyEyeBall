@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Source/Objects/Optics.py" afterPath="$PROJECT_DIR$/Source/Objects/Optics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Source/Objects/Scene.py" afterPath="$PROJECT_DIR$/Source/Objects/Scene.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pyEyeBall.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -17,14 +19,14 @@
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/pyEyeBall$Display.coverage" NAME="Display Coverage Results" MODIFIED="1438485025204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Objects" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439182176743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1439586380720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439182176743" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Illuminant.coverage" NAME="Unittests in Illuminant Coverage Results" MODIFIED="1439190556929" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_optics.coverage" NAME="Unittests in test_optics Coverage Results" MODIFIED="1438835715935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1439190553032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1439190560379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
-    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439399694035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Display.coverage" NAME="Unittests in Display Coverage Results" MODIFIED="1439190553032" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_conePhotopigmentMosaic.coverage" NAME="Unittests in conePhotopigmentMosaic Coverage Results" MODIFIED="1439363523622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
+    <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_Optics.coverage" NAME="Unittests in Optics Coverage Results" MODIFIED="1439399694035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
     <SUITE FILE_PATH="coverage/pyEyeBall$Unittests_in_test_scene.coverage" NAME="Unittests in Scene Coverage Results" MODIFIED="1438739437869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Validation/UnitTest" />
   </component>
   <component name="CreatePatchCommitExecutor">
@@ -35,7 +37,62 @@
     <favorites_list name="pyEyeBall" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="Display.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Source/Objects/Display.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="51" column="8" selection-start-line="51" selection-start-column="8" selection-end-line="51" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Illuminant.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Source/Objects/Illuminant.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="143" column="4" selection-start-line="143" selection-start-column="4" selection-end-line="143" selection-end-column="4" />
+              <folding>
+                <element signature="e#0#37#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Scene.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="228" column="0" selection-start-line="228" selection-start-column="0" selection-end-line="232" selection-end-column="11" />
+              <folding>
+                <marker date="1439665877000" expanded="false" signature="6216:6286" placeholder="import ..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Optics.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="508" column="27" selection-start-line="508" selection-start-column="27" selection-end-line="508" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="optics.rst" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Docs/source/optics.rst">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.12587413">
+              <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -90,12 +147,12 @@
         <option value="$PROJECT_DIR$/Docs/source/display.rst" />
         <option value="$PROJECT_DIR$/__init__.py" />
         <option value="$PROJECT_DIR$/Docs/source/cone.rst" />
-        <option value="$PROJECT_DIR$/Source/Objects/Display.py" />
         <option value="$PROJECT_DIR$/Source/Objects/Illuminant.py" />
         <option value="$PROJECT_DIR$/Docs/source/index.rst" />
         <option value="$PROJECT_DIR$/Docs/source/illuminant.rst" />
-        <option value="$PROJECT_DIR$/Source/Objects/Scene.py" />
         <option value="$PROJECT_DIR$/Docs/source/scene.rst" />
+        <option value="$PROJECT_DIR$/Source/Objects/Display.py" />
+        <option value="$PROJECT_DIR$/Source/Objects/Scene.py" />
         <option value="$PROJECT_DIR$/Source/Objects/Optics.py" />
       </list>
     </option>
@@ -108,8 +165,8 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="147" />
-    <option name="y" value="23" />
+    <option name="x" value="560" />
+    <option name="y" value="386" />
     <option name="width" value="1294" />
     <option name="height" value="812" />
   </component>
@@ -675,15 +732,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="147" y="23" width="1294" height="812" extended-state="0" />
-    <editor active="false" />
+    <frame x="560" y="386" width="1294" height="812" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27047914" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27047914" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32859176" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -737,7 +794,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="5" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -773,7 +829,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="265" column="0" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1439665877000" expanded="false" signature="6216:6286" placeholder="import ..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -831,7 +889,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="3" column="34" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="34" />
-          <folding />
+          <folding>
+            <marker date="1439665877000" expanded="false" signature="6216:6286" placeholder="import ..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -982,7 +1042,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1043,13 +1102,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Docs/source/optics.rst">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="5" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1069,7 +1121,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="5" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1077,6 +1128,29 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.02097902">
           <caret line="1" column="21" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Docs/source/scene.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Docs/source/index.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.37762237">
+          <caret line="18" column="14" selection-start-line="18" selection-start-column="14" selection-end-line="18" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Display.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="51" column="8" selection-start-line="51" selection-start-column="8" selection-end-line="51" selection-end-column="8" />
           <folding />
         </state>
       </provider>
@@ -1091,44 +1165,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Docs/source/scene.rst">
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="4" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
-          <folding />
+          <caret line="228" column="0" selection-start-line="228" selection-start-column="0" selection-end-line="232" selection-end-column="11" />
+          <folding>
+            <marker date="1439665877000" expanded="false" signature="6216:6286" placeholder="import ..." />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="6.3146853">
-          <caret line="315" column="8" selection-start-line="315" selection-start-column="8" selection-end-line="315" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="508" column="27" selection-start-line="508" selection-start-column="27" selection-end-line="508" selection-end-column="27" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Docs/source/index.rst">
+    <entry file="file://$PROJECT_DIR$/Docs/source/optics.rst">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.37762237">
-          <caret line="18" column="14" selection-start-line="18" selection-start-column="14" selection-end-line="18" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Objects/Scene.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="6.5874124">
-          <caret line="324" column="11" selection-start-line="324" selection-start-column="11" selection-end-line="324" selection-end-column="11" />
-          <folding>
-            <marker date="1439618121000" expanded="true" signature="-1:-1" placeholder="import ..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Objects/Display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.75524473">
-          <caret line="180" column="77" selection-start-line="174" selection-start-column="8" selection-end-line="180" selection-end-column="77" />
+        <state vertical-scroll-proportion="0.12587413">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
           <folding />
         </state>
       </provider>
