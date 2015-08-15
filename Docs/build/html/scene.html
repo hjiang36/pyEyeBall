@@ -26,7 +26,7 @@
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="pyEyeBall 0.1.1 documentation" href="index.html" />
     <link rel="next" title="Human Optics" href="optics.html" />
-    <link rel="prev" title="Display Simulation" href="display.html" /> 
+    <link rel="prev" title="Illuminant Simulation" href="illuminant.html" /> 
   </head>
   <body>
     <div class="related">
@@ -36,10 +36,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="optics.html" title="Human Optics"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="display.html" title="Display Simulation"
+          <a href="illuminant.html" title="Illuminant Simulation"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
       </ul>
@@ -54,22 +57,98 @@
 <h1>Scene Radiance Characterization<a class="headerlink" href="#scene-radiance-characterization" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pyEyeBall.Scene">
-<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">Scene</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=&lt;pyEyeBall.Source.Objects.Illuminant.Illuminant object at 0x11214ce10&gt;</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class describing scene radiance</p>
+<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">Scene</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=None</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scene spectral radiance characterization</p>
+<p>The scene class stores scene spectra radiance, illuminant data (see Illuminant class) and some other fundamental
+properties. And a lot more, such as reflectance, are implemented as computed properties. There are two different
+ways to create a scene: 1) create preset scenes by scene name and 2) define scene as an image on a calibrated
+display.</p>
+<dl class="attribute">
+<dt id="Scene.name">
+<tt class="descname">name</tt><a class="headerlink" href="#Scene.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; name of the Scene instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Scene.photons">
+<tt class="descname">photons</tt><a class="headerlink" href="#Scene.photons" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; scene spectra radiance data</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Scene.fov">
+<tt class="descname">fov</tt><a class="headerlink" href="#Scene.fov" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; horizontal field of view of the scene in degrees</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Scene.dist">
+<tt class="descname">dist</tt><a class="headerlink" href="#Scene.dist" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; the distance between the scene and the observer</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Scene.illuminant">
+<tt class="descname">illuminant</tt><a class="headerlink" href="#Scene.illuminant" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>pyEyeBall.Illuminant</em> &#8211; illumination properties</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">wavelength samples are not directly stored as fundamental scene attribute. There is a computed property called
+wave in the scene instance and it&#8217;s tightly linked with wavelength samples in underlying illuminant instance.
+Thus, wavelength samples can still be get and set with scene.wave. But there will be no redundancies and
+inconsistencies between the scene and illuminant wavelength.</p>
+</div>
 <dl class="method">
 <dt id="pyEyeBall.Scene.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=&lt;pyEyeBall.Source.Objects.Illuminant.Illuminant object at 0x11214ce10&gt;</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class constructor, initializing parameters
-:param scene_type: type of the scene, e.g. macbeth, noise, etc.
-:param il: Illuminant object instance
-:return: class object with properties initialized</p>
+<tt class="descname">__init__</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=None</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for Scene class
+Initialize preset scene instance by scene name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scene_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; type of the scene. In current version, scnene_type can be chosen from &#8216;macbeth&#8217; (default)
+and &#8216;noise&#8217;</li>
+<li><strong>wave</strong> (<em>numpy.ndarray</em>) &#8211; wavelength samples in nm</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of this scene instance</li>
+<li><strong>il</strong> (<em>pyEyeBall.Illuminant</em>) &#8211; Illuminant instance. D65 illuminant light is applied by default</li>
+<li><strong>fov</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; scene field of view in degrees</li>
+<li><strong>dist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; distance between scene plane and observer in meters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Create scene of macbeth color checker and noise
+&gt;&gt;&gt; scene = Scene(&#8220;macbeth&#8221;, patch_size=32)
+&gt;&gt;&gt; scene = Scene(&#8220;noise&#8221;, scene_sz=[256, 256])</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyEyeBall.Scene.__str__">
 <tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__str__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate verbal description string of scene object
-:return: description string of scene object</p>
+<dd><p>Generate description string for scene instance
+This function generates string for Scene class. With the function, scene properties can be printed out
+easily with str(scene)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string of scene description</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">Scene</span><span class="p">())</span>
+<span class="go">Scene Object: Macbeth Color Checker (...and more...)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -80,36 +159,170 @@
 
 <dl class="method">
 <dt id="pyEyeBall.Scene.adjust_illuminant">
-<tt class="descname">adjust_illuminant</tt><big>(</big><em>il: pyEyeBall.Source.Objects.Illuminant.Illuminant</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.adjust_illuminant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change illuminant of the scene
-:param il: Illuminant object instance
-:return: scene object with illuminant and photons updated</p>
-<p>The sampling wavelength of new wavelength will be adjusted to be same as scene wavelength samples</p>
+<tt class="descname">adjust_illuminant</tt><big>(</big><em>il</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.adjust_illuminant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust illuminant of the scene
+Adjust illuminant of the scene, assuming that the reflectance is unchanged. Thus, when illuminant changed,
+scene radiance (photons) field will be changed accordingly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>il</strong> (<em>pyEyeBall.Illuminant</em>) &#8211; instance of Illuminant class</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ol class="last arabic simple">
+<li>The sampling wavelength of new wavelength will be adjusted to be same as scene wavelength samples.</li>
+<li>The mean luminance of the scene will be kept unchanged.</li>
+</ol>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scene</span><span class="o">.</span><span class="n">adjust_illuminant</span><span class="p">(</span><span class="n">Illuminant</span><span class="p">(</span><span class="s">&quot;D50.mat&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.bin_width">
+<tt class="descname">bin_width</tt><a class="headerlink" href="#pyEyeBall.Scene.bin_width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; wavelength sample interval in nm</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.energy">
+<tt class="descname">energy</tt><a class="headerlink" href="#pyEyeBall.Scene.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; scene radiance in energy units</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.height">
+<tt class="descname">height</tt><a class="headerlink" href="#pyEyeBall.Scene.height" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; height of scene in meters</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="pyEyeBall.Scene.init_with_display_image">
-<em class="property">classmethod </em><tt class="descname">init_with_display_image</tt><big>(</big><em>d: pyEyeBall.Source.Objects.Display.Display</em>, <em>image: numpy.ndarray</em>, <em>is_sub=False</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.init_with_display_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize scene with image on a calibrated display
-:param d: display object instance
-:param image: rgb image to be shown on the display, rgb should be in range of [0, 1]
-:param is_sub: bool, indicating whether or not to do sub-pixel rendering
-:return: scene object</p>
+<em class="property">classmethod </em><tt class="descname">init_with_display_image</tt><big>(</big><em>d</em>, <em>image</em>, <em>is_sub=False</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.init_with_display_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize scene spectra radiance with an image on a calibrated display
+Compute the full radiance of scene of an RGB image on a calibrated display</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>d</strong> (<a class="reference internal" href="display.html#pyEyeBall.Display" title="pyEyeBall.Display"><em>pyEyeBall.Display</em></a>) &#8211; instance of Display class</li>
+<li><strong>image</strong> (<em>numpy.ndarray</em>) &#8211; rgb image to be shown on the display, rgb should be in range of [0, 1]</li>
+<li><strong>is_sub</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; flag indicating whether or not to do sub-pixel rendering (coming soon)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>create a scene with an eagle image on OLED display (suppose image is loaded)
+&gt;&gt;&gt; from scipy.misc import imread
+&gt;&gt;&gt; from os.path import join
+&gt;&gt;&gt; image = imread(join(get_data_path(), &#8216;Image&#8217;, &#8216;eagle.jpg&#8217;)).astype(&#8216;float&#8217;)/255
+&gt;&gt;&gt; d = Display.init_with_isetbio_mat_file(&#8220;OLED-Sony.mat&#8221;)
+&gt;&gt;&gt; scene = Scene.init_with_display_image(d, image)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.luminance">
+<tt class="descname">luminance</tt><a class="headerlink" href="#pyEyeBall.Scene.luminance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; luminance image of the scene</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.mean_luminance">
+<tt class="descname">mean_luminance</tt><a class="headerlink" href="#pyEyeBall.Scene.mean_luminance" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; mean luminance of scene in cd/m2</p>
+<p>When this quantity is set to new values, spectra radiance data will be scaled to match the new value</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.n_cols">
+<tt class="descname">n_cols</tt><a class="headerlink" href="#pyEyeBall.Scene.n_cols" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; number of columns</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.n_rows">
+<tt class="descname">n_rows</tt><a class="headerlink" href="#pyEyeBall.Scene.n_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; number of rows</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyEyeBall.Scene.plot">
 <tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate plots for scene parameters and properties
-:param param: String, indicating which plot to generate
-:return: None, but plot will be shown</p>
+<dd><p>Generate plots for scene parameters and properties</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; string which indicates the type of plot to generate. In current version, param can be chosen
+from &#8220;illuminant energy&#8221;, &#8220;illuminant photons&#8221;, &#8220;srgb&#8221;. param string is not case sensitive and blank
+spaces in param are ignored.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Show illuminant energy and srgb image of the scene
+&gt;&gt;&gt; scene = Scene()
+&gt;&gt;&gt; scene.plot(&#8220;illuminant energy&#8221;)
+&gt;&gt;&gt; scene.plot(&#8220;srgb&#8221;)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.sample_size">
+<tt class="descname">sample_size</tt><a class="headerlink" href="#pyEyeBall.Scene.sample_size" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; size of each sample in meters</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.shape">
+<tt class="descname">shape</tt><a class="headerlink" href="#pyEyeBall.Scene.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>tuple</em> &#8211; shape of scene in (rows, cols)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.srgb">
+<tt class="descname">srgb</tt><a class="headerlink" href="#pyEyeBall.Scene.srgb" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; equivalent srgb image of the scene</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyEyeBall.Scene.visualize">
 <tt class="descname">visualize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.visualize" title="Permalink to this definition">¶</a></dt>
-<dd><p>GUI for scene object
-:return: None, but GUI will be shown</p>
+<dd><p>Initialize and show GUI for scene object</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scene</span><span class="o">.</span><span class="n">visualize</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.wave">
+<tt class="descname">wave</tt><a class="headerlink" href="#pyEyeBall.Scene.wave" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; wavelength samples in nm</p>
+<p>When this quantity is set to new values, illuminant data and spectra radiance data will be interpolated to
+match the new wavelength samples</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.width">
+<tt class="descname">width</tt><a class="headerlink" href="#pyEyeBall.Scene.width" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; width of scene in meters</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Scene.xyz">
+<tt class="descname">xyz</tt><a class="headerlink" href="#pyEyeBall.Scene.xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; XYZ image of the scene</p>
 </dd></dl>
 
 </dd></dl>
@@ -123,8 +336,8 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="display.html"
-                        title="previous chapter">Display Simulation</a></p>
+  <p class="topless"><a href="illuminant.html"
+                        title="previous chapter">Illuminant Simulation</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="optics.html"
                         title="next chapter">Human Optics</a></p>
@@ -157,10 +370,13 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="optics.html" title="Human Optics"
              >next</a> |</li>
         <li class="right" >
-          <a href="display.html" title="Display Simulation"
+          <a href="illuminant.html" title="Illuminant Simulation"
              >previous</a> |</li>
         <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
       </ul>
