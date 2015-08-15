@@ -242,11 +242,13 @@ class Optics:
         return self.focal_length/self.pupil_diameter
 
     @property
-    def spatial_support_x(self):  # spatial support in x direction as 1D array
+    def spatial_support_x(self):
+        """numpy.ndarray: spatial support in x direction as 1D array"""
         return np.linspace(-(self.n_cols - 1) * self.sample_size/2, (self.n_cols - 1) * self.sample_size/2, self.n_cols)
 
     @property
-    def spatial_support_y(self):  # spatial support in y direction as 1D array
+    def spatial_support_y(self):
+        """numpy.ndarray: spatial support in y direction as 1D array"""
         return np.linspace(-(self.n_rows - 1) * self.sample_size/2, (self.n_rows - 1) * self.sample_size/2, self.n_rows)
 
     @property
@@ -297,7 +299,7 @@ class Optics:
     def ocular_transmittance(self):  # ocular transmittance, including lens and macular transmittance
         return self.lens_transmittance * self.macular_transmittance
 
-    def otf(self, wave: float, fx=np.arange(-90.0, 90.0), fy=np.arange(-90.0, 90.0)):
+    def otf(self, wave: float, fx=None, fy=None):
         """
         get optical transfer function of optics at given wavelength and frequency
         :param wave: float, wavelength in nm
@@ -305,6 +307,13 @@ class Optics:
         :param fy: np.ndarray, frequency in y direction
         :return: 2D otf image
         """
+        # check inputs
+        if fx is None:
+            fx = np.arange(-90.0, 90.0)
+
+        if fy is None:
+            fy = np.arange(-90.0, 90.0)
+
         # define frequencies
         fx, fy = np.meshgrid(fx, fy)
         freq = np.sqrt(fx**2 + fy**2).flatten(order="F")
