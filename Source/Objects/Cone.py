@@ -49,8 +49,7 @@ Connections with ISETBIO:
     and redundant fields.
 
     ConeOuterSegment is more flexible than outersegment object in ISETBIO in the sense that it allows non-uniform
-    spaced cone grid as well as cone diameter change as a function of eccentricity. ISETBIO might have better speed and
-    visualization tools.
+    spaced cone grid as a function of eccentricity. ISETBIO might have better speed and visualization tools.
 
 """
 
@@ -322,8 +321,7 @@ class ConeOuterSegmentMosaic:
     outer segment class contains spatial information, such as cone mosaic layout, size and relative densities, and
     temporal properties like sample time and integration time. The computational routine takes care of eye movement
     path (normally generated with FixationalEyeMovement class) and cone photopigment properties (ConePhotopigment
-    class). We assume that cones are positioned on a grid (could be non-uniform spaced) and cone size only depend on
-    eccentricity.
+    class). We assume that cones are positioned on a grid (could be non-uniform spaced) only depend on eccentricity.
 
     Attributes:
         name (str): name of the instance of this class
@@ -361,8 +359,7 @@ class ConeOuterSegmentMosaic:
             >>> cone_mosaic = ConeOuterSegmentMosaic()
 
         TODO:
-          1. Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid
-          2. Have spatial support and cone diameter vary with eccentricty
+          1. Have spatial support vary with eccentricty
         """
         # Check inputs
         if wave is None:
@@ -478,7 +475,8 @@ class ConeOuterSegmentMosaic:
 
     def init_eye_movement(self, n_samples=1000, em=FixationalEyeMovement()):
         """ Initialize eye movement and set up eye positions at each time point
-        Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position)
+        Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position). And the positions are
+        stored in units of degrees
 
         Args:
             n_samples (int): number of samples of eye positions
@@ -489,8 +487,7 @@ class ConeOuterSegmentMosaic:
             >>> cone_mosaic.init_eye_movement(n_samples=500)
 
         """
-        position = em.generate_path(self.sample_time, n_samples)  # position in degrees
-        self.position = np.round(position * self.cones_per_degree)
+        self.position = em.generate_path(self.sample_time, n_samples)
 
     def compute_noisefree(self, oi, full_lms=False):
         """ Compute expected cone photon isomerizations
@@ -565,28 +562,29 @@ class ConeOuterSegmentMosaic:
         self.photons = np.zeros([self.n_rows, self.n_cols, self.n_positions])
 
         # increase cone mosaic size according to eye movement
-        pos_x = self.position_x
-        pos_y = self.position_y
-        rows_to_pad = np.array([-min(np.min(pos_y), 0), max(np.max(pos_y), 0)])
-        cols_to_pad = np.array([-min(np.min(pos_x), 0), max(np.max(pos_x), 0)])
-        size = self.size + np.array([np.sum(rows_to_pad), np.sum(cols_to_pad)])  # increased cone mosaic size
+        sx, sy = self.spatial_support  # spatial support in meters
+        px = self.position_x * self.meters_per_degree  # eye movement position in meters
+        py = self.position_y * self.meters_per_degree  # eye movement position in meters
+
+        new_sx = np.arange(min(px) + min(sx), max(px) + max(sx) + self.cone_diameter, self.cone_diameter)
+        new_sy = np.arange(min(py) + min(sy), max(py) + max(sy) + self.cone_diameter, self.cone_diameter)
+        size = np.array([new_sy.size, new_sx.size])
 
         cone_mosaic = copy.deepcopy(self)  # make a copy
         cone_mosaic.size = size
+        cone_mosaic.spatial_support = (new_sx, new_sy)
 
         # compute noise-free absorptions
         cone_mosaic.compute_noisefree(oi, full_lms=True)
 
         # convert cone mosaic to binary mask representation
-        mask = np.zeros([self.n_rows, self.n_cols, 3])
         for ii in range(3):
-            mask[:, :, ii] = (self.mosaic == ii+1)
+            f = interp2d(new_sx, new_sy, cone_mosaic.photons[:, :, ii], bounds_error=False, fill_value=0)
+            mask = (self.mosaic == ii+1)
 
-        # pick cone positions according to eye movement
-        for pos in range(self.n_positions):
-            photons = cone_mosaic.photons[(rows_to_pad[0]+pos_y[pos]):(rows_to_pad[0]+pos_y[pos]+self.n_rows),
-                                          (cols_to_pad[0]+pos_x[pos]):(cols_to_pad[0]+pos_x[pos]+self.n_cols), :]
-            self.photons[:, :, pos] = np.sum(photons * mask, axis=2)
+            # pick cone positions according to eye movement
+            for pos in range(self.n_positions):
+                self.photons[:, :, pos] += f(px[pos] + sx, py[pos] + sy) * mask
 
         # add noise
         if add_noise:
@@ -805,6 +803,11 @@ class ConeOuterSegmentMosaic:
         for cone_type in range(1, 4):
             rgb += (photons * (self.mosaic == cone_type))[:, :, None] * color[cone_type-1, :]
         return rgb
+
+    @property
+    def meters_per_degree(self):
+        """ float: conversion constant between meters and degree"""
+        return self.width / self.fov
 
     def get_fov(self, oi=Optics()):
         """ float: sensor field of view in degree

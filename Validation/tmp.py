@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    tmp = Display.ls_display()
+    # tmp = Display.ls_display()
     # d = Display.init_with_isetbio_mat_file("OLED-Sony.mat")
     # d.visualize()
 
@@ -24,11 +24,11 @@ def main():
 
     cone = ConeOuterSegmentMosaic()
     cone.set_fov(scene.fov, oi)
-    cone.init_eye_movement()
+    cone.init_eye_movement(n_samples=200)
     # cone.plot('eyemovement')
     cone.compute(oi)
     print(cone.current)
-    # cone.visualize()
+    cone.visualize()
 
     # plt.show(block=True)
 
