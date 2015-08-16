@@ -32,8 +32,8 @@ Optics GUI:
     be created directly. Instead, to show the GUI for a certain human optics, call optics.visualize()
 
 Connections with ISETBIO:
-    Optics class is equivalent to oi structure defined in ISETBIO. ISETBIO Optics structure is re-organized to some
-    attributes in pyEyeBall.Optics class.
+    Optics class is equivalent to oi structure defined in ISETBIO. ISETBIO Optics structure is re-organized and become
+    some attributes in pyEyeBall.Optics class.
 
     OI structure in ISETBIO supports more non-human simulations (mainly for cameras). For example, there are pieces of
     code doing diffraction limited lens simulations.
@@ -67,6 +67,7 @@ class Optics:
         macualr_transmittance (numpy.ndarray): quanta tranmittance of macular pigment
 
     Note:
+
         1) wavelength samples and otf are stored as private attribute (see _wave and _otf). Property wave is defined as
         a computed attribute. Thus, for external usage, wavelength samples can be accessed or altered with optics.wave.
         To get otf at given wavelength, call class method otf() with desired wavelength and frequency support.

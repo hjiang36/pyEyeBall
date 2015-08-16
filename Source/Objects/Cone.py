@@ -4,6 +4,7 @@ from scipy.stats import rv_discrete
 from ..Utility.IO import spectra_read
 from ..Data.path import get_data_path
 from .Optics import Optics
+from .Scene import Scene
 from ..Utility.Transforms import rad_to_deg, rgb_to_xw_format
 import matplotlib.pyplot as plt
 import copy
@@ -12,37 +13,85 @@ from PyQt4 import QtGui, QtCore
 from scipy.misc import imresize
 from scipy.constants import pi
 
+""" Module for human fixational eye movement, cone photopigment and outer segment mosaic charaterization, computations
+    and visualizations
+
+This module is used to characterize human cone properties and computes photon absorptions, membrane current as well as
+other statistics.
+
+There are four classes in this module: ConePhotopigment and ConeOuterSegmentMosaic, FixationalEyeMovement and ConeGUI.
+
+ConePhotopigment:
+    ConePhotopigment class contains attributes and computational routines for single human cone. It contains basic
+    properties of three types of cone cell and computes the absorptance of L,M,S cones.
+
+ConeOuterSegmentMosaic:
+    ConeOuterSegmentMosaic class contains spatial layout information aobut the cone mosaic. There are also computational
+    routine that can be used to calculate cone photon absorptions and adapted cone membrane current. The code uses
+    physilogical differential equations (by Fred Rieke) to model the cone dynamics.
+
+FixationalEyeMovement:
+    FixationalEyeMovement class contains parameters for three types of fixational eye movement: tremor, drift and
+    micro-saccade. There is also a 'generate_path' method that can be called to generate a simulated time series of
+    fixational eye movement.
+
+ConeGUI:
+    This is a GUI that visualize cone outer segment mosaic properties with PyQt4. In most cases, instance of OpticsGUI
+    class should not be created directly. Instead, to show the GUI for a cone mosaic, call cone.visualize()
+
+Connections with ISETBIO:
+    ConePhotopigment class is equivalent to cone structure in ISETBIO.
+    FixationalEyeMovement class is equivalenet to em structure in ISETBIO.
+
+    ConeOuterSegmentMosaic class is similar to outersegment object in ISETBIO. In ISETBIO, there is a underlying sensor
+    structure, em structure and a nested pixel structure. In pyEyeBall, eyemovement is handled within its own class
+    and ConeOuterSegment only contains the eye movement path. Also, it get rid of a lot of camera related parameters
+    and redundant fields.
+
+    ConeOuterSegment is more flexible than outersegment object in ISETBIO in the sense that it allows non-uniform
+    spaced cone grid as well as cone diameter change as a function of eccentricity. ISETBIO might have better speed and
+    visualization tools.
+
+"""
 
 __author__ = 'HJ'
 
 
 class ConePhotopigment:
-    """
-    Class describing cone photopigment properties
-    Programming Note:
-    In this class, we only care about three types of cones (LMS) and in ConePhotopigmentMosaic class, the order of cone
-    type is K,L,M,S. Thus, need to pad a column for K in that class
+    """ Human Cone Photopigment Properties
 
-    Attribute types:
-    :type _wave: numpy.ndarray
-    :type name: str
-    :type optical_density: numpy.ndarray
-    :type peak_efficiency: numpy.ndarray
+    The ConePhotoPigment class uses L,M,S cone properties to compute cone quanta fundamentals, which are further used in
+    ConeOuterSegmentClass.
+
+    Attributes:
+        name (str): name of ConePhotopigment class
+        optical_density (numpy.ndarray): optical density of three types of cones
+        peak_efficiency (numpy.ndarray): peak efficiency of three types of cones
+        absorbance (numpy.ndarray): absorbance of three types of cones
+
+    Note:
+        In this class, we only care about three types of cones (LMS) and in ConePhotopigmentMosaic class, the order of
+        cone type is K,L,M,S. Thus, need to pad a column for K in that class
     """
 
-    def __init__(self, wave=np.array(range(400, 710, 10)),
-                 name="Human Cone Photopigment", absorbance=None,
+    def __init__(self, wave=None, name="Human Cone Photopigment", absorbance=None,
                  optical_density=np.array([.5, .5, .4]), peak_efficiency=np.array([2, 2, 2])/3):
-        """
-        Constructor for ConePhotopigment class
-        :param wave: numpy.ndarray, sample wavelength in nm
-        :param name: str, name of the instance of this class
-        :param absorbance: numpy.ndarray, absorbance of L,M,S cones
-        :param optical_density: numpy.ndarray, optical density of three types of cones
-        :param peak_efficiency: numpy.ndarray, peak efficiency of three types of cones
-        :return: instance of ConePhotopigment class with attribute set properly
+        """ Constructor for ConePhotopigment class
+        Initialize parameters for cone photopigments
+
+        Args:
+            wave (numpy.ndarray): sample wavelength in nm, default np.arange(400, 710, 10)
+            name (str): name of the instance of this class
+            absorbance (numpy.ndarray): absorbance of L,M,S cones
+            optical_density (numpy.ndarray): optical density of three types of cones
+            peak_efficiency (numpy.ndarray): peak efficiency of three types of cones
+
+        Examples:
+            >>> pigment = ConePhotopigment()
         """
         # Initialize attributes
+        if wave is None:
+            wave = np.arange(400.0, 710.0, 10.0)
         self._wave = wave
         self.name = name
         self.optical_density = optical_density
@@ -56,18 +105,14 @@ class ConePhotopigment:
 
     @property
     def wave(self):
-        """
-        wavelength samples in nm
-        :rtype: numpy.ndarray
+        """numpy.ndarray: wavelength samples in nm
+
+        When this quantity is set to new values, absorbance data is interpolated to match the new wavelength samples
         """
         return self._wave
 
     @wave.setter
     def wave(self, new_wave):
-        """
-        set wavelength samples and interpolate data
-        :param new_wave: numpy.ndarray, new wavelength samples in nm
-        """
         if not np.array_equal(self._wave, new_wave):
             f = interp1d(self._wave, self.absorbance, bounds_error=False, fill_value=0)
             self.absorbance = f(new_wave)
@@ -75,33 +120,50 @@ class ConePhotopigment:
 
     @property
     def absorptance(self):
-        """
-        cone absorptance without ocular media
-        :rtype: numpy.ndarray
-        """
+        """numpy.ndarray: cone absorptance without ocular media"""
         return 1 - 10.0**(-self.optical_density*self.absorbance)
 
     @property
     def quanta_efficiency(self):
-        """
-        quanta efficiency of cones
-        :rtype: numpy.ndarray
-        """
+        """numpy.ndarray: quanta efficiency of cones"""
         return self.absorptance * self.peak_efficiency
 
     @property
     def quanta_fundamentals(self):
-        """
-        quantal fundamentals of cones
-        :rtype: numpy.ndarray
-        """
+        """numpy.ndarray, quantal fundamentals (normalized quanta efficiency) of cones"""
         qe = self.quanta_efficiency
         return qe / np.max(qe, axis=0)
 
 
 class FixationalEyeMovement:
-    """
-    Class describes fixational eye movement
+    """ Fixational eye movement properties
+
+    The FixationalEyeMovement class contains parameters for three type of fixational eye movement: tremor, drift and
+    micro-saccade. Method 'generate_path' of this class is used to generate simulated time series of eye movement
+    patthern, which is further used in computing the cone absorptions in ConeOuterSegmentMosaic class.
+
+    Attributes:
+        name (str): name of the instance of this class
+        flag (numpy.ndarray): three element bool array, indicating whether to include tremor, drift, micro-saccade
+        tremor_interval (float): time interval between two tremors in seconds
+        tremor_interval_sd (float): standard deviation of tremor_interval
+        tremor_amplitude (float): amplitude of tremor in degree
+        drift_speed (float): speed of drift in degree / sec
+        drift_speed_sd (float): standard deviation of drift
+        msaccade_interval (float): time interval between two micro-saccade in seconds
+        msaccade_interval_sd (float): standard deviation of micro-saccade interval
+        msaccade_direction_sd (float): deviation of direction of movement towards fixation point
+        msaccade_speed (float): micro-saccade speed in degree/second
+        msaccade_speed_sd (float), standard deviation of micro-saccade speed
+
+    Note:
+
+        The parameters are selected based on following papers:
+
+        1) Susana Martinez-Conde et. al, The role of fixational eye movements in visual perception, Nature reviews |
+           neuroscience, Vol. 5, 2004, page 229~240
+        2) Susana Martinez-Conde et. al, Microsaccades: a neurophysiological analysis, Trends in Neurosciences,
+           Volume 32, Issue 9, September 2009, Pages 463~475
     """
 
     def __init__(self, name='Human Eye Movement', flag=np.array([True, True, True]), tremor_interval=0.012,
@@ -109,26 +171,25 @@ class FixationalEyeMovement:
                  msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5,
                  msaccade_speed=15, msaccade_speed_sd=5
                  ):
-        """
-        Constructor for fixational eye movement class
-        :param name: string, name of the instance of this class
-        :param flag: np.ndarray of three values, indicating whether to include tremor, drift, micro-saccade respectively
-        :param tremor_interval: float, time interval between two tremors in seconds
-        :param tremor_interval_sd: float, standard deviation of tremor_interval
-        :param tremor_amplitude: amplitude of tremor in degree
-        :param drift_speed: float, speed of drift in degree / sec
-        :param drift_speed_sd: float, standard deviation of drift
-        :param msaccade_interval: float, time interval between two micro-saccade in seconds
-        :param msaccade_interval_sd: float, standard deviation of micro-saccade interval
-        :param msaccade_direction_sd: float, deviation of direction of movement towards fixation point
-        :param msaccade_speed: float, micro-saccade speed in degree/second
-        :param msaccade_speed_sd: float, standard deviation of micro-saccade speed
+        """ Constructor for fixational eye movement class
+        Initialize parameters for fixational eye movement
 
-        Reference:
-        1) Susana Martinez-Conde et. al, The role of fixational eye movements in visual perception, Nature reviews |
-           neuroscience, Vol. 5, 2004, page 229~240
-        2) Susana Martinez-Conde et. al, Microsaccades: a neurophysiological analysis, Trends in Neurosciences,
-           Volume 32, Issue 9, September 2009, Pages 463~475
+        Args:
+            name (str): name of the instance of this class
+            flag (numpy.ndarray): three element bool array, indicating whether to include tremor, drift, micro-saccade
+            tremor_interval (float): time interval between two tremors in seconds
+            tremor_interval_sd (float): standard deviation of tremor_interval
+            tremor_amplitude (float): amplitude of tremor in degree
+            drift_speed (float): speed of drift in degree / sec
+            drift_speed_sd (float): standard deviation of drift
+            msaccade_interval (float): time interval between two micro-saccade in seconds
+            msaccade_interval_sd (float): standard deviation of micro-saccade interval
+            msaccade_direction_sd (float): deviation of direction of movement towards fixation point
+            msaccade_speed (float): micro-saccade speed in degree/second
+            msaccade_speed_sd (float), standard deviation of micro-saccade speed
+
+        Examples:
+            >>> em = FixationalEyeMovement()
         """
         # set parameters
         self.name = name
@@ -145,8 +206,16 @@ class FixationalEyeMovement:
         self.msaccade_speed_sd = msaccade_speed_sd
 
     def __str__(self):
-        """
-        Generate description string for this class
+        """ Generate description string for FixationalEyeMovement instance
+        This function generates string for eye movement class. With the function, eye movement properties can be
+        printed out easily with str(em)
+
+        Returns:
+            str: string of fixational eye movement description
+
+        Examples:
+            >>> print(FixationalEyeMovement())
+            Fixational Eye Movement: Human Eye Movement (...and more...)
         """
         s = 'Fixational Eye Movement: ' + self.name + '\n'
         s += '  flag: ' + str(self.flag) + '\n'
@@ -166,17 +235,23 @@ class FixationalEyeMovement:
         return s
 
     def generate_path(self, sample_time=0.001, n_samples=1000, start=np.array([[0, 0]])):
-        """
-        Generate fixational eye movement path
-        :param sample_time: float, time between samples in sec
-        :param n_samples: int, number of samples to generate
-        :param start: initial position at time 0
-        :return: numpy.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees
-        :rtype: numpy.ndarray
+        """ Generate fixational eye movement path
 
-        Programming Note:
-          We will first generate eye movement path at temporal resolution of 1 ms and then interpolate to the desired
-          sample_time.
+        Args:
+            sample_time (float): time between samples in sec, usally 0.001
+            n_samples (int): number of samples to generate
+            start (numpy.ndarray): initial position at start time
+
+        Returns:
+            numpy.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees
+
+        Note:
+            In current version, we first generate eye movement path at temporal resolution of 1 ms and then interpolate
+            to the desired sample_time.
+
+        Examples:
+            >>> em = FixationalEyeMovement()
+            >>> pos = em.generate_path(n_samples=500)
         """
         # Initialize position, allocate space
         n_pos = round(n_samples*sample_time/0.001)
@@ -241,32 +316,58 @@ class FixationalEyeMovement:
 
 
 class ConeOuterSegmentMosaic:
-    """
-    Class describing human cone mosaic and isomerization
+    """ Human cone outer segment mosaic
+
+    The ConeOuterSegment can be used to calculate cone photon isomerization and dynamic membrane current. The cone
+    outer segment class contains spatial information, such as cone mosaic layout, size and relative densities, and
+    temporal properties like sample time and integration time. The computational routine takes care of eye movement
+    path (normally generated with FixationalEyeMovement class) and cone photopigment properties (ConePhotopigment
+    class). We assume that cones are positioned on a grid (could be non-uniform spaced) and cone size only depend on
+    eccentricity.
+
+    Attributes:
+        name (str): name of the instance of this class
+        mosaic (numpy.ndarray): 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively
+        cone_diameter (float): diameter of cone cell in meters
+        density (numpy.ndarray): spatial density (proportional) of different cone types in order of K,L,M,S
+        position (numpy.ndarray): N-by-2 matrix indicating eye movement positions in (x, y) in units of number of cones
+        integration_time (float): integration time of cone in secs
+        sample_time (float): sample time interval for self.position in secs
+        size (numpy.ndarray): size of cone mosaic to be generated, only used when mosaic is not given
+        spatial_support (tuple): 2-element of positions of cones in x, y direction
+
     """
     
-    def __init__(self, wave=np.array(range(400, 710, 10)), name="Human Cone Mosaic", mosaic=None,
+    def __init__(self, wave=None, name="Human Cone Mosaic", mosaic=None,
                  cone_diameter=2e-6, density=np.array([.0, .6, .3, .1]), position=np.array([[0, 0]]),
                  integration_time=0.05, sample_time=0.001, size=np.array([72, 88]),
                  spatial_support=None):
-        """
-        Constructor for class
-        :param wave: wavelength sample of this class
-        :param name: name of the instance of this class
-        :param mosaic: 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively
-        :param cone_diameter: float, diameter of cone cell in meters
-        :param density: spatial density (proportional) of different cone types in order of K,L,M,S
-        :param position: N-by-2 matrix indicating eye movement positions in (x, y) in units of number of cones
-        :param integration_time: float, integration time of cone in secs
-        :param sample_time: float, sample time interval for self.position in secs
-        :param size: size of cone mosaic to be generated, only used when mosaic is not given
-        :param spatial_support: 2-element tuple, containing position of cones in x, y direction
-        :return: instance of class with attributes set
+        """ Constructor for class
+        Initialize parameters for the cone outer segment class
 
-        Todo:
+        Args:
+            wave (numpy.ndarray): wavelength sample of this class
+            name (str): name of the instance of this class
+            mosaic (numpy.ndarray): 2D matrix, contains cone type at each position, 0~3 represents K,L,M,S
+            cone_diameter (float): diameter of cone cell in meters
+            density (numpy.ndarray): spatial density (proportional) of different cone types in order of K,L,M,S
+            position (numpy.ndarray) N-by-2 matrix, eye movement positions in (x, y) in units of number of cones
+            integration_time (float): float, integration time of cone in secs
+            sample_time: float, sample time interval for self.position in secs
+            size (numpy.ndarray): size of cone mosaic to be generated, only used when mosaic is not given
+            spatial_support (tuple): 2-element tuple, containing position of cones in x, y direction
+
+        Examples:
+            >>> cone_mosaic = ConeOuterSegmentMosaic()
+
+        TODO:
           1. Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid
           2. Have spatial support and cone diameter vary with eccentricty
         """
+        # Check inputs
+        if wave is None:
+            wave = np.arange(400.0, 710.0, 10.0)
+
         # Initialize instance attribute
         self.name = name
         self._wave = wave
@@ -301,10 +402,16 @@ class ConeOuterSegmentMosaic:
             self.spatial_support = spatial_support
 
     def __str__(self):
-        """
-        Generate description string for class instance
-        :return: description string
-        :rtype: str
+        """ Generate description string for cone outer segment mosaic instance
+        This function generates string for ConeOuterSegmentMosaic class. With the function, optics properties can be
+        printed out easily with str(cone_mosaic)
+
+        Returns:
+            str: string of outer segment mosaic description
+
+        Examples:
+            >>> print(ConeOuterSegmentMosaic())
+            Human Cone Mosaic: Human Cone Mosaic (...and more...)
         """
         s = "Human Cone Mosaic: " + self.name + "\n"
         s += "  [Height, Width]: [%.4g" % (self.height*1000) + ", %.4g" % (self.width*1000) + "] mm\n"
@@ -315,14 +422,21 @@ class ConeOuterSegmentMosaic:
         return s
 
     def plot(self, param):
-        """
-        generate plots for class attributes and properties
-        :param param: string, indicating what should be plotted
-        :return: None, but plot will be shown
+        """Generate plots for cone outer segment parameters and properties
+
+        Args:
+            param (str): string which indicates the type of plot to generate. In current version, param can be chosen
+                from "rgb", "quanta efficiency", "mosaic" and "eye movement"".
+                param string is not case sensitive and blank spaces in param are ignored.
+
+        Examples:
+            Show otf and psf of the default human optics
+            >>> cone_mosaic = ConeOuterSegmentMosaic()
+            >>> oi.plot("quanta efficiency")
+            >>> oi.plot("mosaic")
         """
         # process input param
         param = str(param).lower().replace(" ", "")
-        plt.ion()
 
         # generate plot
         if param == "rgb":  # rgb visualization of the cone mosaic
@@ -346,31 +460,58 @@ class ConeOuterSegmentMosaic:
             plt.grid()
         else:
             raise(ValueError, "Unknown param")
+        plt.show()
 
     def visualize(self):
+        """Initialize and show GUI for ConeOuterSegmentMosaic
+
+        Examples:
+            >>> oi = Optics()
+            >>> oi.compute(Scene())
+            >>> cone_mosaic = ConeOuterSegmentMosaic()
+            >>> cone_mosaic.compute(oi)
+            >>> cone_mosaic.visualize()
+        """
         app = QtGui.QApplication([''])
         ConeGUI(self)
         app.exec_()
 
     def init_eye_movement(self, n_samples=1000, em=FixationalEyeMovement()):
-        """
-        convert eye path to positions in cone mosaic (self.position)
-        :param n_samples: int, number of samples of eye positions
-        :param em: instance of FixationalEyeMovement class
-        :return: None, but self.position will be set
+        """ Initialize eye movement and set up eye positions at each time point
+        Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position)
+
+        Args:
+            n_samples (int): number of samples of eye positions
+            em (pyEyeBall.FixationalEyeMovement): instance of FixationalEyeMovement class
+
+        Examples:
+            >>> cone_mosaic = ConeOuterSegmentMosaic()
+            >>> cone_mosaic.init_eye_movement(n_samples=500)
+
         """
         position = em.generate_path(self.sample_time, n_samples)  # position in degrees
         self.position = np.round(position * self.cones_per_degree)
 
     def compute_noisefree(self, oi, full_lms=False):
-        """
-        Compute cone photon absorptions without adding any noise
-        :param oi: instance of Optics class with irradiance image computed
-        :param full_lms: bool, indicating if photons should be 2D computed according to mosaic or 3D as full lms image
-        :return: instance of class with noise free cone absorptions stored in attribute photons
+        """ Compute expected cone photon isomerizations
+        Calculate cone absorptions without adding photon noise or any other type of noise.
 
-        Programming note:
-        This function does not care about eye movement (self.position) and thus the
+        Args:
+            oi (pyEyeBall.Optics): instance of Optics class with irradiance image computed
+            full_lms (bool): If False, only photon absorptions of type specified in self.mosaic will be stored. In this
+                case, self.photons will be 2D, same shape as self.mosaic. If True, all L,M,S absorptions will be
+                 computed and stored in self.photons. Thus, self.photons will be in shape of (n_rows, n_cols, 3)
+
+        Note:
+            All computations in this method assumes that eye is looking at fixation point and doesn't use the eye
+            movement data (self.positions). To compute a series of cone absorptions with eye movement, use 'compute'
+            method instead.
+
+        Examples:
+            >>> oi = Optics()
+            >>> oi.compute(Scene())
+            >>> cone_mosaic = ConeOuterSegmentMosaic()
+            >>> cone_mosaic.compute_noisefree(oi)
         """
         # check inputs
         assert isinstance(oi, Optics), "oi should be instance of class Optics"
@@ -404,11 +545,21 @@ class ConeOuterSegmentMosaic:
                 self.photons += cone_photons * (self.mosaic == cone_type)
 
     def compute(self, oi: Optics, add_noise=True):
-        """
-        Compute cone photon absorption with noise and eye movement
-        :param oi: instance of Optics class with irradiance computed
-        :param add_noise: bool, indicate whether or not to add photon shot noise
-        :return: instance of this class with photons computed and stored
+        """ Compute cone photon absorptions
+        Calculate cone photon absorptions, taking eye movement and photon noise into consideration
+
+        Args:
+            oi (pyEyeBall.Optics): instance of Optics class with irradiance computed
+            add_noise (bool): indicate whether or not to add photon shot noise
+
+        Examples:
+            >>> oi = Optics()
+            >>> oi.compute(Scene())
+            >>> cone_mosaic = ConeOuterSegmentMosaic()
+            >>> cone_mosaic.init_eye_movement(n_samples=500)
+            >>> cone_mosaic.compute(oi)
+            >>> cone_mosaic.photons.shape
+            (72, 88, 500)
         """
         # allocate space for photons
         self.photons = np.zeros([self.n_rows, self.n_cols, self.n_positions])
@@ -443,6 +594,11 @@ class ConeOuterSegmentMosaic:
 
     @property
     def wave(self):
+        """numpy.ndarray: wavelength samples in nm
+
+        When this field is set to new values, the underlying cone quanta efficiency will be interpolated to new
+        wavelength samples
+        """
         return self._wave
 
     @wave.setter
@@ -454,6 +610,11 @@ class ConeOuterSegmentMosaic:
 
     @property
     def density(self):
+        """ numpy.ndarray: relative density of different cone types in order [K,L,M,S]
+
+        When this field is set to new values, the cone mosaic will be re-generated according to the new relative cone
+        density vector.
+        """
         return self._density
 
     @density.setter
@@ -462,18 +623,20 @@ class ConeOuterSegmentMosaic:
         self.mosaic = rv_discrete(values=(range(4), self.density)).rvs(size=self.size)
 
     @property
-    def cone_width(self):  # width of cone cell in meters
+    def cone_width(self):
+        """float: width of cone cell in meters"""
         return self.cone_diameter
 
     @property
-    def cone_height(self):  # height of cone cell in meters
+    def cone_height(self):
+        """float: height of cone cell in meters"""
         return self.cone_diameter
 
     @property
     def current_noisefree(self):  # current without cone noise
-        """
-        Get noise free cone membrane current with a temporal dynamic model by Fred Rieke
-        We assume eye is adapted to the first frame as the initial steady state
+        """numpy.ndarray: noise free cone membrane current
+        Membrane current is computed by a temporal dynamic model by Fred Rieke, assuming that eye is adapted to the
+        first frame as the initial steady state.
         """
         # check if photon absorptions have been computed
         assert self.photons.size > 0, "photon absorptions not computed"
@@ -521,14 +684,16 @@ class ConeOuterSegmentMosaic:
         return current[:, :, n_pad:]
 
     @property
-    def current(self):  # get cone current
+    def current(self):
+        """numpy.ndarray: cone membrane photo current array"""
         # model noise with spd
         noise = np.random.randn(self.n_rows, self.n_cols, self.n_positions)
         noise_fft = np.fft.fft(noise) * np.sqrt(self.cone_noise_spd)
         return self.current_noisefree + np.real(np.fft.ifft(noise_fft))
 
     @property
-    def cone_noise_spd(self):  # spd of cone noise
+    def cone_noise_spd(self):
+        """numpy.ndarray: spectrum power distrution of cone dynamic (adaptation) noise"""
         k = round((self.n_positions-1)/2)+1
         freq = np.arange(k) / self.sample_time / self.n_positions
 
@@ -539,19 +704,27 @@ class ConeOuterSegmentMosaic:
         return np.concatenate((noise_spd, noise_spd[::-1]))[:self.n_positions]
 
     @property
-    def bin_width(self):  # wavelength sample interval in nm
+    def bin_width(self):
+        """float: wavelength sample interval in nm"""
         return self._wave[1] - self._wave[0]
 
     @property
-    def n_rows(self):  # number of rows of cones
+    def n_rows(self):
+        """int: number of rows of cones"""
         return self.mosaic.shape[0]
 
     @property
-    def n_cols(self):  # number of columns of cones
+    def n_cols(self):
+        """int: number of columns of cones"""
         return self.mosaic.shape[1]
 
     @property
-    def size(self):  # shape of the cone mosaic in (n_rows, n_cols)
+    def size(self):
+        """numpy.ndarray: shape of the cone mosaic in (n_rows, n_cols)
+
+        When this field is set to new values, the cone mosaic will be regenerated according to relative cone density
+        and the computed data field (e.g. photons) will be cleared.
+        """
         return np.array(self.mosaic.shape)
 
     @size.setter
@@ -566,54 +739,57 @@ class ConeOuterSegmentMosaic:
 
     @property
     def height(self):
-        """
-        height of the cone mosaic in meters
-        :rtype: float
-        """
+        """float: height of the cone mosaic in meters"""
         return np.max(self.spatial_support_y) - np.min(self.spatial_support_y)
 
     @property
     def width(self):
-        """
-        width of the cone mosaic in meters
-        :rtype: float
-        """
+        """float: width of the cone mosaic in meters"""
         return np.max(self.spatial_support_x) - np.min(self.spatial_support_x)
 
     @property
-    def cone_area(self):  # area of one cone in m2
+    def cone_area(self):
+        """float: area of one cone in m2"""
         return self.cone_diameter**2 * pi/4
 
     @property
-    def spatial_support_x(self):  # x position of each cone in meters (1D array)
+    def spatial_support_x(self):
+        """numpy.ndarray: x position of each cone in meters (1D array)"""
         return self.spatial_support[0]
 
     @property
-    def spatial_support_y(self):  # y position of each cone in meters (1D array)
+    def spatial_support_y(self):
+        """numpy.ndarray: y position of each cone in meters (1D array)"""
         return self.spatial_support[1]
 
     @property
-    def degrees_per_cone(self):  # cone width in degree
+    def degrees_per_cone(self):
+        """float: cone diameter in degree"""
         return self.fov/self.n_cols
 
     @property
-    def cones_per_degree(self):  # number of cones per degree
+    def cones_per_degree(self):
+        """float: average number of cones per degree"""
         return self.n_cols / self.fov
 
     @property
-    def position_x(self):  # eye movement position in x direction
+    def position_x(self):
+        """numpy.ndarray: eye movement position in x direction"""
         return self.position[:, 0]
 
     @property
-    def position_y(self):  # eye movement position in y direction
+    def position_y(self):
+        """numpy.ndarray: eye movement positions in y direction"""
         return self.position[:, 1]
 
     @property
-    def n_positions(self):  # number of eye movement positions, same position is counted multiple times
+    def n_positions(self):
+        """int: number of eye movement positions, same position is counted multiple times"""
         return self.position.shape[0]
 
     @property
-    def rgb(self):  # rgb image of the cone mosaic photon absorptions
+    def rgb(self):
+        """ numpy.ndarray: rgb image of the cone mosaic photon absorptions"""
         # define color for L, M, S
         color = np.array([[228.0, 26.0, 28.0], [77.0, 175.0, 74.0], [55.0, 126.0, 184.0]])/255
 
@@ -630,7 +806,11 @@ class ConeOuterSegmentMosaic:
             rgb += (photons * (self.mosaic == cone_type))[:, :, None] * color[cone_type-1, :]
         return rgb
 
-    def get_fov(self, oi=Optics()):  # sensor field of view in degree
+    def get_fov(self, oi=Optics()):
+        """ float: sensor field of view in degree
+
+        When this quantity is set to new value, the cone mosaic is re-generated and the stored data are cleared.
+        """
         return 2 * rad_to_deg(np.arctan(self.width/oi.image_distance/2))
 
     def set_fov(self, new_fov, oi=Optics()):  # adjust sensor size according to field of view

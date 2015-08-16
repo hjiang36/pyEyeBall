@@ -31,7 +31,7 @@ class Illuminant:
     This class stores illuminant spectra distribution data and does computations and analysis from there. In current
     version, there is no spatial or temporal varying features in this class.
 
-    Args:
+    Attributes:
         name (str): name of the illuminant instance
         photons (numpy.ndarray): quanta distribution in each wavelength samples
 
