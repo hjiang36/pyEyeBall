@@ -1,0 +1,1069 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyEyeBall.Source.Objects.Cone &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="pyEyeBall" href="../../../pyEyeBall.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../pyEyeBall.html" accesskey="U">pyEyeBall</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyEyeBall.Source.Objects.Cone</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span><span class="p">,</span> <span class="n">interp2d</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">rv_discrete</span>
+<span class="kn">from</span> <span class="nn">..Utility.IO</span> <span class="kn">import</span> <span class="n">spectra_read</span>
+<span class="kn">from</span> <span class="nn">..Data.path</span> <span class="kn">import</span> <span class="n">get_data_path</span>
+<span class="kn">from</span> <span class="nn">.Optics</span> <span class="kn">import</span> <span class="n">Optics</span>
+<span class="kn">from</span> <span class="nn">.Scene</span> <span class="kn">import</span> <span class="n">Scene</span>
+<span class="kn">from</span> <span class="nn">..Utility.Transforms</span> <span class="kn">import</span> <span class="n">rad_to_deg</span><span class="p">,</span> <span class="n">rgb_to_xw_format</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">imresize</span>
+<span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="kn">import</span> <span class="n">pi</span>
+
+<span class="sd">&quot;&quot;&quot; Module for human fixational eye movement, cone photopigment and outer segment mosaic charaterization, computations</span>
+<span class="sd">    and visualizations</span>
+
+<span class="sd">This module is used to characterize human cone properties and computes photon absorptions, membrane current as well as</span>
+<span class="sd">other statistics.</span>
+
+<span class="sd">There are four classes in this module: ConePhotopigment and ConeOuterSegmentMosaic, FixationalEyeMovement and ConeGUI.</span>
+
+<span class="sd">ConePhotopigment:</span>
+<span class="sd">    ConePhotopigment class contains attributes and computational routines for single human cone. It contains basic</span>
+<span class="sd">    properties of three types of cone cell and computes the absorptance of L,M,S cones.</span>
+
+<span class="sd">ConeOuterSegmentMosaic:</span>
+<span class="sd">    ConeOuterSegmentMosaic class contains spatial layout information aobut the cone mosaic. There are also computational</span>
+<span class="sd">    routine that can be used to calculate cone photon absorptions and adapted cone membrane current. The code uses</span>
+<span class="sd">    physilogical differential equations (by Fred Rieke) to model the cone dynamics.</span>
+
+<span class="sd">FixationalEyeMovement:</span>
+<span class="sd">    FixationalEyeMovement class contains parameters for three types of fixational eye movement: tremor, drift and</span>
+<span class="sd">    micro-saccade. There is also a &#39;generate_path&#39; method that can be called to generate a simulated time series of</span>
+<span class="sd">    fixational eye movement.</span>
+
+<span class="sd">ConeGUI:</span>
+<span class="sd">    This is a GUI that visualize cone outer segment mosaic properties with PyQt4. In most cases, instance of OpticsGUI</span>
+<span class="sd">    class should not be created directly. Instead, to show the GUI for a cone mosaic, call cone.visualize()</span>
+
+<span class="sd">Connections with ISETBIO:</span>
+<span class="sd">    ConePhotopigment class is equivalent to cone structure in ISETBIO.</span>
+<span class="sd">    FixationalEyeMovement class is equivalenet to em structure in ISETBIO.</span>
+
+<span class="sd">    ConeOuterSegmentMosaic class is similar to outersegment object in ISETBIO. In ISETBIO, there is a underlying sensor</span>
+<span class="sd">    structure, em structure and a nested pixel structure. In pyEyeBall, eyemovement is handled within its own class</span>
+<span class="sd">    and ConeOuterSegment only contains the eye movement path. Also, it get rid of a lot of camera related parameters</span>
+<span class="sd">    and redundant fields.</span>
+
+<span class="sd">    ConeOuterSegment is more flexible than outersegment object in ISETBIO in the sense that it allows non-uniform</span>
+<span class="sd">    spaced cone grid as a function of eccentricity. ISETBIO might have better speed and visualization tools.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;HJ&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">ConePhotopigment</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Human Cone Photopigment Properties</span>
+
+<span class="sd">    The ConePhotoPigment class uses L,M,S cone properties to compute cone quanta fundamentals, which are further used in</span>
+<span class="sd">    ConeOuterSegmentClass.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): name of ConePhotopigment class</span>
+<span class="sd">        optical_density (numpy.ndarray): optical density of three types of cones</span>
+<span class="sd">        peak_efficiency (numpy.ndarray): peak efficiency of three types of cones</span>
+<span class="sd">        absorbance (numpy.ndarray): absorbance of three types of cones</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        In this class, we only care about three types of cones (LMS) and in ConePhotopigmentMosaic class, the order of</span>
+<span class="sd">        cone type is K,L,M,S. Thus, need to pad a column for K in that class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Human Cone Photopigment&quot;</span><span class="p">,</span> <span class="n">absorbance</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">optical_density</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">]),</span> <span class="n">peak_efficiency</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor for ConePhotopigment class</span>
+<span class="sd">        Initialize parameters for cone photopigments</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wave (numpy.ndarray): sample wavelength in nm, default np.arange(400, 710, 10)</span>
+<span class="sd">            name (str): name of the instance of this class</span>
+<span class="sd">            absorbance (numpy.ndarray): absorbance of L,M,S cones</span>
+<span class="sd">            optical_density (numpy.ndarray): optical density of three types of cones</span>
+<span class="sd">            peak_efficiency (numpy.ndarray): peak efficiency of three types of cones</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; pigment = ConePhotopigment()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialize attributes</span>
+        <span class="k">if</span> <span class="n">wave</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">400.0</span><span class="p">,</span> <span class="mf">710.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">wave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optical_density</span> <span class="o">=</span> <span class="n">optical_density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peak_efficiency</span> <span class="o">=</span> <span class="n">peak_efficiency</span>
+
+        <span class="c"># set / load absorbance</span>
+        <span class="k">if</span> <span class="n">absorbance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">absorbance</span> <span class="o">=</span> <span class="n">absorbance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">absorbance</span> <span class="o">=</span> <span class="mf">10.0</span><span class="o">**</span><span class="n">spectra_read</span><span class="p">(</span><span class="s">&quot;coneAbsorbance.mat&quot;</span><span class="p">,</span> <span class="n">wave</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: wavelength samples in nm</span>
+
+<span class="sd">        When this quantity is set to new values, absorbance data is interpolated to match the new wavelength samples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span>
+
+    <span class="nd">@wave.setter</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_wave</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="n">new_wave</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">absorbance</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">absorbance</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">new_wave</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">new_wave</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">absorptance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: cone absorptance without ocular media&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">10.0</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">optical_density</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">absorbance</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quanta_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: quanta efficiency of cones&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">absorptance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_efficiency</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quanta_fundamentals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray, quantal fundamentals (normalized quanta efficiency) of cones&quot;&quot;&quot;</span>
+        <span class="n">qe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanta_efficiency</span>
+        <span class="k">return</span> <span class="n">qe</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">qe</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FixationalEyeMovement"><a class="viewcode-back" href="../../../../eyemovement.html#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement">[docs]</a><span class="k">class</span> <span class="nc">FixationalEyeMovement</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Fixational eye movement properties</span>
+
+<span class="sd">    The FixationalEyeMovement class contains parameters for three type of fixational eye movement: tremor, drift and</span>
+<span class="sd">    micro-saccade. Method &#39;generate_path&#39; of this class is used to generate simulated time series of eye movement</span>
+<span class="sd">    patthern, which is further used in computing the cone absorptions in ConeOuterSegmentMosaic class.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): name of the instance of this class</span>
+<span class="sd">        flag (numpy.ndarray): three element bool array, indicating whether to include tremor, drift, micro-saccade</span>
+<span class="sd">        tremor_interval (float): time interval between two tremors in seconds</span>
+<span class="sd">        tremor_interval_sd (float): standard deviation of tremor_interval</span>
+<span class="sd">        tremor_amplitude (float): amplitude of tremor in degree</span>
+<span class="sd">        drift_speed (float): speed of drift in degree / sec</span>
+<span class="sd">        drift_speed_sd (float): standard deviation of drift</span>
+<span class="sd">        msaccade_interval (float): time interval between two micro-saccade in seconds</span>
+<span class="sd">        msaccade_interval_sd (float): standard deviation of micro-saccade interval</span>
+<span class="sd">        msaccade_direction_sd (float): deviation of direction of movement towards fixation point</span>
+<span class="sd">        msaccade_speed (float): micro-saccade speed in degree/second</span>
+<span class="sd">        msaccade_speed_sd (float), standard deviation of micro-saccade speed</span>
+
+<span class="sd">    Note:</span>
+
+<span class="sd">        The parameters are selected based on following papers:</span>
+
+<span class="sd">        1) Susana Martinez-Conde et. al, The role of fixational eye movements in visual perception, Nature reviews |</span>
+<span class="sd">           neuroscience, Vol. 5, 2004, page 229~240</span>
+<span class="sd">        2) Susana Martinez-Conde et. al, Microsaccades: a neurophysiological analysis, Trends in Neurosciences,</span>
+<span class="sd">           Volume 32, Issue 9, September 2009, Pages 463~475</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FixationalEyeMovement.__init__"><a class="viewcode-back" href="../../../../eyemovement.html#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;Human Eye Movement&#39;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">]),</span> <span class="n">tremor_interval</span><span class="o">=</span><span class="mf">0.012</span><span class="p">,</span>
+                 <span class="n">tremor_interval_sd</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">tremor_amplitude</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">drift_speed</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">drift_speed_sd</span><span class="o">=</span><span class="mf">0.016</span><span class="p">,</span>
+                 <span class="n">msaccade_interval</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">msaccade_interval_sd</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">msaccade_direction_sd</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">msaccade_speed</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">msaccade_speed_sd</span><span class="o">=</span><span class="mi">5</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor for fixational eye movement class</span>
+<span class="sd">        Initialize parameters for fixational eye movement</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): name of the instance of this class</span>
+<span class="sd">            flag (numpy.ndarray): three element bool array, indicating whether to include tremor, drift, micro-saccade</span>
+<span class="sd">            tremor_interval (float): time interval between two tremors in seconds</span>
+<span class="sd">            tremor_interval_sd (float): standard deviation of tremor_interval</span>
+<span class="sd">            tremor_amplitude (float): amplitude of tremor in degree</span>
+<span class="sd">            drift_speed (float): speed of drift in degree / sec</span>
+<span class="sd">            drift_speed_sd (float): standard deviation of drift</span>
+<span class="sd">            msaccade_interval (float): time interval between two micro-saccade in seconds</span>
+<span class="sd">            msaccade_interval_sd (float): standard deviation of micro-saccade interval</span>
+<span class="sd">            msaccade_direction_sd (float): deviation of direction of movement towards fixation point</span>
+<span class="sd">            msaccade_speed (float): micro-saccade speed in degree/second</span>
+<span class="sd">            msaccade_speed_sd (float), standard deviation of micro-saccade speed</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; em = FixationalEyeMovement()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># set parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="n">flag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tremor_interval</span> <span class="o">=</span> <span class="n">tremor_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tremor_interval_sd</span> <span class="o">=</span> <span class="n">tremor_interval_sd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tremor_amplitude</span> <span class="o">=</span> <span class="n">tremor_amplitude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drift_speed</span> <span class="o">=</span> <span class="n">drift_speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drift_speed_sd</span> <span class="o">=</span> <span class="n">drift_speed_sd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_interval</span> <span class="o">=</span> <span class="n">msaccade_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_interval_sd</span> <span class="o">=</span> <span class="n">msaccade_interval_sd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_direction_sd</span> <span class="o">=</span> <span class="n">msaccade_direction_sd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed</span> <span class="o">=</span> <span class="n">msaccade_speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed_sd</span> <span class="o">=</span> <span class="n">msaccade_speed_sd</span>
+</div>
+<div class="viewcode-block" id="FixationalEyeMovement.__str__"><a class="viewcode-back" href="../../../../eyemovement.html#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate description string for FixationalEyeMovement instance</span>
+<span class="sd">        This function generates string for eye movement class. With the function, eye movement properties can be</span>
+<span class="sd">        printed out easily with str(em)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: string of fixational eye movement description</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; print(FixationalEyeMovement())</span>
+<span class="sd">            Fixational Eye Movement: Human Eye Movement (...and more...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;Fixational Eye Movement: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;  flag: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flag</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;  Tremor parameters: </span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    interval: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tremor_interval</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; ms</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    interval sd: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tremor_interval_sd</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; ms</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    amplitude: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tremor_amplitude</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; arcsec</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;  Drift parameters: </span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    speed: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift_speed</span> <span class="o">+</span> <span class="s">&#39; deg/sec</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    speed sd: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift_speed_sd</span> <span class="o">+</span> <span class="s">&#39;deg/sec</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;  Micro-saccade parameters: </span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    interval: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msaccade_interval</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;ms</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    interval sd: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msaccade_interval_sd</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;ms</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    speed: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed</span> <span class="o">+</span> <span class="s">&#39; deg/sec</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    speed sd: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed_sd</span> <span class="o">+</span> <span class="s">&#39; deg/sec</span><span class="se">\n</span><span class="s">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;    direction sd: </span><span class="si">%.4g</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_direction_sd</span> <span class="o">+</span> <span class="s">&#39; deg&#39;</span>
+        <span class="k">return</span> <span class="n">s</span>
+</div>
+<div class="viewcode-block" id="FixationalEyeMovement.generate_path"><a class="viewcode-back" href="../../../../eyemovement.html#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.generate_path">[docs]</a>    <span class="k">def</span> <span class="nf">generate_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_time</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])):</span>
+        <span class="sd">&quot;&quot;&quot; Generate fixational eye movement path</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sample_time (float): time between samples in sec, usally 0.001</span>
+<span class="sd">            n_samples (int): number of samples to generate</span>
+<span class="sd">            start (numpy.ndarray): initial position at start time</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            In current version, we first generate eye movement path at temporal resolution of 1 ms and then interpolate</span>
+<span class="sd">            to the desired sample_time.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; em = FixationalEyeMovement()</span>
+<span class="sd">            &gt;&gt;&gt; pos = em.generate_path(n_samples=500)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialize position, allocate space</span>
+        <span class="n">n_pos</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">n_samples</span><span class="o">*</span><span class="n">sample_time</span><span class="o">/</span><span class="mf">0.001</span><span class="p">)</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n_pos</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">start</span>  <span class="c"># position at every 1 ms</span>
+
+        <span class="c"># Generate eye movement for tremor</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="c"># compute when tremor occurs</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tremor_interval</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tremor_interval_sd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_pos</span><span class="p">)</span>
+
+            <span class="n">t</span><span class="p">[</span><span class="n">t</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c"># get rid of negative values</span>
+            <span class="n">t_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.001</span><span class="p">)</span>
+            <span class="n">t_pos</span> <span class="o">=</span> <span class="n">t_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">t_pos</span> <span class="o">&gt;=</span> <span class="n">n_pos</span><span class="p">)]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+            <span class="c"># randomize direction and compute direction</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">t_pos</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">position</span><span class="p">[</span><span class="n">t_pos</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">direction</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">direction</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tremor_amplitude</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Generate eye movement for drift</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="c"># set direction to be gradually changed over time</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">pi</span><span class="o">/</span><span class="mi">180</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_pos</span><span class="p">)</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n_pos</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">direction</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+            <span class="n">direction</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+            <span class="c"># generate random moves</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift_speed</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">drift_speed_sd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">position</span> <span class="o">+=</span> <span class="n">direction</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">sample_time</span>
+
+        <span class="c"># Generate eye movement for micro-saccade</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="c"># compute when micro-saccade occur</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_interval</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_interval_sd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_pos</span><span class="p">)</span>
+            <span class="n">t</span><span class="p">[</span><span class="n">t</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">))</span>  <span class="c"># get rid of negative value</span>
+            <span class="n">t_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="n">t_pos</span> <span class="o">=</span> <span class="n">t_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">t_pos</span> <span class="o">&gt;=</span> <span class="n">n_pos</span><span class="p">)]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">cur_t_pos</span> <span class="ow">in</span> <span class="n">t_pos</span><span class="p">:</span>
+                <span class="n">cur_pos</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="n">cur_t_pos</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">duration</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cur_pos</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed</span> <span class="o">/</span> <span class="mf">0.001</span><span class="p">)</span>
+
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">cur_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cur_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_direction_sd</span> <span class="o">*</span> <span class="n">pi</span><span class="o">/</span><span class="mi">180</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">direction</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">direction</span><span class="p">)])</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">cur_pos</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n_pos</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="n">cur_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed_sd</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">cur_speed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">cur_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msaccade_speed</span>
+                <span class="n">offset</span><span class="p">[</span><span class="n">cur_t_pos</span><span class="p">:</span><span class="nb">min</span><span class="p">(</span><span class="n">cur_t_pos</span> <span class="o">+</span> <span class="n">duration</span><span class="p">,</span> <span class="n">n_pos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_speed</span><span class="o">*</span><span class="n">direction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sample_time</span>
+                <span class="n">offset</span><span class="p">[</span><span class="n">cur_t_pos</span><span class="p">:</span><span class="nb">min</span><span class="p">(</span><span class="n">cur_t_pos</span> <span class="o">+</span> <span class="n">duration</span><span class="p">,</span> <span class="n">n_pos</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_speed</span><span class="o">*</span><span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sample_time</span>
+
+                <span class="n">position</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Interpolate to desired sample time</span>
+        <span class="k">if</span> <span class="n">sample_time</span> <span class="o">!=</span> <span class="mf">0.001</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_pos</span><span class="p">),</span> <span class="n">position</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">*</span><span class="n">sample_time</span><span class="p">,</span> <span class="n">sample_time</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">position</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">ConeOuterSegmentMosaic</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Human cone outer segment mosaic</span>
+
+<span class="sd">    The ConeOuterSegment can be used to calculate cone photon isomerization and dynamic membrane current. The cone</span>
+<span class="sd">    outer segment class contains spatial information, such as cone mosaic layout, size and relative densities, and</span>
+<span class="sd">    temporal properties like sample time and integration time. The computational routine takes care of eye movement</span>
+<span class="sd">    path (normally generated with FixationalEyeMovement class) and cone photopigment properties (ConePhotopigment</span>
+<span class="sd">    class). We assume that cones are positioned on a grid (could be non-uniform spaced) only depend on eccentricity.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): name of the instance of this class</span>
+<span class="sd">        mosaic (numpy.ndarray): 2D matrix, indicating cone type at each position, 0~3 represents K,L,M,S respectively</span>
+<span class="sd">        cone_diameter (float): diameter of cone cell in meters</span>
+<span class="sd">        density (numpy.ndarray): spatial density (proportional) of different cone types in order of K,L,M,S</span>
+<span class="sd">        position (numpy.ndarray): N-by-2 matrix indicating eye movement positions in (x, y) in units of number of cones</span>
+<span class="sd">        integration_time (float): integration time of cone in secs</span>
+<span class="sd">        sample_time (float): sample time interval for self.position in secs</span>
+<span class="sd">        size (numpy.ndarray): size of cone mosaic to be generated, only used when mosaic is not given</span>
+<span class="sd">        spatial_support (tuple): 2-element of positions of cones in x, y direction</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Human Cone Mosaic&quot;</span><span class="p">,</span> <span class="n">mosaic</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">cone_diameter</span><span class="o">=</span><span class="mf">2e-6</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">6</span><span class="p">,</span> <span class="o">.</span><span class="mi">3</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">]),</span> <span class="n">position</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span>
+                 <span class="n">integration_time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">sample_time</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">72</span><span class="p">,</span> <span class="mi">88</span><span class="p">]),</span>
+                 <span class="n">spatial_support</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor for class</span>
+<span class="sd">        Initialize parameters for the cone outer segment class</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wave (numpy.ndarray): wavelength sample of this class</span>
+<span class="sd">            name (str): name of the instance of this class</span>
+<span class="sd">            mosaic (numpy.ndarray): 2D matrix, contains cone type at each position, 0~3 represents K,L,M,S</span>
+<span class="sd">            cone_diameter (float): diameter of cone cell in meters</span>
+<span class="sd">            density (numpy.ndarray): spatial density (proportional) of different cone types in order of K,L,M,S</span>
+<span class="sd">            position (numpy.ndarray) N-by-2 matrix, eye movement positions in (x, y) in units of degrees</span>
+<span class="sd">            integration_time (float): float, integration time of cone in secs</span>
+<span class="sd">            sample_time: float, sample time interval for self.position in secs</span>
+<span class="sd">            size (numpy.ndarray): size of cone mosaic to be generated, only used when mosaic is not given</span>
+<span class="sd">            spatial_support (tuple): 2-element tuple, containing position of cones in x, y direction</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">          1. Have spatial support vary with eccentricty</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Check inputs</span>
+        <span class="k">if</span> <span class="n">wave</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">400.0</span><span class="p">,</span> <span class="mf">710.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+
+        <span class="c"># Initialize instance attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">wave</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span> <span class="o">=</span> <span class="n">cone_diameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_density</span> <span class="o">=</span> <span class="n">density</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">density</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">integration_time</span> <span class="o">=</span> <span class="n">integration_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_time</span> <span class="o">=</span> <span class="n">sample_time</span>
+
+        <span class="c"># Initialize spectral quanta efficiency of the cones</span>
+        <span class="c"># pad a column for black holes (K)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quanta_efficiency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">ConePhotopigment</span><span class="p">(</span><span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="o">.</span><span class="n">quanta_efficiency</span><span class="p">,</span>
+                                        <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Initialize photons (isomerization) as empty array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="c"># Generate cone mosaic if not given</span>
+        <span class="k">if</span> <span class="n">mosaic</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">=</span> <span class="n">mosaic</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">))</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="c"># Initialize spaitial support</span>
+        <span class="k">if</span> <span class="n">spatial_support</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">)</span>
+            <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support</span> <span class="o">=</span> <span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">spatial_support</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="s">&quot;spatial support size x mismatch with mosaic columns&quot;</span>
+            <span class="k">assert</span> <span class="n">spatial_support</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="s">&quot;spatial support size y mismatch with mosaic rows&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support</span> <span class="o">=</span> <span class="n">spatial_support</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate description string for cone outer segment mosaic instance</span>
+<span class="sd">        This function generates string for ConeOuterSegmentMosaic class. With the function, optics properties can be</span>
+<span class="sd">        printed out easily with str(cone_mosaic)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: string of outer segment mosaic description</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; print(ConeOuterSegmentMosaic())</span>
+<span class="sd">            Human Cone Mosaic: Human Cone Mosaic (...and more...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;Human Cone Mosaic: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  [Height, Width]: [</span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;, </span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;] mm</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Field of view: </span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">fov</span> <span class="o">+</span> <span class="s">&quot; deg</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Cone diameter: </span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="o">*</span><span class="mf">1e6</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; um</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Integration time: </span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">integration_time</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; ms</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Spatial density (K,L,M,S):&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate plots for cone outer segment parameters and properties</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param (str): string which indicates the type of plot to generate. In current version, param can be chosen</span>
+<span class="sd">                from &quot;rgb&quot;, &quot;quanta efficiency&quot;, &quot;mosaic&quot; and &quot;eye movement&quot;&quot;.</span>
+<span class="sd">                param string is not case sensitive and blank spaces in param are ignored.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Show otf and psf of the default human optics</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.plot(&quot;quanta efficiency&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.plot(&quot;mosaic&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># process input param</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c"># generate plot</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;rgb&quot;</span><span class="p">:</span>  <span class="c"># rgb visualization of the cone mosaic</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rgb</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;quantaefficiency&quot;</span><span class="p">:</span>  <span class="c"># quanta efficiency of the cones</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanta_efficiency</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Wavelength (nm)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Quanta Efficiency&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;mosaic&quot;</span><span class="p">:</span>  <span class="c"># cone mosaic</span>
+            <span class="c"># define color for L, M, S</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">228.0</span><span class="p">,</span> <span class="mf">26.0</span><span class="p">,</span> <span class="mf">28.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">77.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">,</span> <span class="mf">74.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">55.0</span><span class="p">,</span> <span class="mf">126.0</span><span class="p">,</span> <span class="mf">184.0</span><span class="p">]])</span><span class="o">/</span><span class="mi">255</span>
+            <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">cone_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="n">rgb</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">==</span> <span class="n">cone_type</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">color</span><span class="p">[</span><span class="n">cone_type</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;eyemovement&quot;</span> <span class="ow">or</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;positions&quot;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_y</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Eye position (degrees)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Eye position (degrees)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Unknown param&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize and show GUI for ConeOuterSegmentMosaic</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; oi = Optics()</span>
+<span class="sd">            &gt;&gt;&gt; oi.compute(Scene())</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.compute(oi)</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.visualize()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([</span><span class="s">&#39;&#39;</span><span class="p">])</span>
+        <span class="n">ConeGUI</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">init_eye_movement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">em</span><span class="o">=</span><span class="n">FixationalEyeMovement</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize eye movement and set up eye positions at each time point</span>
+<span class="sd">        Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position). And the positions are</span>
+<span class="sd">        stored in units of degrees</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n_samples (int): number of samples of eye positions</span>
+<span class="sd">            em (pyEyeBall.FixationalEyeMovement): instance of FixationalEyeMovement class</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.init_eye_movement(n_samples=500)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">em</span><span class="o">.</span><span class="n">generate_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_time</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute_noisefree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oi</span><span class="p">,</span> <span class="n">full_lms</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute expected cone photon isomerizations</span>
+<span class="sd">        Calculate cone absorptions without adding photon noise or any other type of noise.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            oi (pyEyeBall.Optics): instance of Optics class with irradiance image computed</span>
+<span class="sd">            full_lms (bool): If False, only photon absorptions of type specified in self.mosaic will be stored. In this</span>
+<span class="sd">                case, self.photons will be 2D, same shape as self.mosaic. If True, all L,M,S absorptions will be</span>
+<span class="sd">                 computed and stored in self.photons. Thus, self.photons will be in shape of (n_rows, n_cols, 3)</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            All computations in this method assumes that eye is looking at fixation point and doesn&#39;t use the eye</span>
+<span class="sd">            movement data (self.positions). To compute a series of cone absorptions with eye movement, use &#39;compute&#39;</span>
+<span class="sd">            method instead.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; oi = Optics()</span>
+<span class="sd">            &gt;&gt;&gt; oi.compute(Scene())</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.compute_noisefree(oi)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># check inputs</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">Optics</span><span class="p">),</span> <span class="s">&quot;oi should be instance of class Optics&quot;</span>
+
+        <span class="c"># allocate space for photons</span>
+        <span class="k">if</span> <span class="n">full_lms</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="c"># compute signal current density in amp/m2</span>
+        <span class="n">photons</span> <span class="o">=</span> <span class="n">rgb_to_xw_format</span><span class="p">(</span><span class="n">oi</span><span class="o">.</span><span class="n">get_photons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">))</span>
+        <span class="n">signal_current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">photons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanta_efficiency</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_width</span>
+        <span class="n">signal_current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">signal_current</span><span class="p">,</span> <span class="p">(</span><span class="n">oi</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">oi</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;F&quot;</span><span class="p">)</span>
+
+        <span class="c"># compute cone absorptions</span>
+        <span class="n">oi_sx</span> <span class="o">=</span> <span class="n">oi</span><span class="o">.</span><span class="n">spatial_support_x</span>
+        <span class="n">oi_sy</span> <span class="o">=</span> <span class="n">oi</span><span class="o">.</span><span class="n">spatial_support_y</span>
+        <span class="n">cone_sx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support_x</span>
+        <span class="n">cone_sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support_y</span>
+        <span class="k">for</span> <span class="n">cone_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="c"># interpolate for current cone type</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp2d</span><span class="p">(</span><span class="n">oi_sx</span><span class="p">,</span> <span class="n">oi_sy</span><span class="p">,</span> <span class="n">signal_current</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">cone_type</span><span class="p">],</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">cone_photons</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">cone_sx</span><span class="p">,</span> <span class="n">cone_sy</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;F&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">integration_time</span>
+
+            <span class="c"># store photons</span>
+            <span class="k">if</span> <span class="n">full_lms</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">cone_type</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">cone_photons</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># select data according to cone mosaic</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">+=</span> <span class="n">cone_photons</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">==</span> <span class="n">cone_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oi</span><span class="p">:</span> <span class="n">Optics</span><span class="p">,</span> <span class="n">add_noise</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute cone photon absorptions</span>
+<span class="sd">        Calculate cone photon absorptions, taking eye movement and photon noise into consideration</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            oi (pyEyeBall.Optics): instance of Optics class with irradiance computed</span>
+<span class="sd">            add_noise (bool): indicate whether or not to add photon shot noise</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; oi = Optics()</span>
+<span class="sd">            &gt;&gt;&gt; oi.compute(Scene())</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.init_eye_movement(n_samples=500)</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.compute(oi)</span>
+<span class="sd">            &gt;&gt;&gt; cone_mosaic.photons.shape</span>
+<span class="sd">            (72, 88, 500)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># allocate space for photons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_positions</span><span class="p">])</span>
+
+        <span class="c"># increase cone mosaic size according to eye movement</span>
+        <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support</span>  <span class="c"># spatial support in meters</span>
+        <span class="n">px</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">meters_per_degree</span>  <span class="c"># eye movement position in meters</span>
+        <span class="n">py</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">meters_per_degree</span>  <span class="c"># eye movement position in meters</span>
+
+        <span class="n">new_sx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">px</span><span class="p">)</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">sx</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">px</span><span class="p">)</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">sx</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="p">)</span>
+        <span class="n">new_sy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">py</span><span class="p">)</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">sy</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">py</span><span class="p">)</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">new_sy</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">new_sx</span><span class="o">.</span><span class="n">size</span><span class="p">])</span>
+
+        <span class="n">cone_mosaic</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c"># make a copy</span>
+        <span class="n">cone_mosaic</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="n">cone_mosaic</span><span class="o">.</span><span class="n">spatial_support</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_sx</span><span class="p">,</span> <span class="n">new_sy</span><span class="p">)</span>
+
+        <span class="c"># compute noise-free absorptions</span>
+        <span class="n">cone_mosaic</span><span class="o">.</span><span class="n">compute_noisefree</span><span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">full_lms</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># convert cone mosaic to binary mask representation</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp2d</span><span class="p">(</span><span class="n">new_sx</span><span class="p">,</span> <span class="n">new_sy</span><span class="p">,</span> <span class="n">cone_mosaic</span><span class="o">.</span><span class="n">photons</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">],</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">==</span> <span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c"># pick cone positions according to eye movement</span>
+            <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_positions</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">pos</span><span class="p">]</span> <span class="o">+=</span> <span class="n">f</span><span class="p">(</span><span class="n">px</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">sx</span><span class="p">,</span> <span class="n">py</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">sy</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span>
+
+        <span class="c"># add noise</span>
+        <span class="k">if</span> <span class="n">add_noise</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: wavelength samples in nm</span>
+
+<span class="sd">        When this field is set to new values, the underlying cone quanta efficiency will be interpolated to new</span>
+<span class="sd">        wavelength samples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span>
+
+    <span class="nd">@wave.setter</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_wave</span><span class="p">):</span>  <span class="c"># adjust wavelength samples and interpolate data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">,</span> <span class="n">new_wave</span><span class="p">):</span>
+            <span class="c"># interpolate spectral quanta efficiency</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanta_efficiency</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quanta_efficiency</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">new_wave</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; numpy.ndarray: relative density of different cone types in order [K,L,M,S]</span>
+
+<span class="sd">        When this field is set to new values, the cone mosaic will be re-generated according to the new relative cone</span>
+<span class="sd">        density vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_density</span>
+
+    <span class="nd">@density.setter</span>
+    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>  <span class="c"># adjust cone spatial density and re-generate cone mosaic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_density</span> <span class="o">=</span> <span class="n">density</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">density</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">))</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cone_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: width of cone cell in meters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cone_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: height of cone cell in meters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_noisefree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c"># current without cone noise</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: noise free cone membrane current</span>
+<span class="sd">        Membrane current is computed by a temporal dynamic model by Fred Rieke, assuming that eye is adapted to the</span>
+<span class="sd">        first frame as the initial steady state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># check if photon absorptions have been computed</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;photon absorptions not computed&quot;</span>
+
+        <span class="c"># init parameters</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">22.0</span>     <span class="c"># rhodopsin activity decay rate (1/sec)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="mf">22.0</span>       <span class="c"># phosphodiesterase activity decay rate (1/sec)</span>
+        <span class="n">eta</span> <span class="o">=</span> <span class="mi">2000</span>	     <span class="c"># phosphodiesterase activation rate constant (1/sec)</span>
+        <span class="n">gdark</span> <span class="o">=</span> <span class="mf">20.5</span>     <span class="c"># concentration of cGMP in darkness</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mf">0.02</span>         <span class="c"># constant relating cGMP to current</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mi">3</span>            <span class="c"># cooperativity for cGMP to current</span>
+        <span class="n">cdark</span> <span class="o">=</span> <span class="mi">1</span>        <span class="c"># dark calcium concentration</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="mi">9</span>	     <span class="c"># rate constant for calcium removal in 1/sec</span>
+        <span class="n">beta_slow</span> <span class="o">=</span> <span class="mf">0.4</span>  <span class="c"># rate constant for slow calcium modulation of channels</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">4</span>   	     <span class="c"># cooperativity for cyclase, hill coef</span>
+        <span class="n">k_gc</span> <span class="o">=</span> <span class="mf">0.5</span>        <span class="c"># hill affinity for cyclase</span>
+        <span class="n">opsin_gain</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c"># rate of increase in opsin activity per R*/sec</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.001</span>       <span class="c"># time interval in differential equation simulation</span>
+
+        <span class="c"># Compute more parameters - steady state constraints among parameters</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta</span> <span class="o">*</span> <span class="n">cdark</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">gdark</span><span class="o">**</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">smax</span> <span class="o">=</span> <span class="n">eta</span><span class="o">/</span><span class="n">phi</span> <span class="o">*</span> <span class="n">gdark</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">cdark</span> <span class="o">/</span> <span class="n">k_gc</span><span class="p">)</span><span class="o">**</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="c"># pre-pad photon absorption by the first frame</span>
+        <span class="n">n_pad</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c"># pad 500 frames before first frame for steady state adaptation</span>
+        <span class="n">p_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">integration_time</span>  <span class="c"># photons per second</span>
+        <span class="n">p_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">p_rate</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_pad</span><span class="p">)),</span> <span class="n">p_rate</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c"># set initial state</span>
+        <span class="n">opsin</span> <span class="o">=</span> <span class="mi">560</span>
+        <span class="n">pde</span> <span class="o">=</span> <span class="mi">110</span>
+        <span class="n">ca</span> <span class="o">=</span> <span class="n">ca_slow</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">c_gmp</span> <span class="o">=</span> <span class="mi">20</span>
+
+        <span class="c"># compute membrane current by simulating differential equations</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">p_rate</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p_rate</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+            <span class="n">opsin</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">opsin_gain</span> <span class="o">*</span> <span class="n">p_rate</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">-</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">opsin</span><span class="p">)</span>
+            <span class="n">pde</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">opsin</span> <span class="o">+</span> <span class="n">eta</span> <span class="o">-</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">pde</span><span class="p">)</span>
+            <span class="n">ca</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="o">*</span><span class="n">k</span> <span class="o">*</span> <span class="n">c_gmp</span><span class="o">**</span><span class="n">h</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ca_slow</span><span class="o">/</span><span class="n">cdark</span><span class="p">)</span><span class="o">-</span><span class="n">beta</span><span class="o">*</span><span class="n">ca</span><span class="p">)</span>
+            <span class="n">ca_slow</span> <span class="o">-=</span> <span class="n">dt</span><span class="o">*</span><span class="n">beta_slow</span> <span class="o">*</span> <span class="p">(</span><span class="n">ca_slow</span> <span class="o">-</span> <span class="n">ca</span><span class="p">)</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">smax</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">ca</span><span class="o">/</span><span class="n">k_gc</span><span class="p">)</span><span class="o">**</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">c_gmp</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">st</span> <span class="o">-</span> <span class="n">pde</span> <span class="o">*</span> <span class="n">c_gmp</span><span class="p">)</span>
+            <span class="n">current</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">k</span> <span class="o">*</span> <span class="n">c_gmp</span><span class="o">**</span><span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ca_slow</span><span class="o">/</span><span class="n">cdark</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">current</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">n_pad</span><span class="p">:]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: cone membrane photo current array&quot;&quot;&quot;</span>
+        <span class="c"># model noise with spd</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_positions</span><span class="p">)</span>
+        <span class="n">noise_fft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cone_noise_spd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_noisefree</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">noise_fft</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cone_noise_spd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: spectrum power distrution of cone dynamic (adaptation) noise&quot;&quot;&quot;</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_positions</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_time</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_positions</span>
+
+        <span class="c"># compute noise spd as sum of Lorentzian component</span>
+        <span class="n">noise_spd</span> <span class="o">=</span> <span class="mf">4.8</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">freq</span><span class="o">/</span><span class="mi">55</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">1.35</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">freq</span><span class="o">/</span><span class="mi">190</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mf">2.5</span>
+
+        <span class="c"># make up the negative components</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">noise_spd</span><span class="p">,</span> <span class="n">noise_spd</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]))[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_positions</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bin_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: wavelength sample interval in nm&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: number of rows of cones&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: number of columns of cones&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: shape of the cone mosaic in (n_rows, n_cols)</span>
+
+<span class="sd">        When this field is set to new values, the cone mosaic will be regenerated according to relative cone density</span>
+<span class="sd">        and the computed data field (e.g. photons) will be cleared.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="nd">@size.setter</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_size</span><span class="p">):</span>  <span class="c"># re-generate cone mosaic according to new size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">=</span> <span class="n">rv_discrete</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">))</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">new_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="c"># set up spatial support for new cone mosaic</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">)</span>
+        <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="o">/</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support</span> <span class="o">=</span> <span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: height of the cone mosaic in meters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_support_y</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_support_y</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: width of the cone mosaic in meters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_support_x</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_support_x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cone_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: area of one cone in m2&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_diameter</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="o">/</span><span class="mi">4</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spatial_support_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: x position of each cone in meters (1D array)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spatial_support_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: y position of each cone in meters (1D array)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_support</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">degrees_per_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: cone diameter in degree&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fov</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cones_per_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: average number of cones per degree&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fov</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">position_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: eye movement position in x direction&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">position_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: eye movement positions in y direction&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: number of eye movement positions, same position is counted multiple times&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; numpy.ndarray: rgb image of the cone mosaic photon absorptions&quot;&quot;&quot;</span>
+        <span class="c"># define color for L, M, S</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">228.0</span><span class="p">,</span> <span class="mf">26.0</span><span class="p">,</span> <span class="mf">28.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">77.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">,</span> <span class="mf">74.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">55.0</span><span class="p">,</span> <span class="mf">126.0</span><span class="p">,</span> <span class="mf">184.0</span><span class="p">]])</span><span class="o">/</span><span class="mi">255</span>
+
+        <span class="c"># Normalize photon absorptions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">photons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">photons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span>
+        <span class="n">photons</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">photons</span><span class="p">)</span>
+
+        <span class="c"># allocate space for rgb image</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">n_rows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_cols</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">cone_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">rgb</span> <span class="o">+=</span> <span class="p">(</span><span class="n">photons</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">==</span> <span class="n">cone_type</span><span class="p">))[:,</span> <span class="p">:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">color</span><span class="p">[</span><span class="n">cone_type</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">rgb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">meters_per_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; float: conversion constant between meters and degree&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fov</span>
+
+    <span class="k">def</span> <span class="nf">get_fov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oi</span><span class="o">=</span><span class="n">Optics</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot; float: sensor field of view in degree</span>
+
+<span class="sd">        When this quantity is set to new value, the cone mosaic is re-generated and the stored data are cleared.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rad_to_deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">/</span><span class="n">oi</span><span class="o">.</span><span class="n">image_distance</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">set_fov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_fov</span><span class="p">,</span> <span class="n">oi</span><span class="o">=</span><span class="n">Optics</span><span class="p">()):</span>  <span class="c"># adjust sensor size according to field of view</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">new_fov</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">get_fov</span><span class="p">(</span><span class="n">oi</span><span class="p">))</span>
+
+    <span class="n">fov</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">get_fov</span><span class="p">,</span> <span class="n">set_fov</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ConeGUI</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for Scene GUI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cone</span><span class="p">:</span> <span class="n">ConeOuterSegmentMosaic</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization method for display gui</span>
+<span class="sd">        :param cone: instance of ConePhotopigmentMosaic class</span>
+<span class="sd">        :return: None, cone gui window will be shown</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConeGUI</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cone</span> <span class="o">=</span> <span class="n">cone</span>  <span class="c"># save instance of ConePhotopigmentMosaic class to this object</span>
+        <span class="k">if</span> <span class="n">cone</span><span class="o">.</span><span class="n">photons</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="s">&quot;no data stored in cone&quot;</span><span class="p">)</span>
+
+        <span class="c"># QImage require data to be 32-bit aligned. Thus, we need to make sure image rows/cols is even</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cone</span><span class="o">.</span><span class="n">n_rows</span> <span class="o">*</span> <span class="mi">150</span> <span class="o">/</span> <span class="n">cone</span><span class="o">.</span><span class="n">n_cols</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">cone</span><span class="o">.</span><span class="n">rgb</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">interp</span><span class="o">=</span><span class="s">&#39;nearest&#39;</span><span class="p">)</span>
+
+        <span class="c"># set status bar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="p">()</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="s">&quot;Ready&quot;</span><span class="p">)</span>
+
+        <span class="c"># set menu bar</span>
+        <span class="n">menu_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span>
+        <span class="n">menu_file</span> <span class="o">=</span> <span class="n">menu_bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;&amp;File&quot;</span><span class="p">)</span>
+        <span class="n">menu_plot</span> <span class="o">=</span> <span class="n">menu_bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;&amp;Plot&quot;</span><span class="p">)</span>
+
+        <span class="c"># add load optics to file menu</span>
+        <span class="n">load_cone</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Load Cone Mosaic&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">load_cone</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Load cone mosaic from file&quot;</span><span class="p">)</span>
+        <span class="n">load_cone</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menu_load_cone</span><span class="p">)</span>
+        <span class="n">menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">load_cone</span><span class="p">)</span>
+
+        <span class="c"># add save optics to file menu</span>
+        <span class="n">save_cone</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Save Cone Mosaic&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">save_cone</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Save cone mosaic to file&quot;</span><span class="p">)</span>
+        <span class="n">save_cone</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="s">&quot;Ctrl+S&quot;</span><span class="p">)</span>
+        <span class="n">save_cone</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menu_save_cone</span><span class="p">)</span>
+        <span class="n">menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">save_cone</span><span class="p">)</span>
+
+        <span class="c"># add cone quanta efficiency to plot menu</span>
+        <span class="n">plot_cone_quanta_efficiency</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Quanta Efficiency&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">plot_cone_quanta_efficiency</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Plot cone quanta efficiency&quot;</span><span class="p">)</span>
+        <span class="n">plot_cone_quanta_efficiency</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;quanta efficiency&quot;</span><span class="p">))</span>
+        <span class="n">menu_plot</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">plot_cone_quanta_efficiency</span><span class="p">)</span>
+
+        <span class="c"># add eye movement to plot menu</span>
+        <span class="n">plot_eye_path</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Eyemovment Path&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">plot_eye_path</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Plot eye movement path&quot;</span><span class="p">)</span>
+        <span class="n">plot_eye_path</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;eyemovement&quot;</span><span class="p">))</span>
+        <span class="n">menu_plot</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">plot_eye_path</span><span class="p">)</span>
+
+        <span class="c"># set up left panel</span>
+        <span class="n">left_panel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_image_panel</span><span class="p">()</span>
+
+        <span class="c"># set up right panel</span>
+        <span class="n">right_panel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_control_panel</span><span class="p">()</span>
+
+        <span class="n">splitter</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSplitter</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">left_panel</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">right_panel</span><span class="p">)</span>
+
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QStyleFactory</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&#39;Cleanlooks&#39;</span><span class="p">))</span>
+
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">hbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+
+        <span class="c"># set size and put window to center of the screen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+        <span class="n">qr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameGeometry</span><span class="p">()</span>
+        <span class="n">qr</span><span class="o">.</span><span class="n">moveCenter</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDesktopWidget</span><span class="p">()</span><span class="o">.</span><span class="n">availableGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">qr</span><span class="o">.</span><span class="n">topLeft</span><span class="p">())</span>
+
+        <span class="c"># set title and show</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&quot;Cone GUI: &quot;</span> <span class="o">+</span> <span class="n">cone</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">init_image_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init image panel on the left</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># initialize panel as QFrame</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">setFrameStyle</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="o">.</span><span class="n">StyledPanel</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">q_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
+        <span class="n">qp_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="n">q_image</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">qp_image</span><span class="p">)</span>
+
+        <span class="n">vbox</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">init_control_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init control panel on the right</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># initialize panel as QFrame</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">setFrameStyle</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="o">.</span><span class="n">StyledPanel</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_summary_panel</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">init_summary_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize summary group-box</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># initialize panel as QGroupBox</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s">&quot;Summary&quot;</span><span class="p">)</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">text_edit</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTextEdit</span><span class="p">()</span>
+        <span class="n">text_edit</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">text_edit</span><span class="o">.</span><span class="n">setLineWrapMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QTextEdit</span><span class="o">.</span><span class="n">NoWrap</span><span class="p">)</span>
+        <span class="n">text_edit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cone</span><span class="p">))</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">text_edit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">menu_load_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        load scene instance from file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Choose Cone Mosaic File&quot;</span><span class="p">,</span> <span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&quot;*.pkl&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cone</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">menu_save_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save scene instance to file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Save Cone Mosaic to File&quot;</span><span class="p">,</span> <span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&quot;*.pkl&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cone</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../pyEyeBall.html" >pyEyeBall</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

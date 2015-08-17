@@ -56,8 +56,8 @@
   <div class="section" id="scene-radiance-characterization">
 <h1>Scene Radiance Characterization<a class="headerlink" href="#scene-radiance-characterization" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pyEyeBall.Scene">
-<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">Scene</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=None</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.Source.Objects.Scene.</tt><tt class="descname">Scene</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=None</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scene spectral radiance characterization</p>
 <p>The scene class stores scene spectra radiance, illuminant data (see Illuminant class) and some other fundamental
 properties. And a lot more, such as reflectance, are implemented as computed properties. There are two different
@@ -101,8 +101,8 @@ Thus, wavelength samples can still be get and set with scene.wave. But there wil
 inconsistencies between the scene and illuminant wavelength.</p>
 </div>
 <dl class="method">
-<dt id="pyEyeBall.Scene.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=None</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>scene_type='macbeth'</em>, <em>wave=None</em>, <em>name='Scene'</em>, <em>il=None</em>, <em>fov=1.0</em>, <em>dist=1.0</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for Scene class
 Initialize preset scene instance by scene name</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -129,8 +129,8 @@ and &#8216;noise&#8217;</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Scene.__str__">
-<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.__str__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate description string for scene instance
 This function generates string for Scene class. With the function, scene properties can be printed out
 easily with str(scene)</p>
@@ -152,14 +152,14 @@ easily with str(scene)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.__weakref__">
-<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Scene.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.__weakref__" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Scene.adjust_illuminant">
-<tt class="descname">adjust_illuminant</tt><big>(</big><em>il</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.adjust_illuminant" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.adjust_illuminant">
+<tt class="descname">adjust_illuminant</tt><big>(</big><em>il</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.adjust_illuminant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.adjust_illuminant" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adjust illuminant of the scene
 Adjust illuminant of the scene, assuming that the reflectance is unchanged. Thus, when illuminant changed,
 scene radiance (photons) field will be changed accordingly.</p>
@@ -186,26 +186,26 @@ scene radiance (photons) field will be changed accordingly.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.bin_width">
-<tt class="descname">bin_width</tt><a class="headerlink" href="#pyEyeBall.Scene.bin_width" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.bin_width">
+<tt class="descname">bin_width</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.bin_width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.bin_width" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; wavelength sample interval in nm</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.energy">
-<tt class="descname">energy</tt><a class="headerlink" href="#pyEyeBall.Scene.energy" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.energy">
+<tt class="descname">energy</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.energy" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; scene radiance in energy units</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.height">
-<tt class="descname">height</tt><a class="headerlink" href="#pyEyeBall.Scene.height" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.height">
+<tt class="descname">height</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.height" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; height of scene in meters</p>
 </dd></dl>
 
 <dl class="classmethod">
-<dt id="pyEyeBall.Scene.init_with_display_image">
-<em class="property">classmethod </em><tt class="descname">init_with_display_image</tt><big>(</big><em>d</em>, <em>image</em>, <em>is_sub=False</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.init_with_display_image" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.init_with_display_image">
+<em class="property">classmethod </em><tt class="descname">init_with_display_image</tt><big>(</big><em>d</em>, <em>image</em>, <em>is_sub=False</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.init_with_display_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.init_with_display_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize scene spectra radiance with an image on a calibrated display
 Compute the full radiance of scene of an RGB image on a calibrated display</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -213,7 +213,7 @@ Compute the full radiance of scene of an RGB image on a calibrated display</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>d</strong> (<a class="reference internal" href="display.html#pyEyeBall.Display" title="pyEyeBall.Display"><em>pyEyeBall.Display</em></a>) &#8211; instance of Display class</li>
+<li><strong>d</strong> (<em>pyEyeBall.Display</em>) &#8211; instance of Display class</li>
 <li><strong>image</strong> (<em>numpy.ndarray</em>) &#8211; rgb image to be shown on the display, rgb should be in range of [0, 1]</li>
 <li><strong>is_sub</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; flag indicating whether or not to do sub-pixel rendering (coming soon)</li>
 </ul>
@@ -231,33 +231,33 @@ Compute the full radiance of scene of an RGB image on a calibrated display</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.luminance">
-<tt class="descname">luminance</tt><a class="headerlink" href="#pyEyeBall.Scene.luminance" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.luminance">
+<tt class="descname">luminance</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.luminance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.luminance" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; luminance image of the scene</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.mean_luminance">
-<tt class="descname">mean_luminance</tt><a class="headerlink" href="#pyEyeBall.Scene.mean_luminance" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.mean_luminance">
+<tt class="descname">mean_luminance</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.mean_luminance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.mean_luminance" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; mean luminance of scene in cd/m2</p>
 <p>When this quantity is set to new values, spectra radiance data will be scaled to match the new value</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.n_cols">
-<tt class="descname">n_cols</tt><a class="headerlink" href="#pyEyeBall.Scene.n_cols" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.n_cols">
+<tt class="descname">n_cols</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.n_cols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.n_cols" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; number of columns</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.n_rows">
-<tt class="descname">n_rows</tt><a class="headerlink" href="#pyEyeBall.Scene.n_rows" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.n_rows">
+<tt class="descname">n_rows</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.n_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.n_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; number of rows</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Scene.plot">
-<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.plot" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.plot">
+<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate plots for scene parameters and properties</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -277,26 +277,26 @@ spaces in param are ignored.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.sample_size">
-<tt class="descname">sample_size</tt><a class="headerlink" href="#pyEyeBall.Scene.sample_size" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.sample_size">
+<tt class="descname">sample_size</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.sample_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.sample_size" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; size of each sample in meters</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.shape">
-<tt class="descname">shape</tt><a class="headerlink" href="#pyEyeBall.Scene.shape" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.shape">
+<tt class="descname">shape</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.shape" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>tuple</em> &#8211; shape of scene in (rows, cols)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.srgb">
-<tt class="descname">srgb</tt><a class="headerlink" href="#pyEyeBall.Scene.srgb" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.srgb">
+<tt class="descname">srgb</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.srgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.srgb" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; equivalent srgb image of the scene</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Scene.visualize">
-<tt class="descname">visualize</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Scene.visualize" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.visualize">
+<tt class="descname">visualize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize and show GUI for scene object</p>
 <p class="rubric">Examples</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">()</span>
@@ -306,22 +306,22 @@ spaces in param are ignored.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.wave">
-<tt class="descname">wave</tt><a class="headerlink" href="#pyEyeBall.Scene.wave" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.wave">
+<tt class="descname">wave</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.wave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.wave" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; wavelength samples in nm</p>
 <p>When this quantity is set to new values, illuminant data and spectra radiance data will be interpolated to
 match the new wavelength samples</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.width">
-<tt class="descname">width</tt><a class="headerlink" href="#pyEyeBall.Scene.width" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.width">
+<tt class="descname">width</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.width" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; width of scene in meters</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Scene.xyz">
-<tt class="descname">xyz</tt><a class="headerlink" href="#pyEyeBall.Scene.xyz" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Scene.Scene.xyz">
+<tt class="descname">xyz</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Scene.html#Scene.xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Scene.Scene.xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; XYZ image of the scene</p>
 </dd></dl>
 

@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: pyEyeBall
+Version: 0.1.1.dev1
+Summary: Simulation for human eyeball and front-end of visual system
+Home-page: https://github.com/hjiang36/pyEyeBall
+Author: Haomiao Jiang (ISETBIO TEAM)
+Author-email: hjiang36@gmail.com
+License: MIT
+Description: PyEyeBall is a python toolbox designed for simulating the front end properties of                       human visual system. The goal of pyEyeBall is the same as ISETBIO toolbox in Matlab,                       with code structure redesigned.
+Keywords: human eyeball
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4

@@ -142,6 +142,7 @@ class Scene:
         """
         # init basic display parameters
         scene = cls()
+        scene.name = 'Scene from Display Image'
         scene.illuminant = Illuminant(wave=d.wave)
         scene.dist = d.dist  # viewing distance
 

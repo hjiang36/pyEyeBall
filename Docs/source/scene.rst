@@ -1,6 +1,6 @@
 Scene Radiance Characterization
 ===============================
 
-.. autoclass:: pyEyeBall.Scene
+.. autoclass:: pyEyeBall.Source.Objects.Scene.Scene
     :members:
     :special-members:

@@ -1,6 +1,6 @@
 Display Simulation
 ==================
 
-.. autoclass:: pyEyeBall.Display
+.. autoclass:: pyEyeBall.Source.Objects.Display.Display
     :members:
     :special-members:

@@ -349,7 +349,7 @@ class ConeOuterSegmentMosaic:
             mosaic (numpy.ndarray): 2D matrix, contains cone type at each position, 0~3 represents K,L,M,S
             cone_diameter (float): diameter of cone cell in meters
             density (numpy.ndarray): spatial density (proportional) of different cone types in order of K,L,M,S
-            position (numpy.ndarray) N-by-2 matrix, eye movement positions in (x, y) in units of number of cones
+            position (numpy.ndarray) N-by-2 matrix, eye movement positions in (x, y) in units of degrees
             integration_time (float): float, integration time of cone in secs
             sample_time: float, sample time interval for self.position in secs
             size (numpy.ndarray): size of cone mosaic to be generated, only used when mosaic is not given
@@ -429,8 +429,8 @@ class ConeOuterSegmentMosaic:
         Examples:
             Show otf and psf of the default human optics
             >>> cone_mosaic = ConeOuterSegmentMosaic()
-            >>> oi.plot("quanta efficiency")
-            >>> oi.plot("mosaic")
+            >>> cone_mosaic.plot("quanta efficiency")
+            >>> cone_mosaic.plot("mosaic")
         """
         # process input param
         param = str(param).lower().replace(" ", "")
@@ -452,8 +452,8 @@ class ConeOuterSegmentMosaic:
             plt.imshow(rgb)
         elif param == "eyemovement" or param == "positions":
             plt.plot(self.position_x, self.position_y)
-            plt.xlabel("Eye position (number of cones)")
-            plt.ylabel("Eye position (number of cones)")
+            plt.xlabel("Eye position (degrees)")
+            plt.ylabel("Eye position (degrees)")
             plt.grid()
         else:
             raise(ValueError, "Unknown param")

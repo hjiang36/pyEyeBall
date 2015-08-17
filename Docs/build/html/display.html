@@ -56,8 +56,8 @@
   <div class="section" id="display-simulation">
 <h1>Display Simulation<a class="headerlink" href="#display-simulation" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pyEyeBall.Display">
-<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">Display</tt><big>(</big><em>name='display'</em>, <em>gamma=array([]</em>, <em>dtype=float64)</em>, <em>wave=array([]</em>, <em>dtype=float64)</em>, <em>spd=array([]</em>, <em>dtype=float64)</em>, <em>dist=1.0</em>, <em>dpi=96.0</em>, <em>is_emissive=True</em>, <em>ambient=array([]</em>, <em>dtype=float64)</em>, <em>dixel_data=None</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.Source.Objects.Display.</tt><tt class="descname">Display</tt><big>(</big><em>name='display'</em>, <em>gamma=array([]</em>, <em>dtype=float64)</em>, <em>wave=array([]</em>, <em>dtype=float64)</em>, <em>spd=array([]</em>, <em>dtype=float64)</em>, <em>dist=1.0</em>, <em>dpi=96.0</em>, <em>is_emissive=True</em>, <em>ambient=array([]</em>, <em>dtype=float64)</em>, <em>dixel_data=None</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display simulation, computation and visualization</p>
 <p>The class stores display calibration data and a lot of computed properties and analysis plots can be generated from
 there. At this point, only emissive displays (CRT, LCD, OLED) are supported, though we have a field &#8216;is_emissive&#8217;
@@ -114,8 +114,8 @@ and vertical directions are the same</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>name='display'</em>, <em>gamma=array([]</em>, <em>dtype=float64)</em>, <em>wave=array([]</em>, <em>dtype=float64)</em>, <em>spd=array([]</em>, <em>dtype=float64)</em>, <em>dist=1.0</em>, <em>dpi=96.0</em>, <em>is_emissive=True</em>, <em>ambient=array([]</em>, <em>dtype=float64)</em>, <em>dixel_data=None</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>name='display'</em>, <em>gamma=array([]</em>, <em>dtype=float64)</em>, <em>wave=array([]</em>, <em>dtype=float64)</em>, <em>spd=array([]</em>, <em>dtype=float64)</em>, <em>dist=1.0</em>, <em>dpi=96.0</em>, <em>is_emissive=True</em>, <em>ambient=array([]</em>, <em>dtype=float64)</em>, <em>dixel_data=None</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize display instance with calibrated parameters</p>
 <p>The display attributes are initialized with default values. Those values are usually empty or None, which means
 user have to set up fields manually before using other features and functions.</p>
@@ -143,8 +143,8 @@ and vertical directions are the same</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.__str__">
-<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Display.__str__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate description string of display instance</p>
 <p>This function generates string for Display class. With the function, display properties can be printed out
 easily with str(d)</p>
@@ -167,20 +167,20 @@ easily with str(d)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.__weakref__">
-<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Display.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.__weakref__" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.bin_width">
-<tt class="descname">bin_width</tt><a class="headerlink" href="#pyEyeBall.Display.bin_width" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.bin_width">
+<tt class="descname">bin_width</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.bin_width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.bin_width" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; Wavelength sample interval in nm</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.compute_srgb">
-<tt class="descname">compute_srgb</tt><big>(</big><em>rgb: numpy.ndarray</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.compute_srgb" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.compute_srgb">
+<tt class="descname">compute_srgb</tt><big>(</big><em>rgb: numpy.ndarray</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.compute_srgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.compute_srgb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute equivalent sRGB image from an display RGB image</p>
 <p>This function first computes the XYZ image from the display image and then converts the XYZ image to an sRGB
 image. Then, RGB image on display instance should look exactly the same as sRGB image on a <em>standard</em> display</p>
@@ -212,8 +212,8 @@ could be close to 1</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.compute_xyz">
-<tt class="descname">compute_xyz</tt><big>(</big><em>rgb</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.compute_xyz" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.compute_xyz">
+<tt class="descname">compute_xyz</tt><big>(</big><em>rgb</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.compute_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.compute_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute XYZ values of an RGB image on the display instance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -236,20 +236,20 @@ could be close to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.deg_per_pixel">
-<tt class="descname">deg_per_pixel</tt><a class="headerlink" href="#pyEyeBall.Display.deg_per_pixel" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.deg_per_pixel">
+<tt class="descname">deg_per_pixel</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.deg_per_pixel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.deg_per_pixel" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; visual angle per pixel in degrees</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.dots_per_meter">
-<tt class="descname">dots_per_meter</tt><a class="headerlink" href="#pyEyeBall.Display.dots_per_meter" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.dots_per_meter">
+<tt class="descname">dots_per_meter</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.dots_per_meter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.dots_per_meter" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; number of pixels per meter</p>
 </dd></dl>
 
 <dl class="classmethod">
-<dt id="pyEyeBall.Display.init_with_isetbio_mat_file">
-<em class="property">classmethod </em><tt class="descname">init_with_isetbio_mat_file</tt><big>(</big><em>file_name</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.init_with_isetbio_mat_file" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.init_with_isetbio_mat_file">
+<em class="property">classmethod </em><tt class="descname">init_with_isetbio_mat_file</tt><big>(</big><em>file_name</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.init_with_isetbio_mat_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.init_with_isetbio_mat_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Init display using isetbio display calibration file in .mat format</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -272,14 +272,14 @@ the file is required</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.invert_gamma">
-<tt class="descname">invert_gamma</tt><a class="headerlink" href="#pyEyeBall.Display.invert_gamma" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.invert_gamma">
+<tt class="descname">invert_gamma</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.invert_gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.invert_gamma" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; Invert gamma table which can be used to convert linear value to DAC value</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.lookup_digital">
-<tt class="descname">lookup_digital</tt><big>(</big><em>dac</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.lookup_digital" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.lookup_digital">
+<tt class="descname">lookup_digital</tt><big>(</big><em>dac</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.lookup_digital"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.lookup_digital" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert quantized digital values to linear RGB values through display gamma table</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -303,8 +303,8 @@ the file is required</td>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.lookup_linear">
-<tt class="descname">lookup_linear</tt><big>(</big><em>rgb</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.lookup_linear" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.lookup_linear">
+<tt class="descname">lookup_linear</tt><big>(</big><em>rgb</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.lookup_linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.lookup_linear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert linear RGB values to digital values through invert gamma table</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -333,8 +333,8 @@ dac values could be larger than 255. See examples below.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="pyEyeBall.Display.ls_display">
-<em class="property">static </em><tt class="descname">ls_display</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.Display.ls_display" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.ls_display">
+<em class="property">static </em><tt class="descname">ls_display</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.ls_display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.ls_display" title="Permalink to this definition">¶</a></dt>
 <dd><p>List available display calibration file</p>
 <p>This is a static method of Display class and it can be used to retrieve available display data files in
 Data/Display folder</p>
@@ -358,40 +358,40 @@ Data/Display folder</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.meters_per_dot">
-<tt class="descname">meters_per_dot</tt><a class="headerlink" href="#pyEyeBall.Display.meters_per_dot" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.meters_per_dot">
+<tt class="descname">meters_per_dot</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.meters_per_dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.meters_per_dot" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; size of one display pixel in meters</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.n_bits">
-<tt class="descname">n_bits</tt><a class="headerlink" href="#pyEyeBall.Display.n_bits" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.n_bits">
+<tt class="descname">n_bits</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.n_bits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.n_bits" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; Color bit-depth of the display</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.n_levels">
-<tt class="descname">n_levels</tt><a class="headerlink" href="#pyEyeBall.Display.n_levels" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.n_levels">
+<tt class="descname">n_levels</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.n_levels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.n_levels" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; number of DAC levels of display, usually it equals to 2^n_bits</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.n_primaries">
-<tt class="descname">n_primaries</tt><a class="headerlink" href="#pyEyeBall.Display.n_primaries" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.n_primaries">
+<tt class="descname">n_primaries</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.n_primaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.n_primaries" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em> &#8211; number of primaries of display, usually it equals to 3</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.peak_luminance">
-<tt class="descname">peak_luminance</tt><a class="headerlink" href="#pyEyeBall.Display.peak_luminance" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.peak_luminance">
+<tt class="descname">peak_luminance</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.peak_luminance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.peak_luminance" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em> &#8211; maximum achievable luminance of the display in cd/m2</p>
 <p>When this quantity is set by the new value, the spd of the display is adjusted by a scale factor to match the
 desired peak luminance level</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.plot">
-<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.plot" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.plot">
+<tt class="descname">plot</tt><big>(</big><em>param</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate plots for display parameters and properties</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -413,20 +413,20 @@ param are ignored.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.rgb2lms">
-<tt class="descname">rgb2lms</tt><a class="headerlink" href="#pyEyeBall.Display.rgb2lms" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.rgb2lms">
+<tt class="descname">rgb2lms</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.rgb2lms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.rgb2lms" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; rgb2lms transformation matrix</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.rgb2xyz">
-<tt class="descname">rgb2xyz</tt><a class="headerlink" href="#pyEyeBall.Display.rgb2xyz" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.rgb2xyz">
+<tt class="descname">rgb2xyz</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.rgb2xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.rgb2xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; rgb2xyz transformation matrix</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.Display.visualize">
-<tt class="descname">visualize</tt><big>(</big><em>img=None</em><big>)</big><a class="headerlink" href="#pyEyeBall.Display.visualize" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.visualize">
+<tt class="descname">visualize</tt><big>(</big><em>img=None</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize and show the GUI for display instance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -445,28 +445,28 @@ between 0 and 1. By default, an eagle image will be loaded and used</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.wave">
-<tt class="descname">wave</tt><a class="headerlink" href="#pyEyeBall.Display.wave" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.wave">
+<tt class="descname">wave</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.wave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.wave" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; wavelength samples in nm</p>
 <p>When new wavelength is set to the display instance, all spectral data (spd, ambient) will be interpolated to
 the new wavelength samples</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.white_lms">
-<tt class="descname">white_lms</tt><a class="headerlink" href="#pyEyeBall.Display.white_lms" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.white_lms">
+<tt class="descname">white_lms</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.white_lms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.white_lms" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; LMS values of display when all its primaries are set to the highest level</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.white_spd">
-<tt class="descname">white_spd</tt><a class="headerlink" href="#pyEyeBall.Display.white_spd" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.white_spd">
+<tt class="descname">white_spd</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.white_spd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.white_spd" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; spectra power distribution of display when all its primaries are set to the highest level</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.Display.white_xyz">
-<tt class="descname">white_xyz</tt><a class="headerlink" href="#pyEyeBall.Display.white_xyz" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Display.Display.white_xyz">
+<tt class="descname">white_xyz</tt><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Display.html#Display.white_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Display.Display.white_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.ndarray</em> &#8211; XYZ values of display when all its primaries are set to the highest level</p>
 </dd></dl>
 

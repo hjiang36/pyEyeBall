@@ -10,14 +10,18 @@
       <w>emissive</w>
       <w>eyemovement</w>
       <w>fixational</w>
+      <w>haomiao</w>
       <w>hbox</w>
+      <w>imread</w>
       <w>intensitymap</w>
       <w>invertgamma</w>
       <w>isetbio</w>
       <w>isomerization</w>
+      <w>jiang</w>
       <w>lenstransmittance</w>
       <w>lorentzian</w>
       <w>macular</w>
+      <w>matplotlib</w>
       <w>msaccade</w>
       <w>noisefree</w>
       <w>oled</w>

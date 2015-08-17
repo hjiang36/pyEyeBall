@@ -56,8 +56,8 @@
   <div class="section" id="fixational-eye-movement">
 <h1>Fixational Eye Movement<a class="headerlink" href="#fixational-eye-movement" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pyEyeBall.FixationalEyeMovement">
-<em class="property">class </em><tt class="descclassname">pyEyeBall.</tt><tt class="descname">FixationalEyeMovement</tt><big>(</big><em>name='Human Eye Movement', flag=array([ True,  True,  True], dtype=bool), tremor_interval=0.012, tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016, msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5, msaccade_speed=15, msaccade_speed_sd=5</em><big>)</big><a class="headerlink" href="#pyEyeBall.FixationalEyeMovement" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.Source.Objects.Cone.</tt><tt class="descname">FixationalEyeMovement</tt><big>(</big><em>name='Human Eye Movement', flag=array([ True,  True,  True], dtype=bool), tremor_interval=0.012, tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016, msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5, msaccade_speed=15, msaccade_speed_sd=5</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixational eye movement properties</p>
 <p>The FixationalEyeMovement class contains parameters for three type of fixational eye movement: tremor, drift and
 micro-saccade. Method &#8216;generate_path&#8217; of this class is used to generate simulated time series of eye movement
@@ -145,8 +145,8 @@ Volume 32, Issue 9, September 2009, Pages 463~475</li>
 </ol>
 </div>
 <dl class="method">
-<dt id="pyEyeBall.FixationalEyeMovement.__init__">
-<tt class="descname">__init__</tt><big>(</big><em>name='Human Eye Movement', flag=array([ True,  True,  True], dtype=bool), tremor_interval=0.012, tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016, msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5, msaccade_speed=15, msaccade_speed_sd=5</em><big>)</big><a class="headerlink" href="#pyEyeBall.FixationalEyeMovement.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>name='Human Eye Movement', flag=array([ True,  True,  True], dtype=bool), tremor_interval=0.012, tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016, msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5, msaccade_speed=15, msaccade_speed_sd=5</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor for fixational eye movement class
 Initialize parameters for fixational eye movement</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -178,8 +178,8 @@ Initialize parameters for fixational eye movement</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.FixationalEyeMovement.__str__">
-<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#pyEyeBall.FixationalEyeMovement.__str__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate description string for FixationalEyeMovement instance
 This function generates string for eye movement class. With the function, eye movement properties can be
 printed out easily with str(em)</p>
@@ -201,14 +201,14 @@ printed out easily with str(em)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pyEyeBall.FixationalEyeMovement.__weakref__">
-<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.FixationalEyeMovement.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__weakref__" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pyEyeBall.FixationalEyeMovement.generate_path">
-<tt class="descname">generate_path</tt><big>(</big><em>sample_time=0.001</em>, <em>n_samples=1000</em>, <em>start=array([[0</em>, <em>0]])</em><big>)</big><a class="headerlink" href="#pyEyeBall.FixationalEyeMovement.generate_path" title="Permalink to this definition">¶</a></dt>
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.generate_path">
+<tt class="descname">generate_path</tt><big>(</big><em>sample_time=0.001</em>, <em>n_samples=1000</em>, <em>start=array([[0</em>, <em>0]])</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement.generate_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.generate_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate fixational eye movement path</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

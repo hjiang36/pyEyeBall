@@ -197,7 +197,7 @@ Calculate cone photon absorptions, taking eye movement and photon noise into con
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>oi</strong> (<a class="reference internal" href="optics.html#pyEyeBall.Optics" title="pyEyeBall.Optics"><em>pyEyeBall.Optics</em></a>) &#8211; instance of Optics class with irradiance computed</li>
+<li><strong>oi</strong> (<em>pyEyeBall.Optics</em>) &#8211; instance of Optics class with irradiance computed</li>
 <li><strong>add_noise</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; indicate whether or not to add photon shot noise</li>
 </ul>
 </td>
@@ -226,7 +226,7 @@ Calculate cone absorptions without adding photon noise or any other type of nois
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>oi</strong> (<a class="reference internal" href="optics.html#pyEyeBall.Optics" title="pyEyeBall.Optics"><em>pyEyeBall.Optics</em></a>) &#8211; instance of Optics class with irradiance image computed</li>
+<li><strong>oi</strong> (<em>pyEyeBall.Optics</em>) &#8211; instance of Optics class with irradiance image computed</li>
 <li><strong>full_lms</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; <p>If False, only photon absorptions of type specified in self.mosaic will be stored. In this
 case, self.photons will be 2D, same shape as self.mosaic. If True, all L,M,S absorptions will be</p>
 <blockquote>
@@ -319,7 +319,7 @@ density vector.</p>
 
 <dl class="method">
 <dt id="pyEyeBall.ConeOuterSegmentMosaic.get_fov">
-<tt class="descname">get_fov</tt><big>(</big><em>oi=&lt;pyEyeBall.Source.Objects.Optics.Optics object at 0x113f20128&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.get_fov" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_fov</tt><big>(</big><em>oi=&lt;pyEyeBall.Source.Objects.Optics.Optics object at 0x1134bd160&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.get_fov" title="Permalink to this definition">¶</a></dt>
 <dd><p>float: sensor field of view in degree</p>
 <p>When this quantity is set to new value, the cone mosaic is re-generated and the stored data are cleared.</p>
 </dd></dl>
@@ -332,7 +332,7 @@ density vector.</p>
 
 <dl class="method">
 <dt id="pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement">
-<tt class="descname">init_eye_movement</tt><big>(</big><em>n_samples=1000</em>, <em>em=&lt;pyEyeBall.Source.Objects.Cone.FixationalEyeMovement object at 0x113cdae10&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">init_eye_movement</tt><big>(</big><em>n_samples=1000</em>, <em>em=&lt;pyEyeBall.Source.Objects.Cone.FixationalEyeMovement object at 0x1134bd0f0&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize eye movement and set up eye positions at each time point
 Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position). And the positions are
 stored in units of degrees</p>
@@ -342,7 +342,7 @@ stored in units of degrees</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>n_samples</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of samples of eye positions</li>
-<li><strong>em</strong> (<a class="reference internal" href="eyemovement.html#pyEyeBall.FixationalEyeMovement" title="pyEyeBall.FixationalEyeMovement"><em>pyEyeBall.FixationalEyeMovement</em></a>) &#8211; instance of FixationalEyeMovement class</li>
+<li><strong>em</strong> (<em>pyEyeBall.FixationalEyeMovement</em>) &#8211; instance of FixationalEyeMovement class</li>
 </ul>
 </td>
 </tr>
@@ -396,8 +396,8 @@ param string is not case sensitive and blank spaces in param are ignored.</td>
 <p class="rubric">Examples</p>
 <p>Show otf and psf of the default human optics
 &gt;&gt;&gt; cone_mosaic = ConeOuterSegmentMosaic()
-&gt;&gt;&gt; oi.plot(&#8220;quanta efficiency&#8221;)
-&gt;&gt;&gt; oi.plot(&#8220;mosaic&#8221;)</p>
+&gt;&gt;&gt; cone_mosaic.plot(&#8220;quanta efficiency&#8221;)
+&gt;&gt;&gt; cone_mosaic.plot(&#8220;mosaic&#8221;)</p>
 </dd></dl>
 
 <dl class="attribute">

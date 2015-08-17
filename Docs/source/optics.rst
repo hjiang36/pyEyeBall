@@ -1,6 +1,6 @@
 Human Optics
 ============
 
-.. autoclass:: pyEyeBall.Optics
+.. autoclass:: pyEyeBall.Source.Optics.Optics
     :members:
     :special-members:

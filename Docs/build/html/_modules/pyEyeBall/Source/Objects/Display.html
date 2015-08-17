@@ -1,0 +1,794 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyEyeBall.Source.Objects.Display &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="pyEyeBall" href="../../../pyEyeBall.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../pyEyeBall.html" accesskey="U">pyEyeBall</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyEyeBall.Source.Objects.Display</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">..Utility.IO</span> <span class="kn">import</span> <span class="n">spectra_read</span>
+<span class="kn">from</span> <span class="nn">..Utility.Transforms</span> <span class="kn">import</span> <span class="n">rad_to_deg</span><span class="p">,</span> <span class="n">xyz_from_energy</span><span class="p">,</span> <span class="n">xyz_to_xy</span><span class="p">,</span> <span class="n">rgb_to_xw_format</span><span class="p">,</span> <span class="n">xyz_to_srgb</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">atan2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">loadmat</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">..Data.path</span> <span class="kn">import</span> <span class="n">get_data_path</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">imresize</span><span class="p">,</span> <span class="n">imread</span>
+
+<span class="sd">&quot;&quot;&quot; Module for display simulation and GUI</span>
+
+<span class="sd">This module is used to simulate display performance and compute useful statistics from display image.</span>
+<span class="sd">There are two classes in this module: Display and DisplayGUI.</span>
+
+<span class="sd">Display:</span>
+<span class="sd">    Display class contains attributes and computational routines for calibrated display. Instance of Display class is</span>
+<span class="sd">    used together with an RGB image in generating full spectral scene radiance. See init_with_display_image() method in</span>
+<span class="sd">    Scene class for more details</span>
+
+<span class="sd">Display GUI:</span>
+<span class="sd">    This is a GUI that visualize display properties with PyQt4. In most cases, instance of DisplayGUI class should not</span>
+<span class="sd">    be created directly. Instead, to show the display GUI for a certain calibrated display d, call d.visualize()</span>
+
+<span class="sd">Attributes:</span>
+<span class="sd">    dixel (collections.namedtuple): the fine structure and layout of one display repeating block (e.g. one pixel).</span>
+<span class="sd">        Actually, dixel could be declared as a instance-level property of class Display. It is declared as module</span>
+<span class="sd">        attribute because only in this display instance can be properly saved / load with pickle. dixel contains three</span>
+<span class="sd">        fields: intensity_map, control_map and n_pixels. dixel.intensity defines the sub-pixel layout and actual</span>
+<span class="sd">        intensity of primaries at each over-sampled position. dixel.control_map is a 2D array defining which pixel is</span>
+<span class="sd">        controlling each point. For most display, the repeating pattern is just one pixel and in this case, the control</span>
+<span class="sd">        map equals zero for all elements. For more complex case, the elements of control map can be chosen from</span>
+<span class="sd">        range(dixel.n_pixels). dixel.n_pixels represents the number of pixels in one repeating pattern.</span>
+
+<span class="sd">Connections with ISETBIO:</span>
+<span class="sd">    Display class is equivalent to display structure defined in ISETBIO. And display instance can be created directly</span>
+<span class="sd">    with ISETBIO display calibration files in .mat format.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;HJ&#39;</span>
+
+<span class="n">dixel</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;dixel&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;intensity_map&quot;</span><span class="p">,</span> <span class="s">&quot;control_map&quot;</span><span class="p">,</span> <span class="s">&quot;n_pixels&quot;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="Display"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display">[docs]</a><span class="k">class</span> <span class="nc">Display</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Display simulation, computation and visualization</span>
+
+<span class="sd">    The class stores display calibration data and a lot of computed properties and analysis plots can be generated from</span>
+<span class="sd">    there. At this point, only emissive displays (CRT, LCD, OLED) are supported, though we have a field &#39;is_emissive&#39;</span>
+<span class="sd">    left for future extensions.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): name of display instance</span>
+<span class="sd">        gamma (numpy.ndarray): gamma distortion table of the display of shape (n_levels, n_primaries)</span>
+<span class="sd">        spd (numpy.ndarray): spectral power distribution of the primaries in shape (n_wave, n_primaries). This fields</span>
+<span class="sd">            represents *mean* spectral power distribution at pixel level and it&#39;s not equivalent to the peak spd of the</span>
+<span class="sd">            materials of primaries. spd are stored in energy units.</span>
+<span class="sd">        dist (float): distance between display and observer in meters</span>
+<span class="sd">        dpi (float): display spatial resolution in dots per inch. We assume that spatial resolution along horizontal</span>
+<span class="sd">            and vertical directions are the same</span>
+<span class="sd">        is_emissive (bool): is emissive display or reflective display, should always be True for current version</span>
+<span class="sd">        ambient (numpy.ndarray): spectra power distribution of display at darkest level</span>
+<span class="sd">        dixel (collections.namedtuple): pixel layout structure, see description in module attribute for more detail</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Display.__init__"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;display&quot;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">wave</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">spd</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">dist</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mf">96.0</span><span class="p">,</span>
+                 <span class="n">is_emissive</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">ambient</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">dixel_data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize display instance with calibrated parameters</span>
+
+<span class="sd">        The display attributes are initialized with default values. Those values are usually empty or None, which means</span>
+<span class="sd">        user have to set up fields manually before using other features and functions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): name of display instance</span>
+<span class="sd">            gamma (numpy.ndarray): gamma distortion table of the display of shape (n_levels, n_primaries)</span>
+<span class="sd">            spd (numpy.ndarray): spectral power distribution of the primaries in shape (n_wave, n_primaries). This</span>
+<span class="sd">                fields represents *mean* spectral power distribution at pixel level and it&#39;s not equivalent to the peak</span>
+<span class="sd">                spd of the materials of primaries. spd are stored in energy units.</span>
+<span class="sd">            dist (float): distance between display and observer in meters</span>
+<span class="sd">            dpi (float): display spatial resolution in dots per inch. We assume that spatial resolution along horizontal</span>
+<span class="sd">                and vertical directions are the same</span>
+<span class="sd">            is_emissive (bool): is emissive display or reflective display, should always be True for current version</span>
+<span class="sd">            ambient (numpy.ndarray): spectra power distribution of display at darkest level</span>
+<span class="sd">            dixel (collections.namedtuple): pixel layout structure, see description in module attribute for more detail</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialize instance attribute to default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>                <span class="c"># name of display</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>              <span class="c"># gamma distortion table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">wave</span>               <span class="c"># wavelength samples in nm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spd</span> <span class="o">=</span> <span class="n">spd</span>                  <span class="c"># spectra power distribution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist</span>                <span class="c"># viewing distance in meters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">=</span> <span class="n">dpi</span>                  <span class="c"># spatial resolution in dots per inch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_emissive</span> <span class="o">=</span> <span class="n">is_emissive</span>  <span class="c"># is emissive display or reflective display</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ambient</span> <span class="o">=</span> <span class="n">ambient</span>          <span class="c"># dark emissive spectra distribution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dixel</span> <span class="o">=</span> <span class="n">dixel_data</span>         <span class="c"># pixel layout as a named tuple</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Display.init_with_isetbio_mat_file"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.init_with_isetbio_mat_file">[docs]</a>    <span class="k">def</span> <span class="nf">init_with_isetbio_mat_file</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Init display using isetbio display calibration file in .mat format</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_name (str): isetbio display calibration file name. If file is not in Data/Display folder, full path of</span>
+<span class="sd">                the file is required</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            display instance</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Loading a Sony OLED display</span>
+
+<span class="sd">            &gt;&gt;&gt; d = Display().init_with_isetbio_mat_file(&quot;OLED-Sony.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(d.dpi)</span>
+<span class="sd">            90</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># load data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&quot;Display&quot;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">isfile</span><span class="p">(</span><span class="n">file_name</span><span class="p">),</span> <span class="s">&quot;Display calibration file not found&quot;</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">]</span>
+
+        <span class="c"># Init display structure</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+
+        <span class="c"># set to object field</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># name of display</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;gamma&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>   <span class="c"># gamma distortion table</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="s">&quot;wave&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>  <span class="c"># wavelength samples in nm</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">spd</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;spd&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c"># spectral power distribution</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">dpi</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;dpi&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># spatial resolution in dots / inch</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;dist&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># viewing distance in meters</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">is_emissive</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;isEmissive&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># is_emissive</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">ambient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="s">&quot;ambient&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+
+        <span class="c"># Init dixel structure</span>
+        <span class="n">intensity_map</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;dixel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;intensitymap&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">control_map</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;dixel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;controlmap&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n_pixels</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="s">&quot;dixel&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;nPixels&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">dixel</span> <span class="o">=</span> <span class="n">dixel</span><span class="p">(</span><span class="n">intensity_map</span><span class="p">,</span> <span class="n">control_map</span><span class="p">,</span> <span class="n">n_pixels</span><span class="p">)</span>
+
+        <span class="c"># return</span>
+        <span class="k">return</span> <span class="n">d</span>
+</div>
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Display.visualize"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.visualize">[docs]</a>    <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Initialize and show the GUI for display instance</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (numpy.ndarray): image to be shown in the display gui. Image data should be floating point values</span>
+<span class="sd">                between 0 and 1. By default, an eagle image will be loaded and used</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            An eagle image on an LCD display</span>
+
+<span class="sd">            &gt;&gt;&gt; Display().init_with_isetbio_mat_file(&quot;LCD-Apple.mat&quot;).visualize()</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([</span><span class="s">&#39;&#39;</span><span class="p">])</span>
+        <span class="n">DisplayGUI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Display.plot"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate plots for display parameters and properties</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param (str): string which indicates the type of plot to generate. In current version, param can be chosen</span>
+<span class="sd">                from &quot;spd&quot;, &quot;gamma&quot;, &quot;invert gamma&quot; and &quot;gamut&quot;. param string is not case sensitive and blank spaces in</span>
+<span class="sd">                param are ignored.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Show spectral power distribution and gamut of a Sony OLED display</span>
+
+<span class="sd">            &gt;&gt;&gt; d = Display.init_with_isetbio_mat_file(&quot;OLED-Sony.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; d.plot(&quot;spd&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; d.plot(&quot;gamut&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># process param to be lowercase and without spaces</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c"># making plot according to param</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;spd&quot;</span><span class="p">:</span>  <span class="c"># plot spectra power distribution of display</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spd</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Wavelength (nm)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Energy (watts/sr/m2/nm)&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;gamma&quot;</span><span class="p">:</span>  <span class="c"># plot gamma table of display</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;DAC&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Linear&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;invertgamma&quot;</span><span class="p">:</span>  <span class="c"># plot invert gamma table of display</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert_gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert_gamma</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Linear&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;DAC&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;gamut&quot;</span><span class="p">:</span>  <span class="c"># plot gamut of display</span>
+            <span class="c"># plot human visible range</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="n">spectra_read</span><span class="p">(</span><span class="s">&#39;XYZ.mat&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">)</span>
+            <span class="n">xy</span> <span class="o">=</span> <span class="n">xyz_to_xy</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">rm_nan</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">xy</span><span class="p">,</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+
+            <span class="c"># plot gamut of display</span>
+            <span class="n">xy</span> <span class="o">=</span> <span class="n">xyz_to_xy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rgb2xyz</span><span class="p">,</span> <span class="n">rm_nan</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">xy</span><span class="p">,</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;CIE-x&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;CIE-y&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Unsupported input param&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Display.ls_display"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.ls_display">[docs]</a>    <span class="k">def</span> <span class="nf">ls_display</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot; List available display calibration file</span>
+
+<span class="sd">        This is a static method of Display class and it can be used to retrieve available display data files in</span>
+<span class="sd">        Data/Display folder</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: a list of strings of names available display calibration files</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Get a list of calibrated display</span>
+
+<span class="sd">            &gt;&gt;&gt; display_names = Display.ls_display()</span>
+<span class="sd">            &gt;&gt;&gt; print(display_names[0])</span>
+<span class="sd">            CRT-Dell.mat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&#39;Display&#39;</span><span class="p">))]</span>
+</div>
+<div class="viewcode-block" id="Display.__str__"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate description string of display instance</span>
+
+<span class="sd">        This function generates string for Display class. With the function, display properties can be printed out</span>
+<span class="sd">        easily with str(d)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: string of display description</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Description string for an CRT display</span>
+
+<span class="sd">            &gt;&gt;&gt; print(Display.init_with_isetbio_mat_file(&#39;CRT-Dell.mat&#39;))</span>
+<span class="sd">            Display Object: CRT-Dell (...and more...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;Display Object: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Wavelength: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_width</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot; nm</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Number of primaries: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_primaries</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;  Color bit depth: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bits</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+</div>
+<div class="viewcode-block" id="Display.lookup_digital"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.lookup_digital">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_digital</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dac</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Convert quantized digital values to linear RGB values through display gamma table</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dac (numpy.ndarray): dac values of image in range 0 to n_levels-1 as int</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: linear RGB values of image in same shape as dac input</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Compute linear RGB with gamma table</span>
+
+<span class="sd">            &gt;&gt;&gt; d = Display.init_with_isetbio_mat_file(&quot;LCD-Apple.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(d.lookup_digital(np.array([[[150, 130, 120]]])))</span>
+<span class="sd">            [[[ 0.00786591  0.01027275  0.01069388]]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dac</span> <span class="o">=</span> <span class="n">dac</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dac</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_primaries</span><span class="p">):</span>
+            <span class="n">rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">[</span><span class="n">dac</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">ii</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">rgb</span>
+</div>
+<div class="viewcode-block" id="Display.lookup_linear"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.lookup_linear">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rgb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Convert linear RGB values to digital values through invert gamma table</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rgb (numpy.ndarray): linear RGB values in range 0 to 1</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: quantized digital values converted by invert gamma table as int</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The returned dac values are from 0 - n_levels. For some display, the color bit depth is more than 8 and the</span>
+<span class="sd">            dac values could be larger than 255. See examples below.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Compute dac value from linear RGB</span>
+
+<span class="sd">            &gt;&gt;&gt; d = Display.init_with_isetbio_mat_file(&quot;LCD-Apple.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(d.lookup_linear(np.array([[[0.5, 0.3, 0.2]]])))</span>
+<span class="sd">            [[[732 567 470]]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">rgb</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">dac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_primaries</span><span class="p">):</span>
+            <span class="n">dac</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert_gamma</span><span class="p">[</span><span class="n">rgb</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ii</span><span class="p">],</span> <span class="n">ii</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dac</span>
+</div>
+<div class="viewcode-block" id="Display.compute_xyz"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.compute_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">compute_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rgb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute XYZ values of an RGB image on the display instance</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rgb (numpy.ndarray): linear RGB image with values between 0-1</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: XYZ values in an array of same shape as input rgb image</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; d = Display.init_with_isetbio_mat_file(&quot;LCD-Apple.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; d.compute_xyz(np.array([[[0.5, 0.3, 0.2]]]))</span>
+<span class="sd">            array([[[ 39.76024121,  39.48678582,  25.55437927]]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rgb_to_xw_format</span><span class="p">(</span><span class="n">rgb</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb2xyz</span><span class="p">),</span> <span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&quot;F&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Display.compute_srgb"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.compute_srgb">[docs]</a>    <span class="k">def</span> <span class="nf">compute_srgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rgb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute equivalent sRGB image from an display RGB image</span>
+
+<span class="sd">        This function first computes the XYZ image from the display image and then converts the XYZ image to an sRGB</span>
+<span class="sd">        image. Then, RGB image on display instance should look exactly the same as sRGB image on a *standard* display</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The XYZ values of display RGB and sRGB could be slightly different if the color gamut of display instance</span>
+<span class="sd">            is larger than the *standard* display</span>
+
+<span class="sd">            The sRGB color space is defined with a normalized luminance (Y). If the input is only 3 values, the output</span>
+<span class="sd">            could be close to 1</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rgb (numpy.ndarray): display linear RGB image with values between 0 and 1</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.ndarray: sRGB image with same XYZ values as display RGB image</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; d = Display.init_with_isetbio_mat_file(&quot;LCD-Apple.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; d.compute_srgb(np.array([[[0.5, 0.2, 0.1]]]))</span>
+<span class="sd">            array([[[ 1.        ,  0.91325868,  0.61450081]]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">xyz_to_srgb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_xyz</span><span class="p">(</span><span class="n">rgb</span><span class="p">))</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: wavelength samples in nm</span>
+
+<span class="sd">        When new wavelength is set to the display instance, all spectral data (spd, ambient) will be interpolated to</span>
+<span class="sd">        the new wavelength samples</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span>
+
+    <span class="nd">@wave.setter</span>
+<div class="viewcode-block" id="Display.wave"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.wave">[docs]</a>    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c"># set wavelength samples and interpolate data</span>
+        <span class="c"># interpolate spd</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spd</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c"># interpolate ambient</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ambient</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ambient</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c"># update wavelength sample record in this instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.n_bits"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.n_bits">[docs]</a>    <span class="k">def</span> <span class="nf">n_bits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: Color bit-depth of the display&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.n_levels"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.n_levels">[docs]</a>    <span class="k">def</span> <span class="nf">n_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: number of DAC levels of display, usually it equals to 2^n_bits&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.bin_width"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.bin_width">[docs]</a>    <span class="k">def</span> <span class="nf">bin_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: Wavelength sample interval in nm&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;not enough wavelength samples&quot;</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.n_primaries"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.n_primaries">[docs]</a>    <span class="k">def</span> <span class="nf">n_primaries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int: number of primaries of display, usually it equals to 3&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">spd</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.invert_gamma"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.invert_gamma">[docs]</a>    <span class="k">def</span> <span class="nf">invert_gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: Invert gamma table which can be used to convert linear value to DAC value&quot;&quot;&quot;</span>
+        <span class="c"># set up parameters</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
+        <span class="n">inv_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
+        <span class="n">lut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_primaries</span><span class="p">])</span>
+
+        <span class="c"># interpolate for invert gamma table</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_primaries</span><span class="p">):</span>
+            <span class="c"># make sure gamma table is mono-increasing</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]))</span>
+
+            <span class="c"># interpolate</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">lut</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">inv_y</span><span class="p">)</span>
+
+            <span class="c"># set extrapolation value</span>
+            <span class="n">lut</span><span class="p">[</span><span class="n">inv_y</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">lut</span><span class="p">[</span><span class="n">inv_y</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">lut</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.rgb2xyz"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.rgb2xyz">[docs]</a>    <span class="k">def</span> <span class="nf">rgb2xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: rgb2xyz transformation matrix&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">xyz_from_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spd</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.rgb2lms"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.rgb2lms">[docs]</a>    <span class="k">def</span> <span class="nf">rgb2lms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: rgb2lms transformation matrix&quot;&quot;&quot;</span>
+        <span class="n">cone_spd</span> <span class="o">=</span> <span class="n">spectra_read</span><span class="p">(</span><span class="s">&quot;stockman.mat&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spd</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cone_spd</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.white_xyz"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.white_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">white_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: XYZ values of display when all its primaries are set to the highest level&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb2xyz</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.white_lms"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.white_lms">[docs]</a>    <span class="k">def</span> <span class="nf">white_lms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: LMS values of display when all its primaries are set to the highest level&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgb2lms</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.meters_per_dot"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.meters_per_dot">[docs]</a>    <span class="k">def</span> <span class="nf">meters_per_dot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: size of one display pixel in meters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mf">0.0254</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.dots_per_meter"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.dots_per_meter">[docs]</a>    <span class="k">def</span> <span class="nf">dots_per_meter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: number of pixels per meter&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpi</span> <span class="o">/</span> <span class="mf">0.0254</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.deg_per_pixel"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.deg_per_pixel">[docs]</a>    <span class="k">def</span> <span class="nf">deg_per_pixel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: visual angle per pixel in degrees&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">rad_to_deg</span><span class="p">(</span><span class="n">atan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meters_per_dot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">))</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Display.white_spd"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.white_spd">[docs]</a>    <span class="k">def</span> <span class="nf">white_spd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;numpy.ndarray: spectra power distribution of display when all its primaries are set to the highest level&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_luminance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: maximum achievable luminance of the display in cd/m2</span>
+
+<span class="sd">        When this quantity is set by the new value, the spd of the display is adjusted by a scale factor to match the</span>
+<span class="sd">        desired peak luminance level</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">white_xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@peak_luminance.setter</span>
+<div class="viewcode-block" id="Display.peak_luminance"><a class="viewcode-back" href="../../../../display.html#pyEyeBall.Source.Objects.Display.Display.peak_luminance">[docs]</a>    <span class="k">def</span> <span class="nf">peak_luminance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lum</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spd</span> <span class="o">*=</span> <span class="n">lum</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_luminance</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">DisplayGUI</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for Display GUI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization method for display gui</span>
+<span class="sd">        :param d: instance of display class</span>
+<span class="sd">        :param image: rgb image in range 0-1 optional</span>
+<span class="sd">        :return: None, display gui window will be shown</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">Display</span><span class="p">),</span> <span class="s">&quot;d should be an instance of Display class&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DisplayGUI</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">d</span>  <span class="c"># save instance of Display class to this object</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&#39;Image&#39;</span><span class="p">,</span> <span class="s">&#39;eagle.jpg&#39;</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span>
+        <span class="n">out_size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">250</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">imresize</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">compute_srgb</span><span class="p">(</span><span class="n">image</span><span class="p">),</span> <span class="n">out_size</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="s">&#39;nearest&#39;</span><span class="p">)</span>
+
+        <span class="c"># set status bar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="p">()</span><span class="o">.</span><span class="n">showMessage</span><span class="p">(</span><span class="s">&quot;Ready&quot;</span><span class="p">)</span>
+
+        <span class="c"># set menu bar</span>
+        <span class="n">menu_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">menuBar</span><span class="p">()</span>
+        <span class="n">menu_file</span> <span class="o">=</span> <span class="n">menu_bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;&amp;File&quot;</span><span class="p">)</span>
+        <span class="n">menu_plot</span> <span class="o">=</span> <span class="n">menu_bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;&amp;Plot&quot;</span><span class="p">)</span>
+
+        <span class="c"># add load display to file menu</span>
+        <span class="n">load_display</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Load Display&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">load_display</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Load display from file&quot;</span><span class="p">)</span>
+        <span class="n">load_display</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menu_load_display</span><span class="p">)</span>
+        <span class="n">menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">load_display</span><span class="p">)</span>
+
+        <span class="c"># add save display to file menu</span>
+        <span class="n">save_display</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Save Display&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">save_display</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Save display to file&quot;</span><span class="p">)</span>
+        <span class="n">save_display</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="s">&quot;Ctrl+S&quot;</span><span class="p">)</span>
+        <span class="n">save_display</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">menu_save_display</span><span class="p">)</span>
+        <span class="n">menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">save_display</span><span class="p">)</span>
+
+        <span class="c"># add spd to plot menu</span>
+        <span class="n">plot_spd</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;SPD&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">plot_spd</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Plot spectra power distribution of the primaries&quot;</span><span class="p">)</span>
+        <span class="n">plot_spd</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;spd&quot;</span><span class="p">))</span>
+        <span class="n">menu_plot</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">plot_spd</span><span class="p">)</span>
+
+        <span class="c"># add gamma to plot menu</span>
+        <span class="n">plot_gamma</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Gamma Table&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">plot_gamma</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Plot gamma distortion of the display&quot;</span><span class="p">)</span>
+        <span class="n">plot_gamma</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;gamma&quot;</span><span class="p">))</span>
+        <span class="n">menu_plot</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">plot_gamma</span><span class="p">)</span>
+
+        <span class="c"># add invert gamma to plot menu</span>
+        <span class="n">plot_invert_gamma</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Invert Gamma Table&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">plot_invert_gamma</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Plot invert gamma distortion of the display&quot;</span><span class="p">)</span>
+        <span class="n">plot_invert_gamma</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;invert gamma&quot;</span><span class="p">))</span>
+        <span class="n">menu_plot</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">plot_invert_gamma</span><span class="p">)</span>
+
+        <span class="c"># add gamut to plot menu</span>
+        <span class="n">plot_gamut</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QAction</span><span class="p">(</span><span class="s">&quot;Color Gamut&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">plot_gamut</span><span class="o">.</span><span class="n">setStatusTip</span><span class="p">(</span><span class="s">&quot;Plot color gamut of display&quot;</span><span class="p">)</span>
+        <span class="n">plot_gamut</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s">&quot;gamut&quot;</span><span class="p">))</span>
+        <span class="n">menu_plot</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">plot_gamut</span><span class="p">)</span>
+
+        <span class="c"># set up left panel</span>
+        <span class="n">left_panel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_image_panel</span><span class="p">()</span>
+
+        <span class="c"># set up right panel</span>
+        <span class="n">right_panel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_control_panel</span><span class="p">()</span>
+
+        <span class="n">splitter</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSplitter</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">left_panel</span><span class="p">)</span>
+        <span class="n">splitter</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">right_panel</span><span class="p">)</span>
+
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QStyleFactory</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&#39;Cleanlooks&#39;</span><span class="p">))</span>
+
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">()</span>
+        <span class="n">hbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">hbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">splitter</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+
+        <span class="c"># set size and put window to center of the screen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+        <span class="n">qr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameGeometry</span><span class="p">()</span>
+        <span class="n">qr</span><span class="o">.</span><span class="n">moveCenter</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDesktopWidget</span><span class="p">()</span><span class="o">.</span><span class="n">availableGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">qr</span><span class="o">.</span><span class="n">topLeft</span><span class="p">())</span>
+
+        <span class="c"># set title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&quot;Display GUI: &quot;</span> <span class="o">+</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">init_image_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init image panel on the left</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># initialize panel as QFrame</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">setFrameStyle</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="o">.</span><span class="n">StyledPanel</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">q_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
+        <span class="n">qp_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="n">q_image</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">qp_image</span><span class="p">)</span>
+
+        <span class="n">vbox</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">init_control_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init control panel on the right</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># initialize panel as QFrame</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">panel</span><span class="o">.</span><span class="n">setFrameStyle</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFrame</span><span class="o">.</span><span class="n">StyledPanel</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_summary_panel</span><span class="p">())</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_edit_panel</span><span class="p">())</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_pixel_panel</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">init_summary_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize summary group-box</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># initialize panel as QGroupBox</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s">&quot;Summary&quot;</span><span class="p">)</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">text_edit</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTextEdit</span><span class="p">()</span>
+        <span class="n">text_edit</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">text_edit</span><span class="o">.</span><span class="n">setLineWrapMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QTextEdit</span><span class="o">.</span><span class="n">NoWrap</span><span class="p">)</span>
+        <span class="n">text_edit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">text_edit</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">init_edit_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize edit panel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialize panel as QGroupBox</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s">&quot;Edit Properties&quot;</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c"># set components</span>
+        <span class="n">peak_lum</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&quot;Peak Lum (cd/m2)&quot;</span><span class="p">)</span>
+        <span class="n">ppi</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&quot;Pixel per Inch&quot;</span><span class="p">)</span>
+
+        <span class="n">peak_lum_edit</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="n">peak_lum_edit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">peak_luminance</span><span class="p">)</span>
+        <span class="n">peak_lum_edit</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edit_peak_lum</span><span class="p">)</span>
+
+        <span class="n">ppi_edit</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="n">ppi_edit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">ppi_edit</span><span class="o">.</span><span class="n">editingFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edit_ppi</span><span class="p">)</span>
+
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">peak_lum</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">peak_lum_edit</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">ppi</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">ppi_edit</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">init_pixel_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize pixel panel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialize panel as QGroupBox</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s">&quot;Pixel Layout&quot;</span><span class="p">)</span>
+
+        <span class="c"># Set pixel image</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">dixel</span><span class="o">.</span><span class="n">intensity_map</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">img</span> <span class="o">*=</span> <span class="mf">255.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="n">out_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">160</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">out_size</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+        <span class="n">q_img</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">out_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
+        <span class="n">qp_img</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">()</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">q_img</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">label</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">qp_img</span><span class="p">)</span>
+
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignHCenter</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">panel</span>
+
+    <span class="k">def</span> <span class="nf">edit_peak_lum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">peak_luminance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">edit_ppi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">dpi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">menu_load_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        load display instance from file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Choose Display File&quot;</span><span class="p">,</span> <span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&quot;*.pkl&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">menu_save_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save display instance to file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;Save Display to File&quot;</span><span class="p">,</span> <span class="n">get_data_path</span><span class="p">(),</span> <span class="s">&quot;*.pkl&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../pyEyeBall.html" >pyEyeBall</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
