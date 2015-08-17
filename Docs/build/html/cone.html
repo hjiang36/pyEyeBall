@@ -59,8 +59,7 @@
 outer segment class contains spatial information, such as cone mosaic layout, size and relative densities, and
 temporal properties like sample time and integration time. The computational routine takes care of eye movement
 path (normally generated with FixationalEyeMovement class) and cone photopigment properties (ConePhotopigment
-class). We assume that cones are positioned on a grid (could be non-uniform spaced) and cone size only depend on
-eccentricity.</p>
+class). We assume that cones are positioned on a grid (could be non-uniform spaced) only depend on eccentricity.</p>
 <dl class="attribute">
 <dt id="ConeOuterSegmentMosaic.name">
 <tt class="descname">name</tt><a class="headerlink" href="#ConeOuterSegmentMosaic.name" title="Permalink to this definition">¶</a></dt>
@@ -147,8 +146,7 @@ Initialize parameters for the cone outer segment class</p>
 <dl class="docutils">
 <dt>TODO:</dt>
 <dd><ol class="first last arabic simple">
-<li>Allow eye-movement position to be free of grid point because in the future the cone mosaic will be non-grid</li>
-<li>Have spatial support and cone diameter vary with eccentricty</li>
+<li>Have spatial support vary with eccentricty</li>
 </ol>
 </dd>
 </dl>
@@ -321,7 +319,7 @@ density vector.</p>
 
 <dl class="method">
 <dt id="pyEyeBall.ConeOuterSegmentMosaic.get_fov">
-<tt class="descname">get_fov</tt><big>(</big><em>oi=&lt;pyEyeBall.Source.Objects.Optics.Optics object at 0x113edaac8&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.get_fov" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_fov</tt><big>(</big><em>oi=&lt;pyEyeBall.Source.Objects.Optics.Optics object at 0x113f20128&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.get_fov" title="Permalink to this definition">¶</a></dt>
 <dd><p>float: sensor field of view in degree</p>
 <p>When this quantity is set to new value, the cone mosaic is re-generated and the stored data are cleared.</p>
 </dd></dl>
@@ -334,9 +332,10 @@ density vector.</p>
 
 <dl class="method">
 <dt id="pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement">
-<tt class="descname">init_eye_movement</tt><big>(</big><em>n_samples=1000</em>, <em>em=&lt;pyEyeBall.Source.Objects.Cone.FixationalEyeMovement object at 0x113eda7f0&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">init_eye_movement</tt><big>(</big><em>n_samples=1000</em>, <em>em=&lt;pyEyeBall.Source.Objects.Cone.FixationalEyeMovement object at 0x113cdae10&gt;</em><big>)</big><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.init_eye_movement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize eye movement and set up eye positions at each time point
-Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position)</p>
+Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.position). And the positions are
+stored in units of degrees</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -354,6 +353,12 @@ Convert eye path (see FixationalEyeMovement) to positions in cone mosaic (self.p
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cone_mosaic</span><span class="o">.</span><span class="n">init_eye_movement</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.ConeOuterSegmentMosaic.meters_per_degree">
+<tt class="descname">meters_per_degree</tt><a class="headerlink" href="#pyEyeBall.ConeOuterSegmentMosaic.meters_per_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; conversion constant between meters and degree</p>
 </dd></dl>
 
 <dl class="attribute">
