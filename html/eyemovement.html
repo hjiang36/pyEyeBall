@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fixational Eye Movement &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="index.html" />
+    <link rel="next" title="Cone Outer Segment Mosaic" href="cone.html" />
+    <link rel="prev" title="Human Optics" href="optics.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cone.html" title="Cone Outer Segment Mosaic"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="optics.html" title="Human Optics"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fixational-eye-movement">
+<h1>Fixational Eye Movement<a class="headerlink" href="#fixational-eye-movement" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement">
+<em class="property">class </em><tt class="descclassname">pyEyeBall.Source.Objects.Cone.</tt><tt class="descname">FixationalEyeMovement</tt><big>(</big><em>name='Human Eye Movement', flag=array([ True,  True,  True], dtype=bool), tremor_interval=0.012, tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016, msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5, msaccade_speed=15, msaccade_speed_sd=5</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fixational eye movement properties</p>
+<p>The FixationalEyeMovement class contains parameters for three type of fixational eye movement: tremor, drift and
+micro-saccade. Method &#8216;generate_path&#8217; of this class is used to generate simulated time series of eye movement
+patthern, which is further used in computing the cone absorptions in ConeOuterSegmentMosaic class.</p>
+<dl class="attribute">
+<dt id="FixationalEyeMovement.name">
+<tt class="descname">name</tt><a class="headerlink" href="#FixationalEyeMovement.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; name of the instance of this class</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.flag">
+<tt class="descname">flag</tt><a class="headerlink" href="#FixationalEyeMovement.flag" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>numpy.ndarray</em> &#8211; three element bool array, indicating whether to include tremor, drift, micro-saccade</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.tremor_interval">
+<tt class="descname">tremor_interval</tt><a class="headerlink" href="#FixationalEyeMovement.tremor_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; time interval between two tremors in seconds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.tremor_interval_sd">
+<tt class="descname">tremor_interval_sd</tt><a class="headerlink" href="#FixationalEyeMovement.tremor_interval_sd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; standard deviation of tremor_interval</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.tremor_amplitude">
+<tt class="descname">tremor_amplitude</tt><a class="headerlink" href="#FixationalEyeMovement.tremor_amplitude" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; amplitude of tremor in degree</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.drift_speed">
+<tt class="descname">drift_speed</tt><a class="headerlink" href="#FixationalEyeMovement.drift_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; speed of drift in degree / sec</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.drift_speed_sd">
+<tt class="descname">drift_speed_sd</tt><a class="headerlink" href="#FixationalEyeMovement.drift_speed_sd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; standard deviation of drift</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.msaccade_interval">
+<tt class="descname">msaccade_interval</tt><a class="headerlink" href="#FixationalEyeMovement.msaccade_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; time interval between two micro-saccade in seconds</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.msaccade_interval_sd">
+<tt class="descname">msaccade_interval_sd</tt><a class="headerlink" href="#FixationalEyeMovement.msaccade_interval_sd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; standard deviation of micro-saccade interval</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.msaccade_direction_sd">
+<tt class="descname">msaccade_direction_sd</tt><a class="headerlink" href="#FixationalEyeMovement.msaccade_direction_sd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; deviation of direction of movement towards fixation point</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.msaccade_speed">
+<tt class="descname">msaccade_speed</tt><a class="headerlink" href="#FixationalEyeMovement.msaccade_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; micro-saccade speed in degree/second</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="FixationalEyeMovement.msaccade_speed_sd">
+<tt class="descname">msaccade_speed_sd</tt><a class="headerlink" href="#FixationalEyeMovement.msaccade_speed_sd" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em></p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The parameters are selected based on following papers:</p>
+<ol class="last arabic simple">
+<li>Susana Martinez-Conde et. al, The role of fixational eye movements in visual perception, Nature reviews |
+neuroscience, Vol. 5, 2004, page 229~240</li>
+<li>Susana Martinez-Conde et. al, Microsaccades: a neurophysiological analysis, Trends in Neurosciences,
+Volume 32, Issue 9, September 2009, Pages 463~475</li>
+</ol>
+</div>
+<dl class="method">
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>name='Human Eye Movement', flag=array([ True,  True,  True], dtype=bool), tremor_interval=0.012, tremor_interval_sd=0.001, tremor_amplitude=0.05, drift_speed=0.05, drift_speed_sd=0.016, msaccade_interval=0.6, msaccade_interval_sd=0.3, msaccade_direction_sd=5, msaccade_speed=15, msaccade_speed_sd=5</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for fixational eye movement class
+Initialize parameters for fixational eye movement</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; name of the instance of this class</li>
+<li><strong>flag</strong> (<em>numpy.ndarray</em>) &#8211; three element bool array, indicating whether to include tremor, drift, micro-saccade</li>
+<li><strong>tremor_interval</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; time interval between two tremors in seconds</li>
+<li><strong>tremor_interval_sd</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; standard deviation of tremor_interval</li>
+<li><strong>tremor_amplitude</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; amplitude of tremor in degree</li>
+<li><strong>drift_speed</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; speed of drift in degree / sec</li>
+<li><strong>drift_speed_sd</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; standard deviation of drift</li>
+<li><strong>msaccade_interval</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; time interval between two micro-saccade in seconds</li>
+<li><strong>msaccade_interval_sd</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; standard deviation of micro-saccade interval</li>
+<li><strong>msaccade_direction_sd</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; deviation of direction of movement towards fixation point</li>
+<li><strong>msaccade_speed</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; micro-saccade speed in degree/second</li>
+<li><strong>msaccade_speed_sd</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">em</span> <span class="o">=</span> <span class="n">FixationalEyeMovement</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate description string for FixationalEyeMovement instance
+This function generates string for eye movement class. With the function, eye movement properties can be
+printed out easily with str(em)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string of fixational eye movement description</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">FixationalEyeMovement</span><span class="p">())</span>
+<span class="go">Fixational Eye Movement: Human Eye Movement (...and more...)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__weakref__">
+<tt class="descname">__weakref__</tt><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.generate_path">
+<tt class="descname">generate_path</tt><big>(</big><em>sample_time=0.001</em>, <em>n_samples=1000</em>, <em>start=array([[0</em>, <em>0]])</em><big>)</big><a class="reference internal" href="_modules/pyEyeBall/Source/Objects/Cone.html#FixationalEyeMovement.generate_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyEyeBall.Source.Objects.Cone.FixationalEyeMovement.generate_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate fixational eye movement path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sample_time</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; time between samples in sec, usally 0.001</li>
+<li><strong>n_samples</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of samples to generate</li>
+<li><strong>start</strong> (<em>numpy.ndarray</em>) &#8211; initial position at start time</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">numpy.ndarray, n_samples x 2 array representing the x, y position at each time sample in degrees</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In current version, we first generate eye movement path at temporal resolution of 1 ms and then interpolate
+to the desired sample_time.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">em</span> <span class="o">=</span> <span class="n">FixationalEyeMovement</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pos</span> <span class="o">=</span> <span class="n">em</span><span class="o">.</span><span class="n">generate_path</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="optics.html"
+                        title="previous chapter">Human Optics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cone.html"
+                        title="next chapter">Cone Outer Segment Mosaic</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/eyemovement.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cone.html" title="Cone Outer Segment Mosaic"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="optics.html" title="Human Optics"
+             >previous</a> |</li>
+        <li><a href="index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

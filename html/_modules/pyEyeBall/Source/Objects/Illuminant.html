@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyEyeBall.Source.Objects.Illuminant &mdash; pyEyeBall 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pyEyeBall 0.1.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="pyEyeBall" href="../../../pyEyeBall.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../pyEyeBall.html" accesskey="U">pyEyeBall</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyEyeBall.Source.Objects.Illuminant</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">..Utility.IO</span> <span class="kn">import</span> <span class="n">spectra_read</span>
+<span class="kn">from</span> <span class="nn">..Utility.Transforms</span> <span class="kn">import</span> <span class="n">quanta_to_energy</span><span class="p">,</span> <span class="n">luminance_from_energy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="sd">&quot;&quot;&quot; Module for Illuminant light simulation</span>
+
+<span class="sd">This module is designed to simulate different illumination lights. In current version, illumination light is assumed to</span>
+<span class="sd">be spatially and temporally identically distributed across the whole field. In the future, we might want to allow time</span>
+<span class="sd">varying or space aware illuminations.</span>
+
+<span class="sd">There is only one class in the module: Illuminant.</span>
+
+<span class="sd">Illuminant:</span>
+<span class="sd">    Stores the spectral distribution of illuminant light in quanta units and can be adjustable based on mean luminance</span>
+<span class="sd">    levels.</span>
+
+<span class="sd">Connection with ISETBIO:</span>
+<span class="sd">    Illuminant class is equivalent to illuminant structure defined in ISETBIO. And Illuminant instance can be created</span>
+<span class="sd">    directly with ISETBIO illuminant files in .mat format.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;HJ&#39;</span>
+
+
+<div class="viewcode-block" id="Illuminant"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant">[docs]</a><span class="k">class</span> <span class="nc">Illuminant</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Illuminant light simulation and computation</span>
+
+<span class="sd">    This class stores illuminant spectra distribution data and does computations and analysis from there. In current</span>
+<span class="sd">    version, there is no spatial or temporal varying features in this class.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): name of the illuminant instance</span>
+<span class="sd">        photons (numpy.ndarray): quanta distribution in each wavelength samples</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Illuminant.__init__"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s">&#39;D65.mat&#39;</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor of Illuminant class</span>
+<span class="sd">        This function loads illuminant spectra data from ISETBIO .mat illuminant file. The file should contain two</span>
+<span class="sd">        variables: data and wavelength</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_name (str): illuminant file name, e.g. D65.mat. The data file should be seated in Data/Illumination</span>
+<span class="sd">            wave (numpy.ndarray): wavelength samples to be used. If None, or not specified, the default wavelength</span>
+<span class="sd">                samples np.arange(400, 710, 10) will be used</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Create different illuminant</span>
+<span class="sd">            &gt;&gt;&gt; il = Illuminant(&quot;D65.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; il = Illuminant(&quot;D50.mat&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Initialize instance attribute to default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Illuminant&quot;</span>  <span class="c"># name of object</span>
+        <span class="k">if</span> <span class="n">wave</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">400.0</span><span class="p">,</span> <span class="mf">710.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">wave</span>         <span class="c"># wavelength samples in nm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">spectra_read</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">)</span>  <span class="c"># quanta distribution in each wavelength samples</span>
+
+        <span class="c"># normalize current illuminant to have luminance of 100 cd/m2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">luminance</span> <span class="o">=</span> <span class="mi">100</span>
+</div>
+<div class="viewcode-block" id="Illuminant.__str__"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate description string of the Illuminant instance</span>
+
+<span class="sd">        This function generates string for Illuminant class. With the function, illuminant properties can be printed out</span>
+<span class="sd">        easily with str(il)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: description string</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Description string for D50 light</span>
+
+<span class="sd">            &gt;&gt;&gt; il = Illuminant(&quot;D50.mat&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(il)</span>
+<span class="sd">            Illuminant Object: Illuminant (...and more...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;Illuminant Object: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Wavelength: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">))</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_width</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span>
+</div>
+<div class="viewcode-block" id="Illuminant.plot"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate plots for illuminant parameters and properties</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param (str): string which indicates the type of plot to generate. In current version, param can be chosen</span>
+<span class="sd">                from &quot;photons&quot;, &quot;energy&quot;. param string is not case sensitive and blank spaces in param are ignored.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            plot illuminant photon distributions of D65 light</span>
+<span class="sd">            &gt;&gt;&gt; Illuminant().plot(&quot;photons&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># process param</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c"># generate plot according to param</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;energy&quot;</span><span class="p">:</span>  <span class="c"># spectral distributions in energy units</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;wavelength (nm)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Energy&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s">&quot;photons&quot;</span><span class="p">:</span>  <span class="c"># spectral distribution in quanta units</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Wavelength (nm)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Photons&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="s">&quot;Unknown param&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Illuminant.energy"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.energy">[docs]</a>    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; numpy.ndarray: illuminant energy&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">quanta_to_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">luminance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: mean luminance of light.</span>
+<span class="sd">        If set it to a new value, the photons will be ajusted to match the desired luminance level</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">luminance_from_energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">)</span>
+
+    <span class="nd">@luminance.setter</span>
+<div class="viewcode-block" id="Illuminant.luminance"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.luminance">[docs]</a>    <span class="k">def</span> <span class="nf">luminance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c"># adjust mean luminance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">luminance</span><span class="o">/</span><span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; numpy.ndarray: wavelength samples in nm</span>
+<span class="sd">        If set it to a new value, the underlying photon data will be interpolated to new wavelength</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span>
+
+    <span class="nd">@wave.setter</span>
+<div class="viewcode-block" id="Illuminant.wave"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.wave">[docs]</a>    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>  <span class="c"># set wavelength samples and interpolate photons</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photons</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photons</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Illuminant.bin_width"><a class="viewcode-back" href="../../../../illuminant.html#pyEyeBall.Source.Objects.Illuminant.Illuminant.bin_width">[docs]</a>    <span class="k">def</span> <span class="nf">bin_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float: wavelength sampling interval in nm&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pyEyeBall 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../../pyEyeBall.html" >pyEyeBall</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Haomiao Jiang.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
