@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="11283762-293c-4f89-8634-40338d2e13fb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/pyEyeBall.iml" afterPath="$PROJECT_DIR$/.idea/pyEyeBall.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Examples/.ipynb_checkpoints/t_display-checkpoint.ipynb" afterPath="$PROJECT_DIR$/Examples/.ipynb_checkpoints/t_display-checkpoint.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Examples/t_display.ipynb" afterPath="$PROJECT_DIR$/Examples/t_display.ipynb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pyEyeBall.iws" />
@@ -95,10 +95,6 @@
               <caret line="477" column="97" selection-start-line="477" selection-start-column="97" selection-end-line="477" selection-end-column="97" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <marker date="1439866391000" expanded="true" signature="14899:27876" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="25731:25754" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="36786:39797" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="36856:36879" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -111,22 +107,26 @@
               <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
               <folding>
                 <element signature="e#0#103#0" expanded="true" />
-                <marker date="1439866391000" expanded="true" signature="579:2225" placeholder="&quot;&quot;&quot;Module for human optics charaterization, optical image related computations and visualizations...&quot;&quot;&quot;" />
-                <marker date="1439866391000" expanded="true" signature="2260:8435" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="7003:7009" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="18081:18105" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="22252:25574" placeholder="..." />
-                <marker date="1439866391000" expanded="true" signature="22320:22327" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="optics.rst" pinned="false" current-in-tab="true">
+      <file leaf-file-name="optics.rst" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Docs/source/optics.rst">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.12587413">
+            <state vertical-scroll-proportion="-3.3333333">
               <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Display.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Source/Objects/Display.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.06540698">
+              <caret line="265" column="13" selection-start-line="265" selection-start-column="13" selection-end-line="265" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -217,7 +217,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="146" />
-    <option name="y" value="23" />
+    <option name="y" value="84" />
     <option name="width" value="1294" />
     <option name="height" value="812" />
   </component>
@@ -278,7 +278,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -414,6 +413,7 @@
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -819,7 +819,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="146" y="23" width="1294" height="812" extended-state="0" />
+    <frame x="146" y="84" width="1294" height="812" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -877,6 +877,50 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Docs/source/scene.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Cone.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="477" column="97" selection-start-line="477" selection-start-column="97" selection-end-line="477" selection-end-column="97" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Optics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#103#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Docs/source/optics.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Docs/source/install.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="12" column="85" selection-start-line="12" selection-start-column="85" selection-end-line="12" selection-end-column="85" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Docs/source/index.rst">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -923,10 +967,6 @@
           <caret line="477" column="97" selection-start-line="477" selection-start-column="97" selection-end-line="477" selection-end-column="97" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="14899:27876" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="25731:25754" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="36786:39797" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="36856:36879" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -937,12 +977,6 @@
           <caret line="16" column="44" selection-start-line="16" selection-start-column="44" selection-end-line="16" selection-end-column="44" />
           <folding>
             <element signature="e#0#103#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="579:2225" placeholder="&quot;&quot;&quot;Module for human optics charaterization, optical image related computations and visualizations...&quot;&quot;&quot;" />
-            <marker date="1439866391000" expanded="true" signature="2260:8435" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="7003:7009" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="18081:18105" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22252:25574" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22320:22327" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -976,12 +1010,6 @@
           <caret line="146" column="0" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
           <folding>
             <element signature="e#0#103#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="579:2225" placeholder="&quot;&quot;&quot;Module for human optics charaterization, optical image related computations and visualizations...&quot;&quot;&quot;" />
-            <marker date="1439866391000" expanded="true" signature="2260:8435" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="7003:7009" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="18081:18105" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22252:25574" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22320:22327" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -992,10 +1020,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="14899:27876" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="25731:25754" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="36786:39797" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="36856:36879" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1023,12 +1047,6 @@
           <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
           <folding>
             <element signature="e#0#103#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="579:2225" placeholder="&quot;&quot;&quot;Module for human optics charaterization, optical image related computations and visualizations...&quot;&quot;&quot;" />
-            <marker date="1439866391000" expanded="true" signature="2260:8435" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="7003:7009" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="18081:18105" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22252:25574" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22320:22327" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1169,13 +1187,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Source/Objects/Display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Source/Objects/Illuminant.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1189,12 +1200,6 @@
           <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding>
             <element signature="e#0#103#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="579:2225" placeholder="&quot;&quot;&quot;Module for human optics charaterization, optical image related computations and visualizations...&quot;&quot;&quot;" />
-            <marker date="1439866391000" expanded="true" signature="2260:8435" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="7003:7009" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="18081:18105" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22252:25574" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="22320:22327" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1253,10 +1258,6 @@
           <caret line="477" column="97" selection-start-line="477" selection-start-column="97" selection-end-line="477" selection-end-column="97" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <marker date="1439866391000" expanded="true" signature="14899:27876" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="25731:25754" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="36786:39797" placeholder="..." />
-            <marker date="1439866391000" expanded="true" signature="36856:36879" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -1270,8 +1271,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Docs/source/optics.rst">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.12587413">
+        <state vertical-scroll-proportion="-3.3333333">
           <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Source/Objects/Display.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06540698">
+          <caret line="265" column="13" selection-start-line="265" selection-start-column="13" selection-end-line="265" selection-end-column="13" />
           <folding />
         </state>
       </provider>
